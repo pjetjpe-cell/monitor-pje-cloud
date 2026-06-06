@@ -2,7 +2,12 @@
   "crons": [
     {
       "path": "/api/cron/monitorar",
-      "schedule": "*/30 * * * *"
+      "schedule": "0 * * * *"
     }
-  ]
+  ],
+  "functions": {
+    "app/api/cron/monitorar/route.ts": {
+      "maxDuration": 60
+    }
+  }
 }
