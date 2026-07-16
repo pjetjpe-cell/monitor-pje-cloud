@@ -1,0 +1,229 @@
+// Schema da plataforma Di Pallacio Enterprise (distrato de multipropriedade)
+// Convive no mesmo projeto do Monitor PJe Cloud, mas é um domínio de dados independente.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  cliente
+  admin
+}
+
+enum TipoPagamento {
+  sinal
+  parcela
+  taxa
+}
+
+enum OrigemLead {
+  form_distrato
+  calculadora
+  whatsapp
+}
+
+enum StatusLead {
+  novo
+  em_analise
+  contatado
+  convertido
+  perdido
+}
+
+enum StatusAnuncio {
+  pendente
+  aprovado
+  em_negociacao
+  vendido
+  rejeitado
+}
+
+enum StatusProposta {
+  aberta
+  em_negociacao
+  concluida
+  cancelada
+}
+
+enum TipoIndice {
+  INCC_DI_FGV
+  IPCA
+}
+
+enum TeseJuros {
+  selic_transito_julgado
+  um_por_cento_citacao
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  phone        String?
+  role         Role     @default(cliente)
+  createdAt    DateTime @default(now())
+
+  cotas         Cota[]
+  anuncios      Anuncio[]
+  propostas     PropostaTroca[]
+}
+
+model Empreendimento {
+  id                         String    @id @default(cuid())
+  nome                       String
+  cidade                     String
+  uf                         String
+  dataHabiteSePrevista       DateTime?
+  dataHabiteSeReal           DateTime?
+  indiceCorrecaoPreHabiteSe  TipoIndice @default(INCC_DI_FGV)
+  indiceCorrecaoPosHabiteSe  TipoIndice @default(IPCA)
+  percentualMultaPadrao      Decimal    @default(0.50) @db.Decimal(5, 4)
+  createdAt                  DateTime   @default(now())
+
+  cotas Cota[]
+}
+
+model Cota {
+  id                       String   @id @default(cuid())
+  userId                   String
+  empreendimentoId         String
+  unidade                  String?
+  bloco                    String?
+  fracaoTempo              String?
+  dataContrato             DateTime
+  valorTotalContrato       Decimal  @db.Decimal(12, 2)
+  valorComissaoCorretagem  Decimal  @default(0) @db.Decimal(12, 2)
+  percentualMultaContratual Decimal @default(0.50) @db.Decimal(5, 4)
+  createdAt                DateTime @default(now())
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  empreendimento Empreendimento  @relation(fields: [empreendimentoId], references: [id])
+  pagamentos     Pagamento[]
+  calculos       CalculoResultado[]
+  anuncios       Anuncio[]
+  propostasTroca PropostaTroca[]
+
+  @@index([userId])
+}
+
+model Pagamento {
+  id     String        @id @default(cuid())
+  cotaId String
+  data   DateTime
+  valor  Decimal       @db.Decimal(12, 2)
+  tipo   TipoPagamento @default(parcela)
+
+  cota Cota @relation(fields: [cotaId], references: [id], onDelete: Cascade)
+
+  @@index([cotaId])
+}
+
+model CalculoResultado {
+  id              String   @id @default(cuid())
+  cotaId          String
+  dataCalculo     DateTime @default(now())
+  parametrosUsados Json
+  cenarios        Json
+
+  cota Cota @relation(fields: [cotaId], references: [id], onDelete: Cascade)
+
+  @@index([cotaId])
+}
+
+model Lead {
+  id             String     @id @default(cuid())
+  nome           String
+  contato        String
+  empreendimento String?
+  valorPagoAprox Decimal?   @db.Decimal(12, 2)
+  motivo         String?
+  origem         OrigemLead @default(form_distrato)
+  status         StatusLead @default(novo)
+  detalhes       Json?
+  createdAt      DateTime   @default(now())
+}
+
+model Anuncio {
+  id           String        @id @default(cuid())
+  userId       String
+  cotaId       String?
+  titulo       String
+  descricao    String
+  fotos        String[]      @default([])
+  precoPedido  Decimal       @db.Decimal(12, 2)
+  status       StatusAnuncio @default(pendente)
+  disponibilidades Json?
+  createdAt    DateTime      @default(now())
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cota Cota? @relation(fields: [cotaId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+}
+
+model PropostaTroca {
+  id                     String          @id @default(cuid())
+  userId                 String
+  cotaOfertadaId         String?
+  periodoDesejado        String
+  empreendimentoDesejado String
+  status                 StatusProposta  @default(aberta)
+  createdAt              DateTime        @default(now())
+
+  user         User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cotaOfertada Cota? @relation(fields: [cotaOfertadaId], references: [id])
+
+  @@index([userId])
+}
+
+model Video {
+  id          String @id @default(cuid())
+  titulo      String
+  descricao   String
+  urlEmbed    String
+  categoria   String
+  ordem       Int    @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model Artigo {
+  id                String    @id @default(cuid())
+  titulo            String
+  slug              String    @unique
+  conteudoMarkdown  String
+  publicadoEm       DateTime?
+  autor             String
+  createdAt         DateTime  @default(now())
+}
+
+// Série mensal dos índices de correção monetária (INCC-DI/FGV e IPCA),
+// editável pelo admin — evita número mágico/estático no código de cálculo.
+model IndiceEconomico {
+  id          String     @id @default(cuid())
+  indice      TipoIndice
+  competencia DateTime // primeiro dia do mês de referência
+  numeroIndice Decimal   @db.Decimal(14, 6)
+
+  @@unique([indice, competencia])
+}
+
+// Parâmetros globais da calculadora, editáveis pelo admin sem alterar código.
+model CalculadoraConfig {
+  id                        String    @id @default("default")
+  percentualConservador     Decimal   @default(0.50) @db.Decimal(5, 4)
+  percentualIntermediario   Decimal   @default(0.75) @db.Decimal(5, 4)
+  percentualOtimista        Decimal   @default(0.90) @db.Decimal(5, 4)
+  teseJurosPadrao           TeseJuros @default(selic_transito_julgado)
+  mesesEstimadosPadrao      Int       @default(18)
+  taxaSelicMensal           Decimal   @default(0.01) @db.Decimal(6, 5)
+  taxaIpcaMensalEmbutida    Decimal   @default(0.004) @db.Decimal(6, 5)
+  taxaJurosMensalSimples    Decimal   @default(0.01) @db.Decimal(6, 5)
+  updatedAt                 DateTime  @updatedAt
+}
