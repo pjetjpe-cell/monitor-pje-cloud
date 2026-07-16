@@ -5,6 +5,8 @@ export const metadata = {
   title: 'Blog — Di Pallacio Enterprise',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function BlogPage() {
   const artigos = await prisma.artigo.findMany({
     where: { publicadoEm: { not: null } },

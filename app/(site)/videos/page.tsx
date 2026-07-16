@@ -4,6 +4,8 @@ export const metadata = {
   title: 'Vídeos — Di Pallacio Enterprise',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function VideosPage() {
   const videos = await prisma.video.findMany({ orderBy: [{ categoria: 'asc' }, { ordem: 'asc' }] })
 

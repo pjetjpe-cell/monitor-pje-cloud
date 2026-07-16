@@ -4,6 +4,8 @@ export const metadata = {
   title: 'Calendário de Disponibilidade — Di Pallacio Enterprise',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function CalendarioPage() {
   const anuncios = await prisma.anuncio.findMany({
     where: { status: 'aprovado' },
