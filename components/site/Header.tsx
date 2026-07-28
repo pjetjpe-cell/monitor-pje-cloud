@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
+import { NOME_ESCRITORIO_CURTO } from '@/lib/site/config'
 
 const navLinks = [
   { href: '/distrato', label: 'Distrato' },
@@ -25,7 +26,7 @@ export default function Header() {
             D
           </span>
           <span className="font-serif text-lg font-semibold text-dipallacio-navy-900">
-            Di Pallacio Enterprise
+            {NOME_ESCRITORIO_CURTO}
           </span>
         </Link>
 

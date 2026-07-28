@@ -1,9 +1,9 @@
-const numero = process.env.WHATSAPP_NUMERO ?? '5511999999999'
+import { WHATSAPP_LINK } from '@/lib/site/config'
 
 export default function WhatsAppButton() {
   return (
     <a
-      href={`https://wa.me/${numero}`}
+      href={WHATSAPP_LINK}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-white shadow-lg shadow-black/20 transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dipallacio-navy-900"
