@@ -1,8 +1,9 @@
 import LeadForm from '@/components/site/LeadForm'
 import Disclaimer from '@/components/site/Disclaimer'
+import { NOME_ESCRITORIO_CURTO } from '@/lib/site/config'
 
 export const metadata = {
-  title: 'Quero fazer distrato — Di Pallacio Enterprise',
+  title: `Quero fazer distrato — ${NOME_ESCRITORIO_CURTO}`,
 }
 
 export default function DistratoPage() {
@@ -36,6 +37,22 @@ export default function DistratoPage() {
             </p>
           </div>
 
+          <div className="mt-8 rounded-xl border border-dipallacio-navy-800/10 bg-white p-6">
+            <h2 className="font-serif text-lg text-dipallacio-navy-900">Como funciona a análise</h2>
+            <ul className="mt-3 space-y-2 text-sm text-dipallacio-navy-800/80">
+              <li>• Não há cobrança inicial antes do protocolo da ação.</li>
+              <li>
+                • Para uma primeira análise, basta informar a <strong>data da compra</strong> e o{' '}
+                <strong>total pago</strong> — não precisa reunir tudo de uma vez.
+              </li>
+              <li>
+                • Contrato, aditivos, extratos de pagamento e comunicações com a empresa permitem uma
+                análise mais completa, mas podem ser enviados depois.
+              </li>
+              <li>• Cada caso depende do contrato, das provas e das circunstâncias concretas.</li>
+            </ul>
+          </div>
+
           <div className="mt-6">
             <Disclaimer compact />
           </div>
@@ -47,7 +64,7 @@ export default function DistratoPage() {
             Conte um pouco sobre o seu caso. A análise inicial é gratuita e sem compromisso.
           </p>
           <div className="mt-6">
-            <LeadForm origem="form_distrato" />
+            <LeadForm origem="form_distrato" permitirUploadContrato />
           </div>
         </div>
       </div>

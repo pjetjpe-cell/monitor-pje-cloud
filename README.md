@@ -50,6 +50,7 @@ cp .env.example .env
 | `NEXTAUTH_URL` | URL base da aplicação (`http://localhost:3000` em dev) |
 | `WHATSAPP_NUMERO` | Número do escritório para o botão flutuante de WhatsApp |
 | `LEADS_EMAIL_DESTINO` | E-mail de referência para leads (v1 usa apenas o painel admin) |
+| `BLOB_READ_WRITE_TOKEN` | Necessário para o upload opcional de contrato em PDF em `/distrato`. Crie em Vercel → seu projeto → Storage → Create Database → **Blob** (o token é gerado automaticamente e injetado no projeto). Sem essa variável, o upload falha silenciosamente e o usuário é orientado a enviar o contrato pelo WhatsApp. |
 | `DATAJUD_API_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `KV_*`, `CRON_SECRET` | Específicas do Monitor PJe — ver seção abaixo |
 
 ### 4. Migrations e seed

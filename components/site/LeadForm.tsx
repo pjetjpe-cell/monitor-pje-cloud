@@ -1,14 +1,18 @@
 'use client'
 
 import { useState } from 'react'
+import { upload } from '@vercel/blob/client'
+
+const TAMANHO_MAXIMO_CONTRATO = 10 * 1024 * 1024 // 10 MB
 
 interface LeadFormProps {
   origem: 'form_distrato' | 'calculadora' | 'whatsapp'
   detalhes?: Record<string, unknown>
   onSucesso?: () => void
+  permitirUploadContrato?: boolean
 }
 
-export default function LeadForm({ origem, detalhes, onSucesso }: LeadFormProps) {
+export default function LeadForm({ origem, detalhes, onSucesso, permitirUploadContrato }: LeadFormProps) {
   const [form, setForm] = useState({
     nome: '',
     contato: '',
@@ -20,6 +24,31 @@ export default function LeadForm({ origem, detalhes, onSucesso }: LeadFormProps)
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState(false)
+  const [arquivo, setArquivo] = useState<File | null>(null)
+  const [erroArquivo, setErroArquivo] = useState('')
+
+  function handleArquivoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const selecionado = e.target.files?.[0] ?? null
+    setErroArquivo('')
+
+    if (!selecionado) {
+      setArquivo(null)
+      return
+    }
+    if (selecionado.type !== 'application/pdf') {
+      setErroArquivo('Envie o contrato em formato PDF.')
+      e.target.value = ''
+      setArquivo(null)
+      return
+    }
+    if (selecionado.size > TAMANHO_MAXIMO_CONTRATO) {
+      setErroArquivo('O arquivo deve ter no máximo 10 MB.')
+      e.target.value = ''
+      setArquivo(null)
+      return
+    }
+    setArquivo(selecionado)
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -32,6 +61,21 @@ export default function LeadForm({ origem, detalhes, onSucesso }: LeadFormProps)
 
     setEnviando(true)
 
+    let contratoUrl: string | undefined
+    if (arquivo) {
+      try {
+        const blob = await upload(arquivo.name, arquivo, {
+          access: 'public',
+          handleUploadUrl: '/api/upload',
+        })
+        contratoUrl = blob.url
+      } catch {
+        setEnviando(false)
+        setErroArquivo('Não foi possível enviar o contrato agora. Você pode enviar depois pelo WhatsApp.')
+        return
+      }
+    }
+
     const res = await fetch('/api/leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -39,7 +83,7 @@ export default function LeadForm({ origem, detalhes, onSucesso }: LeadFormProps)
         ...form,
         valorPagoAprox: form.valorPagoAprox || undefined,
         origem,
-        detalhes,
+        detalhes: contratoUrl ? { ...detalhes, contratoUrl } : detalhes,
         consentimento: true,
       }),
     })
@@ -123,6 +167,24 @@ export default function LeadForm({ origem, detalhes, onSucesso }: LeadFormProps)
         />
       </div>
 
+      {permitirUploadContrato && (
+        <div>
+          <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
+            Contrato em PDF (opcional)
+          </label>
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={handleArquivoChange}
+            className="w-full rounded-lg border border-dipallacio-navy-800/20 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-full file:border-0 file:bg-dipallacio-navy-900/5 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-dipallacio-navy-800"
+          />
+          <p className="mt-1 text-xs text-dipallacio-navy-800/50">
+            Máximo 10 MB. Não é obrigatório para iniciar — se preferir, envie depois pelo WhatsApp.
+          </p>
+          {erroArquivo && <p className="mt-1 text-sm text-red-600">{erroArquivo}</p>}
+        </div>
+      )}
+
       <label className="flex items-start gap-2 text-xs text-dipallacio-navy-800/80">
         <input type="checkbox" checked={aceite} onChange={e => setAceite(e.target.checked)} className="mt-0.5" />
         <span>
@@ -141,7 +203,7 @@ export default function LeadForm({ origem, detalhes, onSucesso }: LeadFormProps)
         disabled={enviando}
         className="w-full rounded-full bg-dipallacio-navy-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-dipallacio-navy-800 disabled:opacity-50"
       >
-        {enviando ? 'Enviando…' : 'Quero uma análise do meu caso'}
+        {enviando ? (arquivo ? 'Enviando contrato…' : 'Enviando…') : 'Quero uma análise do meu caso'}
       </button>
     </form>
   )

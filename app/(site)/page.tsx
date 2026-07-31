@@ -1,4 +1,18 @@
 import Link from 'next/link'
+import { INCORPORADORAS_ALVO } from '@/lib/site/config'
+
+const situacoes = [
+  'Quero cancelar o contrato e não sei como',
+  'A retenção cobrada pela incorporadora parece excessiva',
+  'Continuo sendo cobrado mesmo após pedir o distrato',
+  'Recebi ameaça de negativação nos órgãos de proteção ao crédito',
+  'A promessa comercial feita na venda não foi cumprida',
+  'Fui obrigado a contratar produtos ou serviços casados com a compra',
+  'Há restrição para eu alugar a cota fora da administradora',
+  'A obra atrasou e o empreendimento não foi entregue no prazo',
+  'Tenho dificuldade para revender ou até usar a cota',
+  'Tenho dúvidas sobre comissão de corretagem, taxas e condomínio',
+]
 
 const passos = [
   {
@@ -45,6 +59,21 @@ const faq = [
   {
     pergunta: 'A consulta inicial tem custo?',
     resposta: 'Não. A primeira análise do seu caso é gratuita e sem compromisso.',
+  },
+  {
+    pergunta: 'Recebi ameaça de negativação — o que eu faço?',
+    resposta:
+      'Nos envie a comunicação recebida o quanto antes. Cada caso exige uma análise específica sobre a exigibilidade do valor cobrado e as medidas cabíveis.',
+  },
+  {
+    pergunta: 'Fui obrigado a contratar corretagem ou outros produtos junto com a cota — isso é normal?',
+    resposta:
+      'A chamada "venda casada" e a cobrança de taxas como a SATI são pontos frequentemente discutidos em ações de multipropriedade. Analisamos o seu contrato para verificar se há abusividade.',
+  },
+  {
+    pergunta: 'Que documentos preciso ter em mãos para começar?',
+    resposta:
+      'Para uma primeira análise, basta informar a data da compra e o total pago. Contrato, aditivos, extratos e comunicações com a empresa permitem uma análise mais completa, mas não são obrigatórios de início.',
   },
 ]
 
@@ -95,6 +124,28 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Situações/dores */}
+      <section className="bg-dipallacio-petrol-700/5 py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <h2 className="font-serif text-3xl text-dipallacio-navy-900">Você se identifica com alguma dessas situações?</h2>
+          <p className="mt-2 max-w-2xl text-sm text-dipallacio-navy-800/70">
+            Atendemos consumidores em diferentes estágios do problema — desde quem só está pesquisando até
+            quem já recebeu cobrança ou ameaça de negativação.
+          </p>
+          <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+            {situacoes.map(situacao => (
+              <li
+                key={situacao}
+                className="flex items-start gap-3 rounded-lg border border-dipallacio-navy-800/10 bg-white p-4 text-sm text-dipallacio-navy-800"
+              >
+                <span aria-hidden className="mt-0.5 text-dipallacio-gold">•</span>
+                {situacao}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       {/* Como funciona */}
       <section className="mx-auto max-w-6xl px-4 py-20">
         <h2 className="font-serif text-3xl text-dipallacio-navy-900">Como funciona o distrato</h2>
@@ -137,7 +188,22 @@ export default function HomePage() {
         </p>
         <p className="mx-auto mt-4 max-w-2xl text-sm text-dipallacio-navy-800/70">
           Acompanhamos de perto as mudanças na jurisprudência sobre distrato de multipropriedade para
-          construir a estratégia mais adequada a cada caso.
+          construir a estratégia mais adequada a cada caso, incluindo ações relacionadas a empreendimentos
+          como:
+        </p>
+        <ul className="mx-auto mt-6 flex max-w-3xl flex-wrap justify-center gap-2">
+          {INCORPORADORAS_ALVO.map(nome => (
+            <li
+              key={nome}
+              className="rounded-full border border-dipallacio-navy-800/15 bg-white px-4 py-1.5 text-sm text-dipallacio-navy-800"
+            >
+              {nome}
+            </li>
+          ))}
+        </ul>
+        <p className="mx-auto mt-4 max-w-2xl text-xs text-dipallacio-navy-800/50">
+          Menção aos empreendimentos apenas para contextualizar a área de atuação — não representa
+          parceria, indicação ou vínculo com essas empresas.
         </p>
       </section>
 

@@ -5,12 +5,13 @@ import SessionProviderWrapper from '@/components/SessionProviderWrapper'
 import Header from '@/components/site/Header'
 import Footer from '@/components/site/Footer'
 import WhatsAppButton from '@/components/site/WhatsAppButton'
+import { NOME_ESCRITORIO } from '@/lib/site/config'
 
 const serif = Playfair_Display({ subsets: ['latin'], variable: '--font-dipallacio-serif' })
 const sans = Work_Sans({ subsets: ['latin'], variable: '--font-dipallacio-sans' })
 
 export const metadata: Metadata = {
-  title: 'Di Pallacio Enterprise — Distrato de Multipropriedade',
+  title: `${NOME_ESCRITORIO} — Distrato de Multipropriedade`,
   description:
     'Assessoria jurídica especializada em distrato de multipropriedade (timeshare): restituição de valores, cláusulas abusivas e mercado secundário de cotas.',
 }

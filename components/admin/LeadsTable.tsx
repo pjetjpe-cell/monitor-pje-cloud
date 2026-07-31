@@ -12,6 +12,7 @@ interface Lead {
   origem: string
   status: string
   createdAt: string
+  detalhes: { contratoUrl?: string } | null
 }
 
 const statusOptions = ['novo', 'em_analise', 'contatado', 'convertido', 'perdido']
@@ -38,6 +39,7 @@ export default function LeadsTable({ leadsIniciais }: { leadsIniciais: Lead[] })
             <th className="px-4 py-3">Empreendimento</th>
             <th className="px-4 py-3">Origem</th>
             <th className="px-4 py-3">Recebido em</th>
+            <th className="px-4 py-3">Contrato</th>
             <th className="px-4 py-3">Status</th>
           </tr>
         </thead>
@@ -50,6 +52,20 @@ export default function LeadsTable({ leadsIniciais }: { leadsIniciais: Lead[] })
               <td className="px-4 py-3 text-slate-600">{lead.origem}</td>
               <td className="px-4 py-3 text-slate-600">
                 {new Date(lead.createdAt).toLocaleDateString('pt-BR')}
+              </td>
+              <td className="px-4 py-3">
+                {lead.detalhes?.contratoUrl ? (
+                  <a
+                    href={lead.detalhes.contratoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-dipallacio-petrol-600 hover:underline"
+                  >
+                    Ver PDF
+                  </a>
+                ) : (
+                  <span className="text-slate-400">—</span>
+                )}
               </td>
               <td className="px-4 py-3">
                 <select
