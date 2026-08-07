@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { NOME_ESCRITORIO_CURTO } from '@/lib/site/config'
+import Crest from '@/components/site/Crest'
 
 const navLinks = [
   { href: '/distrato', label: 'Distrato' },
@@ -21,12 +22,13 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-30 border-b border-dipallacio-navy-800/10 bg-dipallacio-cream/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-dipallacio-navy-900 font-serif text-lg text-dipallacio-cream">
-            D
-          </span>
-          <span className="font-serif text-lg font-semibold text-dipallacio-navy-900">
-            {NOME_ESCRITORIO_CURTO}
+        <Link href="/" className="flex items-center gap-2.5" aria-label={`${NOME_ESCRITORIO_CURTO} — início`}>
+          <Crest className="h-9 w-9 shrink-0" />
+          <span className="flex flex-col leading-tight">
+            <span className="font-serif text-lg font-semibold text-dipallacio-navy-900">Di Pallacio</span>
+            <span className="text-[11px] uppercase tracking-wide text-dipallacio-navy-800/60">
+              Enterprise · Família &amp; Associados
+            </span>
           </span>
         </Link>
 

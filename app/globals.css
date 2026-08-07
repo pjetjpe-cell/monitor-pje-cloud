@@ -10,3 +10,20 @@
 body {
   @apply antialiased;
 }
+
+/* Textura sutil usada no hero e em seções de destaque da home institucional */
+.dp-hero-pattern {
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(184, 134, 62, 0.16), transparent 45%),
+    radial-gradient(circle at 85% 0%, rgba(26, 115, 115, 0.25), transparent 40%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cpath d='M0 63.5H64M63.5 0V64' stroke='%23ffffff' stroke-opacity='0.05'/%3E%3C/svg%3E");
+}
+
+.dp-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.dp-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -12px rgba(13, 35, 64, 0.25);
+}
