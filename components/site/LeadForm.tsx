@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { upload } from '@vercel/blob/client'
 
 const TAMANHO_MAXIMO_CONTRATO = 10 * 1024 * 1024 // 10 MB
@@ -26,6 +26,12 @@ export default function LeadForm({ origem, detalhes, onSucesso, permitirUploadCo
   const [sucesso, setSucesso] = useState(false)
   const [arquivo, setArquivo] = useState<File | null>(null)
   const [erroArquivo, setErroArquivo] = useState('')
+  const nomeId = useId()
+  const contatoId = useId()
+  const empreendimentoId = useId()
+  const valorId = useId()
+  const motivoId = useId()
+  const contratoId = useId()
 
   function handleArquivoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selecionado = e.target.files?.[0] ?? null
@@ -114,8 +120,9 @@ export default function LeadForm({ origem, detalhes, onSucesso, permitirUploadCo
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Nome completo *</label>
+        <label htmlFor={nomeId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Nome completo *</label>
         <input
+          id={nomeId}
           required
           value={form.nome}
           onChange={e => setForm(f => ({ ...f, nome: e.target.value }))}
@@ -123,10 +130,11 @@ export default function LeadForm({ origem, detalhes, onSucesso, permitirUploadCo
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
+        <label htmlFor={contatoId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
           Telefone ou e-mail para contato *
         </label>
         <input
+          id={contatoId}
           required
           value={form.contato}
           onChange={e => setForm(f => ({ ...f, contato: e.target.value }))}
@@ -134,8 +142,9 @@ export default function LeadForm({ origem, detalhes, onSucesso, permitirUploadCo
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Empreendimento</label>
+        <label htmlFor={empreendimentoId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Empreendimento</label>
         <input
+          id={empreendimentoId}
           value={form.empreendimento}
           onChange={e => setForm(f => ({ ...f, empreendimento: e.target.value }))}
           placeholder="Nome do resort/empreendimento"
@@ -143,10 +152,11 @@ export default function LeadForm({ origem, detalhes, onSucesso, permitirUploadCo
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
+        <label htmlFor={valorId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
           Valor pago aproximado (R$)
         </label>
         <input
+          id={valorId}
           type="number"
           min={0}
           step="0.01"
@@ -156,10 +166,11 @@ export default function LeadForm({ origem, detalhes, onSucesso, permitirUploadCo
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
+        <label htmlFor={motivoId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
           Motivo da desistência
         </label>
         <textarea
+          id={motivoId}
           value={form.motivo}
           onChange={e => setForm(f => ({ ...f, motivo: e.target.value }))}
           rows={3}
@@ -169,10 +180,11 @@ export default function LeadForm({ origem, detalhes, onSucesso, permitirUploadCo
 
       {permitirUploadContrato && (
         <div>
-          <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
+          <label htmlFor={contratoId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
             Contrato em PDF (opcional)
           </label>
           <input
+            id={contratoId}
             type="file"
             accept="application/pdf"
             onChange={handleArquivoChange}

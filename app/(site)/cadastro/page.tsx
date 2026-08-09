@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -11,6 +11,10 @@ export default function CadastroPage() {
   const [aceite, setAceite] = useState(false)
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
+  const nomeId = useId()
+  const emailId = useId()
+  const telefoneId = useId()
+  const senhaId = useId()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -63,8 +67,9 @@ export default function CadastroPage() {
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Nome completo</label>
+          <label htmlFor={nomeId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Nome completo</label>
           <input
+            id={nomeId}
             required
             value={form.name}
             onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
@@ -72,8 +77,9 @@ export default function CadastroPage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">E-mail</label>
+          <label htmlFor={emailId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">E-mail</label>
           <input
+            id={emailId}
             required
             type="email"
             value={form.email}
@@ -82,16 +88,18 @@ export default function CadastroPage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Telefone (opcional)</label>
+          <label htmlFor={telefoneId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Telefone (opcional)</label>
           <input
+            id={telefoneId}
             value={form.phone}
             onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
             className="w-full rounded-lg border border-dipallacio-navy-800/20 bg-white px-3 py-2 text-sm focus:border-dipallacio-petrol-600 focus:outline-none"
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Senha</label>
+          <label htmlFor={senhaId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Senha</label>
           <input
+            id={senhaId}
             required
             minLength={8}
             type="password"

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, useId, Suspense } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -14,6 +14,8 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
+  const emailId = useId()
+  const passwordId = useId()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -46,8 +48,9 @@ function LoginForm() {
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">E-mail</label>
+          <label htmlFor={emailId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">E-mail</label>
           <input
+            id={emailId}
             required
             type="email"
             value={email}
@@ -56,8 +59,9 @@ function LoginForm() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Senha</label>
+          <label htmlFor={passwordId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Senha</label>
           <input
+            id={passwordId}
             required
             type="password"
             value={password}

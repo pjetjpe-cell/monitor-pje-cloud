@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface Empreendimento {
@@ -45,6 +45,14 @@ export default function CotasManager({
   const [cotas, setCotas] = useState(cotasIniciais)
   const [mostrarFormCota, setMostrarFormCota] = useState(cotasIniciais.length === 0)
   const [erro, setErro] = useState('')
+  const empreendimentoId = useId()
+  const unidadeId = useId()
+  const blocoId = useId()
+  const fracaoTempoId = useId()
+  const dataContratoId = useId()
+  const percentualMultaId = useId()
+  const valorTotalId = useId()
+  const comissaoId = useId()
 
   async function recarregar() {
     router.refresh()
@@ -91,8 +99,9 @@ export default function CotasManager({
           className="grid gap-4 rounded-xl border border-dipallacio-navy-800/10 bg-white p-6 sm:grid-cols-2"
         >
           <div className="sm:col-span-2">
-            <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Empreendimento *</label>
+            <label htmlFor={empreendimentoId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Empreendimento *</label>
             <select
+              id={empreendimentoId}
               name="empreendimentoId"
               required
               className="w-full rounded-lg border border-dipallacio-navy-800/20 bg-white px-3 py-2 text-sm"
@@ -106,24 +115,26 @@ export default function CotasManager({
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Unidade</label>
-            <input name="unidade" className="w-full rounded-lg border border-dipallacio-navy-800/20 bg-white px-3 py-2 text-sm" />
+            <label htmlFor={unidadeId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Unidade</label>
+            <input id={unidadeId} name="unidade" className="w-full rounded-lg border border-dipallacio-navy-800/20 bg-white px-3 py-2 text-sm" />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Bloco</label>
-            <input name="bloco" className="w-full rounded-lg border border-dipallacio-navy-800/20 bg-white px-3 py-2 text-sm" />
+            <label htmlFor={blocoId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Bloco</label>
+            <input id={blocoId} name="bloco" className="w-full rounded-lg border border-dipallacio-navy-800/20 bg-white px-3 py-2 text-sm" />
           </div>
           <div className="sm:col-span-2">
-            <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Fração de tempo</label>
+            <label htmlFor={fracaoTempoId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Fração de tempo</label>
             <input
+              id={fracaoTempoId}
               name="fracaoTempo"
               placeholder="Ex.: 1 semana - temporada alta"
               className="w-full rounded-lg border border-dipallacio-navy-800/20 bg-white px-3 py-2 text-sm"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Data do contrato *</label>
+            <label htmlFor={dataContratoId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Data do contrato *</label>
             <input
+              id={dataContratoId}
               type="date"
               name="dataContrato"
               required
@@ -131,10 +142,11 @@ export default function CotasManager({
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
+            <label htmlFor={percentualMultaId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
               Percentual de multa contratual
             </label>
             <input
+              id={percentualMultaId}
               type="number"
               step="0.01"
               min={0}
@@ -145,10 +157,11 @@ export default function CotasManager({
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
+            <label htmlFor={valorTotalId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
               Valor total do contrato (R$) *
             </label>
             <input
+              id={valorTotalId}
               type="number"
               step="0.01"
               min={0}
@@ -158,10 +171,11 @@ export default function CotasManager({
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
+            <label htmlFor={comissaoId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
               Comissão de corretagem (R$)
             </label>
             <input
+              id={comissaoId}
               type="number"
               step="0.01"
               min={0}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId } from 'react'
 
 interface Config {
   percentualConservador: string
@@ -17,6 +17,12 @@ export default function CalculadoraConfigForm({ inicial }: { inicial: Config }) 
   const [form, setForm] = useState(inicial)
   const [salvando, setSalvando] = useState(false)
   const [mensagem, setMensagem] = useState('')
+  const idPrefix = useId()
+  const teseId = useId()
+  const mesesId = useId()
+  const selicId = useId()
+  const ipcaId = useId()
+  const jurosSimplesId = useId()
 
   async function salvar(e: React.FormEvent) {
     e.preventDefault()
@@ -46,8 +52,9 @@ export default function CalculadoraConfigForm({ inicial }: { inicial: Config }) 
             ] as const
           ).map(([campo, label]) => (
             <div key={campo}>
-              <label className="mb-1 block text-xs text-slate-500">{label}</label>
+              <label htmlFor={`${idPrefix}-${campo}`} className="mb-1 block text-xs text-slate-500">{label}</label>
               <input
+                id={`${idPrefix}-${campo}`}
                 type="number"
                 step="0.01"
                 min={0}
@@ -62,8 +69,9 @@ export default function CalculadoraConfigForm({ inicial }: { inicial: Config }) 
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-slate-900">Tese de juros padrão</label>
+        <label htmlFor={teseId} className="mb-1 block text-sm font-medium text-slate-900">Tese de juros padrão</label>
         <select
+          id={teseId}
           value={form.teseJurosPadrao}
           onChange={e => setForm(f => ({ ...f, teseJurosPadrao: e.target.value }))}
           className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
@@ -74,10 +82,11 @@ export default function CalculadoraConfigForm({ inicial }: { inicial: Config }) 
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-slate-900">
+        <label htmlFor={mesesId} className="mb-1 block text-sm font-medium text-slate-900">
           Meses estimados padrão até o trânsito em julgado
         </label>
         <input
+          id={mesesId}
           type="number"
           min={0}
           max={120}
@@ -89,8 +98,9 @@ export default function CalculadoraConfigForm({ inicial }: { inicial: Config }) 
 
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <label className="mb-1 block text-xs text-slate-500">Taxa SELIC mensal</label>
+          <label htmlFor={selicId} className="mb-1 block text-xs text-slate-500">Taxa SELIC mensal</label>
           <input
+            id={selicId}
             type="number"
             step="0.0001"
             value={form.taxaSelicMensal}
@@ -99,8 +109,9 @@ export default function CalculadoraConfigForm({ inicial }: { inicial: Config }) 
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-slate-500">IPCA mensal embutido</label>
+          <label htmlFor={ipcaId} className="mb-1 block text-xs text-slate-500">IPCA mensal embutido</label>
           <input
+            id={ipcaId}
             type="number"
             step="0.0001"
             value={form.taxaIpcaMensalEmbutida}
@@ -109,8 +120,9 @@ export default function CalculadoraConfigForm({ inicial }: { inicial: Config }) 
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-slate-500">Juros simples 1% (Tese B)</label>
+          <label htmlFor={jurosSimplesId} className="mb-1 block text-xs text-slate-500">Juros simples 1% (Tese B)</label>
           <input
+            id={jurosSimplesId}
             type="number"
             step="0.0001"
             value={form.taxaJurosMensalSimples}

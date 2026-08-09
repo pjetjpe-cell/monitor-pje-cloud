@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function TrocaForm({ cotas }: { cotas: { id: string; label: string }[] }) {
@@ -9,6 +9,9 @@ export default function TrocaForm({ cotas }: { cotas: { id: string; label: strin
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState(false)
+  const cotaSelectId = useId()
+  const periodoId = useId()
+  const empreendimentoId = useId()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -47,8 +50,9 @@ export default function TrocaForm({ cotas }: { cotas: { id: string; label: strin
     >
       {cotas.length > 0 && (
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Cota que você possui</label>
+          <label htmlFor={cotaSelectId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Cota que você possui</label>
           <select
+            id={cotaSelectId}
             value={form.cotaOfertadaId}
             onChange={e => setForm(f => ({ ...f, cotaOfertadaId: e.target.value }))}
             className="w-full rounded-lg border border-dipallacio-navy-800/20 bg-white px-3 py-2 text-sm"
@@ -63,8 +67,9 @@ export default function TrocaForm({ cotas }: { cotas: { id: string; label: strin
         </div>
       )}
       <div>
-        <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Período desejado *</label>
+        <label htmlFor={periodoId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Período desejado *</label>
         <input
+          id={periodoId}
           required
           placeholder="Ex.: Janeiro/2027, temporada alta"
           value={form.periodoDesejado}
@@ -73,10 +78,11 @@ export default function TrocaForm({ cotas }: { cotas: { id: string; label: strin
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
+        <label htmlFor={empreendimentoId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
           Empreendimento desejado *
         </label>
         <input
+          id={empreendimentoId}
           required
           value={form.empreendimentoDesejado}
           onChange={e => setForm(f => ({ ...f, empreendimentoDesejado: e.target.value }))}

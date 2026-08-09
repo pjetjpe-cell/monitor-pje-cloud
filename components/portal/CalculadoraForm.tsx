@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts'
 import Disclaimer from '@/components/site/Disclaimer'
 import LeadForm from '@/components/site/LeadForm'
@@ -43,6 +43,8 @@ export default function CalculadoraForm({ cotas }: { cotas: CotaOpcao[] }) {
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState('')
   const [mostrarLead, setMostrarLead] = useState(false)
+  const cotaSelectId = useId()
+  const mesesInputId = useId()
 
   async function calcular(e?: React.FormEvent) {
     e?.preventDefault()
@@ -96,8 +98,9 @@ export default function CalculadoraForm({ cotas }: { cotas: CotaOpcao[] }) {
         className="grid gap-4 rounded-xl border border-dipallacio-navy-800/10 bg-white p-6 sm:grid-cols-2"
       >
         <div>
-          <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Cota</label>
+          <label htmlFor={cotaSelectId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Cota</label>
           <select
+            id={cotaSelectId}
             value={cotaId}
             onChange={e => setCotaId(e.target.value)}
             className="w-full rounded-lg border border-dipallacio-navy-800/20 bg-white px-3 py-2 text-sm"
@@ -111,11 +114,12 @@ export default function CalculadoraForm({ cotas }: { cotas: CotaOpcao[] }) {
         </div>
 
         <div>
-          <label className="mb-1 flex items-center justify-between text-sm font-medium text-dipallacio-navy-800">
+          <label htmlFor={mesesInputId} className="mb-1 flex items-center justify-between text-sm font-medium text-dipallacio-navy-800">
             <span>Meses estimados até o fim do processo</span>
             <span className="text-dipallacio-petrol-600">{meses}</span>
           </label>
           <input
+            id={mesesInputId}
             type="range"
             min={0}
             max={60}

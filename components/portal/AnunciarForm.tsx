@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function AnunciarForm({ cotas }: { cotas: { id: string; label: string }[] }) {
@@ -9,6 +9,11 @@ export default function AnunciarForm({ cotas }: { cotas: { id: string; label: st
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState(false)
+  const cotaSelectId = useId()
+  const tituloId = useId()
+  const descricaoId = useId()
+  const precoId = useId()
+  const disponibilidadesId = useId()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -59,10 +64,11 @@ export default function AnunciarForm({ cotas }: { cotas: { id: string; label: st
     <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-dipallacio-navy-800/10 bg-white p-6">
       {cotas.length > 0 && (
         <div>
-          <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
+          <label htmlFor={cotaSelectId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
             Vincular a uma cota cadastrada (opcional)
           </label>
           <select
+            id={cotaSelectId}
             value={form.cotaId}
             onChange={e => setForm(f => ({ ...f, cotaId: e.target.value }))}
             className="w-full rounded-lg border border-dipallacio-navy-800/20 bg-white px-3 py-2 text-sm"
@@ -78,8 +84,9 @@ export default function AnunciarForm({ cotas }: { cotas: { id: string; label: st
       )}
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Título *</label>
+        <label htmlFor={tituloId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Título *</label>
         <input
+          id={tituloId}
           required
           value={form.titulo}
           onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))}
@@ -87,8 +94,9 @@ export default function AnunciarForm({ cotas }: { cotas: { id: string; label: st
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Descrição *</label>
+        <label htmlFor={descricaoId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Descrição *</label>
         <textarea
+          id={descricaoId}
           required
           rows={4}
           value={form.descricao}
@@ -97,8 +105,9 @@ export default function AnunciarForm({ cotas }: { cotas: { id: string; label: st
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Preço pedido (R$) *</label>
+        <label htmlFor={precoId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">Preço pedido (R$) *</label>
         <input
+          id={precoId}
           required
           type="number"
           min={0}
@@ -109,10 +118,11 @@ export default function AnunciarForm({ cotas }: { cotas: { id: string; label: st
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
+        <label htmlFor={disponibilidadesId} className="mb-1 block text-sm font-medium text-dipallacio-navy-800">
           Períodos disponíveis (opcional)
         </label>
         <input
+          id={disponibilidadesId}
           placeholder="Ex.: Janeiro/2027, Julho/2027 (separados por vírgula)"
           value={form.disponibilidades}
           onChange={e => setForm(f => ({ ...f, disponibilidades: e.target.value }))}
