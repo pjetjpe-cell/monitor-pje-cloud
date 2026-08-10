@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: pje-tjpe-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: PJE_API_KEY
+        sync: false
