@@ -1,9 +1,26 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma/client'
 import LeadForm from '@/components/site/LeadForm'
+import { NOME_ESCRITORIO_CURTO } from '@/lib/site/config'
 
 function formatarMoeda(v: number) {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const anuncio = await prisma.anuncio.findUnique({ where: { id } })
+  if (!anuncio || anuncio.status !== 'aprovado') return {}
+
+  return {
+    title: `${anuncio.titulo} — ${NOME_ESCRITORIO_CURTO}`,
+    description: anuncio.descricao.slice(0, 155),
+  }
 }
 
 export default async function AnuncioPage({ params }: { params: Promise<{ id: string }> }) {

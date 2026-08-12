@@ -99,7 +99,7 @@ export default function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
-                href="/area-do-cliente/calculadora"
+                href="/distrato#formulario"
                 className="rounded-full bg-dipallacio-gold px-6 py-3 text-sm font-semibold text-dipallacio-navy-950 transition-transform hover:scale-105"
               >
                 Simular minha restituição

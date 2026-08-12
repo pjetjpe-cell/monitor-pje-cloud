@@ -58,7 +58,7 @@ export default function DistratoPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-dipallacio-navy-800/10 bg-white p-6">
+        <div id="formulario" className="scroll-mt-24 rounded-2xl border border-dipallacio-navy-800/10 bg-white p-6">
           <h2 className="font-serif text-xl text-dipallacio-navy-900">Fale com a equipe jurídica</h2>
           <p className="mt-2 text-sm text-dipallacio-navy-800/70">
             Conte um pouco sobre o seu caso. A análise inicial é gratuita e sem compromisso.
