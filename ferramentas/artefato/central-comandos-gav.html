@@ -234,6 +234,39 @@
     color: var(--grafite-2);
   }
 
+  .abas-nav {
+    display: flex; gap: 4px; border-bottom: 2px solid var(--linha); margin-top: 22px; flex-wrap: wrap;
+  }
+  .aba-btn {
+    font: 600 13.5px/1 "IBM Plex Sans", sans-serif; padding: 11px 18px; border: none; background: transparent;
+    color: var(--grafite-2); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+  }
+  .aba-btn[aria-selected="true"] { color: var(--tinta-viva); border-bottom-color: var(--tinta-viva); }
+  .aba-btn:hover:not([aria-selected="true"]) { color: var(--grafite); }
+  .painel-aba[hidden] { display: none; }
+  .painel-aba { padding-top: 22px; }
+
+  .barra-cliente {
+    display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 16px;
+    padding: 12px 16px; background: var(--superficie-2); border-radius: var(--raio);
+  }
+  .barra-cliente .campo { flex: 1 1 240px; }
+  .barra-cliente .campo input { width: 100%; }
+
+  .passos-esteira { display: flex; flex-direction: column; gap: 10px; }
+  .passo {
+    display: flex; gap: 12px; align-items: flex-start; background: var(--superficie);
+    border: 1px solid var(--linha); border-radius: var(--raio); padding: 13px 15px; box-shadow: var(--sombra);
+  }
+  .passo.feito { opacity: .55; }
+  .passo.feito .passo-titulo { text-decoration: line-through; }
+  .passo input[type="checkbox"] { margin-top: 3px; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+  .passo-titulo { font: 600 13.5px/1.3 "IBM Plex Sans", sans-serif; color: var(--tinta); margin: 0 0 3px; }
+  .passo-desc { font-size: 12.5px; color: var(--grafite-2); line-height: 1.5; margin: 0; }
+  .passo-nota-local {
+    margin-top: 10px; font-size: 12px; color: var(--grafite-2); font-style: italic;
+  }
+
   footer.rodape {
     margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--linha);
     font-size: 12px; color: var(--grafite-2); line-height: 1.6;
@@ -246,21 +279,36 @@
     <p class="marca">Di Pallacio Enterprise &middot; Distrato de multipropriedade GAV</p>
     <h1>Central de Comandos GAV</h1>
     <p class="subtitulo">
-      Cola o extrato, confere os campos, escolhe a variante da petição e recebe os trechos prontos —
-      ou, quando o caso pede algo que esta página não gera com segurança (réplica, coligação, tese
-      agravante), o comando exato para colar no chat com a skill <code>preenchedor-peticoes-gav</code>.
+      Três abas, uma por skill já pronta — <strong>Organizador</strong> (<code>gav-esteira</code>),
+      <strong>WhatsApp</strong> (<code>gav-whatsapp</code>) e <strong>Petição</strong>
+      (<code>gav-peticao</code> / <code>preenchedor-peticoes-gav</code>). Esta página só monta os
+      comandos e, na Petição, os trechos prontos — quem executa de verdade continua sendo o chat e os
+      CLIs em <code>ferramentas/gav/</code>, sem nenhuma mudança neles.
     </p>
     <div class="aviso-seguranca">
       <strong>Sobre o preenchedor_peticao_interativo.jsx atual:</strong> ele chama a API da Anthropic
       direto do navegador com uma chave embutida no código — qualquer pessoa que abrir o arquivo ou
       inspecionar a rede vê a chave. Recomendo rotacionar essa chave. Esta página não faz nenhuma
       chamada de API própria: a extração é só expressão regular sobre o texto colado, e a única coisa
-      externa que ela toca (opcional, na seção 5) é uma busca de leitura no seu Google Drive, com a sua
+      externa que ela toca (aba Organizador) é uma busca de leitura no seu Google Drive, com a sua
       própria sessão — nenhuma chave nesta página.
+    </div>
+
+    <div class="abas-nav" role="tablist">
+      <button class="aba-btn" type="button" role="tab" data-aba="organizador" aria-selected="true">Organizador</button>
+      <button class="aba-btn" type="button" role="tab" data-aba="whatsapp" aria-selected="false">WhatsApp</button>
+      <button class="aba-btn" type="button" role="tab" data-aba="peticao" aria-selected="false">Petição</button>
+    </div>
+    <div class="barra-cliente">
+      <div class="campo">
+        <label for="cliente-geral">Nome do cliente (Organizador / WhatsApp)</label>
+        <input id="cliente-geral" type="text" placeholder="ex.: Janice Brutti">
+      </div>
     </div>
   </header>
 
-  <section class="bloco">
+  <div class="painel-aba" id="aba-peticao" hidden>
+  <section class="bloco" style="margin-top:0">
     <div class="bloco-cabecalho"><span class="bloco-numero">1</span><h2>Extrato do contrato</h2></div>
     <p class="bloco-nota">
       Cole o extrato enviado pela GAV. Os campos abaixo são reconhecidos por rótulo
@@ -350,16 +398,74 @@
     <div class="painel" id="comandos-esteira"></div>
   </section>
 
-  <section class="bloco">
-    <div class="bloco-cabecalho"><span class="bloco-numero">6</span><h2>Buscar no Drive <span style="font-weight:400;color:var(--grafite-2);font-size:13px">(opcional, somente leitura)</span></h2></div>
-    <div class="painel">
-      <div class="linha-acoes" style="margin-top:0">
-        <button class="botao discreto" id="btn-buscar-drive" type="button">Buscar pasta do cliente</button>
+  </div><!-- /aba-peticao -->
+
+  <div class="painel-aba" id="aba-organizador">
+    <section class="bloco" style="margin-top:0">
+      <div class="bloco-cabecalho"><h2>Central de comandos do organizador</h2></div>
+      <p class="bloco-nota">
+        As 7 etapas de <code>gav-esteira</code> (o organizador de pastas já pronto — CLIs em
+        <code>ferramentas/gav/*.py</code>, sem nenhuma mudança aqui). Rodam em ordem, com trava:
+        etapa não roda sem a anterior concluída, e campo não entra no dossiê sem fonte.
+      </p>
+      <div class="painel">
+        <div class="linha-acoes" style="margin-top:0">
+          <button class="botao" id="btn-comando-esteira" type="button">Gerar comando /gav-esteira</button>
+        </div>
+        <div id="comando-esteira-organizador" style="margin-top:10px"></div>
       </div>
-      <div id="drive-estado" style="margin-top:12px"></div>
-      <div id="drive-resultados"></div>
-    </div>
-  </section>
+    </section>
+
+    <section class="bloco">
+      <div class="bloco-cabecalho"><h2>Etapas</h2></div>
+      <p class="bloco-nota">
+        Marcar aqui é só para acompanhar visualmente <strong>nesta sessão do navegador</strong> — não
+        muda o <code>dossie.json</code> real da esteira, que é quem manda de verdade.
+      </p>
+      <div class="passos-esteira" id="passos-esteira"></div>
+    </section>
+
+    <section class="bloco">
+      <div class="bloco-cabecalho"><h2>Localizar no Drive <span style="font-weight:400;color:var(--grafite-2);font-size:13px">(somente leitura)</span></h2></div>
+      <div class="painel">
+        <div class="linha-acoes" style="margin-top:0">
+          <button class="botao discreto" id="btn-buscar-drive" type="button">Buscar pasta do cliente</button>
+        </div>
+        <div id="drive-estado" style="margin-top:12px"></div>
+        <div id="drive-resultados"></div>
+      </div>
+    </section>
+  </div><!-- /aba-organizador -->
+
+  <div class="painel-aba" id="aba-whatsapp" hidden>
+    <section class="bloco" style="margin-top:0">
+      <div class="bloco-cabecalho"><h2>Baixar documentos do WhatsApp</h2></div>
+      <p class="bloco-nota">
+        A skill <code>gav-whatsapp</code> roda na sua máquina — conecta ao Chrome já logado, somente
+        leitura. Esta aba só monta os comandos; quem baixa é o script
+        <code>ferramentas/whatsapp/baixar.mjs</code>, sem nenhuma mudança aqui também.
+      </p>
+      <div class="painel">
+        <div class="grade-campos">
+          <div class="campo">
+            <label for="wa-contato">Nome no WhatsApp (como está na lista de conversas)</label>
+            <input id="wa-contato" type="text" placeholder="ex.: Janice Brutti">
+          </div>
+          <div class="campo">
+            <label for="wa-destino">Pasta de destino (NÃO USAR do cliente)</label>
+            <input id="wa-destino" type="text" placeholder="/caminho/83. JANICE.../NÃO USAR">
+          </div>
+        </div>
+        <div id="comandos-whatsapp" style="margin-top:14px"></div>
+        <div class="aviso-coligacao" style="margin-top:14px">
+          Antes de usar: feche o Chrome e abra-o com
+          <code>--remote-debugging-port=9222 --user-data-dir=~/.chrome-whatsapp</code>, faça login no
+          WhatsApp Web nessa janela, e só então rode o comando. Sempre <code>--simular</code> primeiro
+          para conferir a conversa certa antes de baixar de verdade.
+        </div>
+      </div>
+    </section>
+  </div><!-- /aba-whatsapp -->
 
   <footer class="rodape">
     Extração feita por expressão regular sobre o texto colado — nada é enviado a lugar nenhum para
@@ -434,6 +540,25 @@
     "II.8 — Impugnação à retenção de fruição/taxas/encargos",
     "II.9 — Casos análogos contra a mesma ré e isonomia",
     "II.10 — Requerimentos finais"
+  ];
+
+  // As 7 etapas de gav-esteira (nucleo.py ETAPAS + SKILL.md) — descrição, não código;
+  // o comportamento real continua inteiramente nos CLIs Python, sem mudança nenhuma aqui.
+  var PASSOS_ESTEIRA = [
+    { id: "localizar", titulo: "Localizar o cliente no Drive",
+      desc: "Busca a pasta por nome. Mais de uma pasta com resultado? Pergunta qual — nunca escolhe sozinha." },
+    { id: "renomear", titulo: "Normalizar o nome da pasta",
+      desc: "Propõe o nome canônico (empreendimento, cotas, %, valor, processo) e só aplica com o seu \"pode\"." },
+    { id: "nao_usar", titulo: "Pasta NÃO USAR",
+      desc: "Reaproveita a que já existir (há variantes: \"Não usar \", \"NAO USAR\"); cria só se não houver nenhuma." },
+    { id: "procuracao", titulo: "Limpar a procuração",
+      desc: "Remove honorários/percentual/0,5 SM por redação real (não é tarja) e confere o arquivo gerado antes de aprovar." },
+    { id: "contrato", titulo: "Comprimir o contrato",
+      desc: "Busca o degrau mais leve que cabe em 3 MB; divide em partes se precisar." },
+    { id: "identidade", titulo: "Extrair o documento de identificação",
+      desc: "OCR nas páginas 33-35 do contrato; recusa escolher e pede conferência visual se empatar." },
+    { id: "email_gav", titulo: "Notificar a GAV",
+      desc: "Rascunho com o Modelo B (art. 473 CC) por padrão; você aprova o texto antes de enviar." }
   ];
 
   var EXEMPLO = [
@@ -726,6 +851,102 @@
       wrap.appendChild(btn);
     });
   }
+
+  // ------------------------------------------------------------------
+  // Passos da esteira (Organizador) — acompanhamento visual, só nesta sessão
+  // do navegador. Não é o estado real (dossie.json); é conveniência de UI.
+  // ------------------------------------------------------------------
+
+  function chavePassos() {
+    var nome = ($("cliente-geral") && $("cliente-geral").value.trim()) || "sem-nome";
+    return "gav-passos::" + nome;
+  }
+  function lerPassosFeitos() {
+    try { return JSON.parse(localStorage.getItem(chavePassos()) || "{}"); } catch (e) { return {}; }
+  }
+  function salvarPassosFeitos(obj) {
+    try { localStorage.setItem(chavePassos(), JSON.stringify(obj)); } catch (e) { /* sem localStorage, sem problema */ }
+  }
+
+  function renderPassosEsteira() {
+    var alvo = $("passos-esteira");
+    if (!alvo) return;
+    var feitos = lerPassosFeitos();
+    alvo.innerHTML = PASSOS_ESTEIRA.map(function (p, i) {
+      var marcado = !!feitos[p.id];
+      return '<label class="passo' + (marcado ? " feito" : "") + '">' +
+        '<input type="checkbox" data-passo="' + p.id + '"' + (marcado ? " checked" : "") + '>' +
+        '<span><span class="passo-titulo">' + (i + 1) + ". " + escapeHtml(p.titulo) + '</span>' +
+        '<p class="passo-desc">' + escapeHtml(p.desc) + '</p></span></label>';
+    }).join("");
+    alvo.querySelectorAll("[data-passo]").forEach(function (chk) {
+      chk.addEventListener("change", function () {
+        var feitos = lerPassosFeitos();
+        feitos[chk.dataset.passo] = chk.checked;
+        salvarPassosFeitos(feitos);
+        renderPassosEsteira();
+      });
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Comandos do Organizador e do WhatsApp — só compõem texto para colar no
+  // chat/terminal; nenhuma ação roda a partir desta página.
+  // ------------------------------------------------------------------
+
+  function nomeClienteGeral() {
+    var el = $("cliente-geral");
+    return (el && el.value.trim()) || "[NOME DO CLIENTE]";
+  }
+
+  function renderComandoEsteira() {
+    var alvo = $("comando-esteira-organizador");
+    if (!alvo) return;
+    var nome = nomeClienteGeral();
+    var texto = "/gav-esteira " + nome;
+    alvo.innerHTML = '<div class="comando-linha"><div class="comando-texto">' + escapeHtml(texto) +
+      '</div><button class="botao mini" id="btn-copiar-esteira" type="button">Copiar</button></div>';
+    var btn = $("btn-copiar-esteira");
+    if (btn) btn.addEventListener("click", function () { copiarTexto(texto, btn); });
+  }
+
+  function renderComandosWhatsapp() {
+    var alvo = $("comandos-whatsapp");
+    if (!alvo) return;
+    var contato = ($("wa-contato") && $("wa-contato").value.trim()) || nomeClienteGeral();
+    var destino = ($("wa-destino") && $("wa-destino").value.trim()) || "/caminho/NÃO USAR";
+    var comandos = [
+      { titulo: "1. Simular primeiro (não baixa nada)",
+        texto: 'node ferramentas/whatsapp/baixar.mjs --contato "' + contato + '" --simular' },
+      { titulo: "2. Baixar de verdade, depois de conferir a simulação",
+        texto: 'node ferramentas/whatsapp/baixar.mjs --contato "' + contato + '" --destino "' + destino + '"' },
+      { titulo: "Ou peça direto no chat",
+        texto: "/gav-whatsapp " + contato }
+    ];
+    alvo.innerHTML = comandos.map(function (c, i) {
+      return '<div class="comando-linha"><div style="flex:0 0 100%;font-size:12px;color:var(--grafite-2);margin-bottom:2px">' +
+        c.titulo + '</div><div class="comando-texto">' + escapeHtml(c.texto) + '</div>' +
+        '<button class="botao mini" data-cmd-wa="' + i + '" type="button">Copiar</button></div>';
+    }).join("");
+    alvo.querySelectorAll("[data-cmd-wa]").forEach(function (btn) {
+      btn.addEventListener("click", function () { copiarTexto(comandos[Number(btn.dataset.cmdWa)].texto, btn); });
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Abas — Organizador / WhatsApp / Petição. Troca só o painel visível;
+  // a lógica de cada painel (inclusive a da Petição) continua a mesma.
+  // ------------------------------------------------------------------
+
+  function ativarAba(id) {
+    document.querySelectorAll(".painel-aba").forEach(function (el) { el.hidden = el.id !== "aba-" + id; });
+    document.querySelectorAll(".aba-btn").forEach(function (btn) {
+      btn.setAttribute("aria-selected", btn.dataset.aba === id ? "true" : "false");
+    });
+  }
+  document.querySelectorAll(".aba-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () { ativarAba(btn.dataset.aba); });
+  });
 
   // ------------------------------------------------------------------
   // Geração dos trechos (Parte 3 da skill, texto verbatim)
@@ -1141,10 +1362,18 @@
   }).join("");
   selAdv.addEventListener("change", function () { estado.advogadoIdx = Number(selAdv.value); renderTrechos(); });
 
+  $("cliente-geral").addEventListener("input", function () {
+    renderComandoEsteira(); renderPassosEsteira(); renderComandosWhatsapp();
+  });
+  $("wa-contato").addEventListener("input", renderComandosWhatsapp);
+  $("wa-destino").addEventListener("input", renderComandosWhatsapp);
+
   // ------------------------------------------------------------------
   // Estado inicial: exemplo fictício carregado, página já "viva".
   // ------------------------------------------------------------------
 
   carregarExtrato(EXEMPLO, true);
+  renderPassosEsteira(); renderComandoEsteira(); renderComandosWhatsapp();
+  ativarAba("organizador");
 })();
 </script>

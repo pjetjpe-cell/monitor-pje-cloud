@@ -77,14 +77,23 @@ mutilado sem reclamar.
 
 **[Central de Comandos GAV](https://claude.ai/code/artifact/af6ab875-3839-4bbb-ac3c-c41c8ee139a3)** — https://claude.ai/code/artifact/af6ab875-3839-4bbb-ac3c-c41c8ee139a3
 
-Fonte em `ferramentas/artefato/central-comandos-gav.html`. Cola o extrato →
-extrai por regex (Parte 1 da skill `preenchedor-peticoes-gav`, sem chamada de
-API, sem chave exposta) → gera os 10 trechos verbatim da petição padrão (Parte
-3) para os casos de Petição Inicial e + Justiça Gratuita → para Parcelamento
-Avulso, Réplica, coligação de contratos ou tese agravante (Bloco 6/vícios/Pet
-Care), monta o comando certo para o chat em vez de inventar estrutura que não
-está documentada aqui. Seção final (opcional) busca a pasta do cliente no Drive
-via `mcp` capability, somente leitura.
+Fonte em `ferramentas/artefato/central-comandos-gav.html`. Três abas, uma por
+skill já pronta — nenhuma delas muda o comportamento das skills/CLIs, só monta
+comando ou trecho:
+
+- **Organizador** (`gav-esteira`): as 7 etapas como cards informativos (marcar
+  aqui é só acompanhamento visual desta sessão do navegador, não é o
+  `dossie.json` real), campo de cliente compartilhado, comando `/gav-esteira`
+  pronto, e a busca no Drive (somente leitura, via `mcp` capability).
+- **WhatsApp** (`gav-whatsapp`): monta os comandos do
+  `ferramentas/whatsapp/baixar.mjs` (sempre `--simular` primeiro) e o
+  `/gav-whatsapp`, com o lembrete de como abrir o Chrome com depuração remota.
+- **Petição** (`gav-peticao` / `preenchedor-peticoes-gav`): cola o extrato →
+  extrai por regex (sem chamada de API, sem chave exposta) → gera os 10
+  trechos verbatim da petição padrão para Petição Inicial e + Justiça
+  Gratuita → para Parcelamento Avulso, Réplica, coligação ou tese agravante,
+  monta o comando certo para o chat em vez de inventar estrutura não
+  documentada.
 
 Substitui o uso do `preenchedor_peticao_interativo.jsx` original para o caso
 comum — aquele chama a API da Anthropic direto do navegador com uma chave
