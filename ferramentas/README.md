@@ -73,6 +73,24 @@ pegam truncamento — o cabeçalho sobrevive ao corte, e abrir o documento tamb�
 não prova nada, porque o PyMuPDF reconstrói PDF quebrado e abre um arquivo
 mutilado sem reclamar.
 
+### Petição — Central de Comandos GAV
+
+**[Central de Comandos GAV](https://claude.ai/code/artifact/af6ab875-3839-4bbb-ac3c-c41c8ee139a3)** — https://claude.ai/code/artifact/af6ab875-3839-4bbb-ac3c-c41c8ee139a3
+
+Fonte em `ferramentas/artefato/central-comandos-gav.html`. Cola o extrato →
+extrai por regex (Parte 1 da skill `preenchedor-peticoes-gav`, sem chamada de
+API, sem chave exposta) → gera os 10 trechos verbatim da petição padrão (Parte
+3) para os casos de Petição Inicial e + Justiça Gratuita → para Parcelamento
+Avulso, Réplica, coligação de contratos ou tese agravante (Bloco 6/vícios/Pet
+Care), monta o comando certo para o chat em vez de inventar estrutura que não
+está documentada aqui. Seção final (opcional) busca a pasta do cliente no Drive
+via `mcp` capability, somente leitura.
+
+Substitui o uso do `preenchedor_peticao_interativo.jsx` original para o caso
+comum — aquele chama a API da Anthropic direto do navegador com uma chave
+embutida no código, exposta a quem abrir o arquivo ou inspecionar a rede.
+Recomendado rotacionar essa chave.
+
 ### Contrato grande na web: o artefato
 
 Acima do teto, o contrato é processado no navegador do usuário:

@@ -42,18 +42,27 @@ redigir.
 
 ## Passo 2 — Abrir o preenchedor
 
-O artefato é o **🤖 2 PREENCHEDOR DE ⚖️PETIÇÃO INTERATIVO**.
+Há dois artefatos com papéis diferentes — não confunda um pelo outro:
 
-```
-Artifact  action: "list"   scope: "all"
-```
+- **🤖 2 PREENCHEDOR DE ⚖️PETIÇÃO INTERATIVO** — o `.jsx` original do usuário
+  (3 abas: Petição Inicial / Parcelamento Avulso / Réplica). **Chama a API da
+  Anthropic direto do navegador com uma chave embutida no código** — exposta a
+  quem abrir o arquivo ou inspecionar a rede. Se for reabrir ou editar esse
+  artefato, avise sobre isso antes de redistribuir e recomende rotacionar a
+  chave. Não é deste repositório: `Artifact action: "list" scope: "all"` para
+  achar a URL, ou peça ao usuário.
 
-Achou: `action: "read"` com a URL, e trabalhe sobre o que voltou. Não achou:
-**peça o link ao usuário**. Não recrie o artefato do zero — ele republicaria num
-endereço novo e o usuário perderia o que já tem.
+- **[Central de Comandos GAV](https://claude.ai/code/artifact/af6ab875-3839-4bbb-ac3c-c41c8ee139a3)** — front-end desta esteira
+  (`ferramentas/artefato/central-comandos-gav.html`). Extrai os campos do
+  extrato por regex (sem API, sem chave), gera os 10 trechos verbatim da Parte 3
+  da skill `preenchedor-peticoes-gav` para o caso simples (Petição Inicial /
+  + Justiça Gratuita), e para Parcelamento Avulso / Réplica / coligação / tese
+  agravante compõe o comando certo para o chat em vez de inventar estrutura que
+  não está documentada nela. Use-a primeiro — é mais rápida para o caso comum e
+  não tem o problema de segurança do `.jsx`.
 
-Para alterar o artefato existente, publique sempre com o `url` dele. Publicar sem
-`url` cria um segundo artefato.
+Para republicar a Central de Comandos depois de editar o arquivo, publique com
+a URL acima como `url` — sem ela cria um artefato novo e separado.
 
 ## Passo 3 — Preencher a partir do dossiê
 

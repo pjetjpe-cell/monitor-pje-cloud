@@ -1,0 +1,1097 @@
+<title>Central de Comandos GAV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:wght@500;600&display=swap">
+<style>
+  :root {
+    --tinta:      #17294F;
+    --tinta-viva: #24407C;
+    --ouro:       #8C6D2F;
+    --papel:      #F6F5F1;
+    --superficie: #FFFFFF;
+    --superficie-2: #EFEEE8;
+    --grafite:    #232A38;
+    --grafite-2:  #5B6474;
+    --linha:      #D9D7CE;
+    --linha-forte:#B9B6AA;
+    --ok:         #1C6B4F;
+    --ok-fundo:   #E4F0EA;
+    --atencao:    #8A5410;
+    --atencao-fundo: #F7EDDC;
+    --erro:       #9E2B25;
+    --erro-fundo: #F7E5E3;
+    --extraido:   #FFF3B0;
+    --extraido-borda: #D9C25A;
+    --faltando-borda: #C98A5E;
+    --sombra: 0 1px 2px rgba(23,41,79,.07), 0 6px 18px -10px rgba(23,41,79,.22);
+    --raio: 3px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --tinta:      #C8D6F2;
+      --tinta-viva: #9FBCEE;
+      --ouro:       #D4AF6A;
+      --papel:      #0E1420;
+      --superficie: #161E2D;
+      --superficie-2: #1D2637;
+      --grafite:    #E4E7EE;
+      --grafite-2:  #98A2B6;
+      --linha:      #2B3549;
+      --linha-forte:#3E4A63;
+      --ok:         #6FD3A8;
+      --ok-fundo:   #12301F;
+      --atencao:    #E0A85C;
+      --atencao-fundo: #32250F;
+      --erro:       #F09189;
+      --erro-fundo: #331716;
+      --extraido:   #4A4322;
+      --extraido-borda: #8C7A2E;
+      --faltando-borda: #8A5A3D;
+      --sombra: 0 1px 2px rgba(0,0,0,.4), 0 8px 22px -12px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --tinta:      #C8D6F2;
+    --tinta-viva: #9FBCEE;
+    --ouro:       #D4AF6A;
+    --papel:      #0E1420;
+    --superficie: #161E2D;
+    --superficie-2: #1D2637;
+    --grafite:    #E4E7EE;
+    --grafite-2:  #98A2B6;
+    --linha:      #2B3549;
+    --linha-forte:#3E4A63;
+    --ok:         #6FD3A8;
+    --ok-fundo:   #12301F;
+    --atencao:    #E0A85C;
+    --atencao-fundo: #32250F;
+    --erro:       #F09189;
+    --erro-fundo: #331716;
+    --extraido:   #4A4322;
+    --extraido-borda: #8C7A2E;
+    --faltando-borda: #8A5A3D;
+    --sombra: 0 1px 2px rgba(0,0,0,.4), 0 8px 22px -12px rgba(0,0,0,.6);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--papel); color: var(--grafite);
+    font: 400 15px/1.55 "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .folha { max-width: 980px; margin: 0 auto; padding-inline: 20px; padding-block: 0 72px; }
+
+  header.topo { border-bottom: 2px solid var(--tinta); padding-block: 28px 16px; margin-bottom: 22px; }
+  .marca {
+    font: 500 10.5px/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--ouro); margin: 0 0 12px;
+  }
+  h1 {
+    font: 600 clamp(25px, 5.5vw, 34px)/1.1 Spectral, Georgia, serif; color: var(--tinta);
+    margin: 0 0 8px; letter-spacing: -.01em; text-wrap: balance;
+  }
+  .subtitulo { margin: 0; color: var(--grafite-2); max-width: 68ch; font-size: 14px; }
+
+  .aviso-seguranca {
+    margin-top: 18px; padding: 13px 16px; border-radius: var(--raio);
+    background: var(--erro-fundo); border-left: 3px solid var(--erro); font-size: 13px; line-height: 1.6;
+  }
+  .aviso-seguranca strong { color: var(--erro); }
+
+  section.bloco { margin-top: 26px; }
+  .bloco-cabecalho { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .bloco-numero {
+    font: 600 12px/1 "IBM Plex Mono", monospace; color: var(--papel); background: var(--tinta);
+    width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  h2 { font: 600 18px/1.3 "IBM Plex Sans", sans-serif; margin: 0; color: var(--tinta); }
+  .bloco-nota { margin: 0 0 14px; color: var(--grafite-2); font-size: 13.5px; max-width: 70ch; }
+
+  .painel {
+    background: var(--superficie); border: 1px solid var(--linha); border-radius: var(--raio);
+    padding: 18px 20px; box-shadow: var(--sombra);
+  }
+
+  textarea#extrato-bruto {
+    width: 100%; min-height: 150px; resize: vertical;
+    font: 400 13px/1.5 "IBM Plex Mono", ui-monospace, monospace;
+    padding: 12px; border: 1px solid var(--linha-forte); border-radius: var(--raio);
+    background: var(--papel); color: var(--grafite);
+  }
+  .exemplo-marca {
+    display: inline-flex; align-items: center; gap: 6px; font: 500 11px/1 "IBM Plex Mono", monospace;
+    letter-spacing: .08em; text-transform: uppercase; color: var(--ouro); margin-bottom: 8px;
+  }
+
+  .linha-acoes { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .botao {
+    font: 500 13.5px/1 "IBM Plex Sans", sans-serif; padding: 10px 16px; border-radius: var(--raio);
+    border: 1px solid var(--tinta); background: var(--tinta); color: var(--papel); cursor: pointer;
+    transition: opacity .15s;
+  }
+  .botao:hover:not(:disabled) { opacity: .88; }
+  .botao:disabled { opacity: .4; cursor: not-allowed; }
+  .botao.discreto { background: transparent; color: var(--tinta); border-color: var(--linha-forte); }
+  .botao.mini { padding: 6px 11px; font-size: 12px; }
+  :is(button, input, select, textarea, [tabindex]):focus-visible { outline: 2px solid var(--tinta-viva); outline-offset: 2px; }
+
+  .grade-campos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px 14px; }
+  .campo { display: flex; flex-direction: column; gap: 4px; }
+  .campo label {
+    font: 500 10px/1 "IBM Plex Mono", monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--grafite-2);
+  }
+  .campo input, .campo select {
+    font: 400 13.5px/1.3 "IBM Plex Sans", sans-serif; padding: 8px 9px; border-radius: var(--raio);
+    border: 1.5px solid var(--linha-forte); background: var(--superficie); color: var(--grafite);
+  }
+  .campo input.extraido { background: var(--extraido); border-color: var(--extraido-borda); }
+  .campo input.faltando { border-color: var(--faltando-borda); border-style: dashed; }
+  .campo .marca-falta { font-size: 11px; color: var(--atencao); }
+
+  .cotas-lista { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .cota-linha {
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1.6fr auto; gap: 8px; align-items: end;
+    padding: 10px; background: var(--superficie-2); border-radius: var(--raio);
+  }
+  @media (max-width: 720px) { .cota-linha { grid-template-columns: 1fr 1fr; } }
+  .cota-linha .campo label { font-size: 9px; }
+  .botao-remover {
+    background: transparent; border: 1px solid var(--erro); color: var(--erro); border-radius: var(--raio);
+    font-size: 12px; padding: 7px 9px; cursor: pointer; height: fit-content;
+  }
+
+  .aviso-coligacao {
+    margin-top: 14px; padding: 12px 14px; border-radius: var(--raio);
+    background: var(--atencao-fundo); color: var(--atencao); font-size: 13.5px; line-height: 1.55;
+    border-left: 3px solid var(--atencao);
+  }
+
+  .variantes { display: flex; gap: 8px; flex-wrap: wrap; }
+  .variante-btn {
+    font: 500 13px/1 "IBM Plex Sans", sans-serif; padding: 11px 15px; border-radius: var(--raio);
+    border: 1.5px solid var(--linha-forte); background: var(--superficie); color: var(--grafite);
+    cursor: pointer; text-align: left; flex: 1 1 200px; min-width: 180px;
+  }
+  .variante-btn strong { display: block; font-size: 13.5px; margin-bottom: 3px; color: var(--tinta); }
+  .variante-btn span { font-size: 11.5px; color: var(--grafite-2); }
+  .variante-btn[aria-pressed="true"] {
+    border-color: var(--tinta); background: var(--superficie-2); box-shadow: inset 0 0 0 1px var(--tinta);
+  }
+  .variante-btn[aria-pressed="true"] strong { color: var(--tinta-viva); }
+
+  .toggle-genero { display: inline-flex; border: 1px solid var(--linha-forte); border-radius: var(--raio); overflow: hidden; }
+  .toggle-genero button {
+    font: 500 12.5px/1 "IBM Plex Sans", sans-serif; padding: 8px 13px; border: none; background: var(--superficie);
+    color: var(--grafite); cursor: pointer;
+  }
+  .toggle-genero button[aria-pressed="true"] { background: var(--tinta); color: var(--papel); }
+
+  .trecho {
+    border: 1px solid var(--linha); border-radius: var(--raio); background: var(--superficie);
+    margin-bottom: 12px; overflow: hidden;
+  }
+  .trecho-cabecalho {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 9px 14px; background: var(--superficie-2); border-bottom: 1px solid var(--linha);
+  }
+  .trecho-titulo { font: 600 12.5px/1 "IBM Plex Sans", sans-serif; color: var(--tinta); }
+  .trecho-corpo { padding: 13px 14px; font-size: 13.5px; line-height: 1.65; white-space: pre-wrap; }
+  .trecho-corpo strong { color: var(--tinta); font-weight: 600; }
+  .trecho-corpo mark {
+    background: var(--atencao-fundo); color: var(--atencao); padding: 1px 4px; border-radius: 2px;
+    font-weight: 500;
+  }
+  .trecho.pendente .trecho-corpo { color: var(--grafite-2); font-style: italic; }
+
+  .resumo-tabela { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 4px; }
+  .resumo-tabela td { padding: 8px 10px; border-bottom: 1px solid var(--linha); }
+  .resumo-tabela td:first-child { color: var(--grafite-2); }
+  .resumo-tabela td:last-child {
+    text-align: right; font: 500 13.5px/1 "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums;
+  }
+
+  .comando-linha {
+    display: flex; align-items: center; gap: 10px; padding: 11px 13px; background: var(--superficie-2);
+    border-radius: var(--raio); margin-bottom: 8px; flex-wrap: wrap;
+  }
+  .comando-texto {
+    flex: 1 1 320px; font: 400 12.5px/1.5 "IBM Plex Mono", monospace; color: var(--grafite);
+    background: var(--papel); padding: 8px 10px; border-radius: 2px; border: 1px solid var(--linha);
+    word-break: break-word;
+  }
+
+  .drive-resultado {
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid var(--linha);
+    font-size: 13px;
+  }
+  .drive-resultado:last-child { border-bottom: none; }
+  .drive-resultado a { color: var(--tinta-viva); text-decoration: none; }
+  .drive-resultado a:hover { text-decoration: underline; }
+
+  .estado-mcp {
+    padding: 11px 13px; border-radius: var(--raio); font-size: 13px; background: var(--superficie-2);
+    color: var(--grafite-2);
+  }
+
+  footer.rodape {
+    margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--linha);
+    font-size: 12px; color: var(--grafite-2); line-height: 1.6;
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="folha">
+  <header class="topo">
+    <p class="marca">Di Pallacio Enterprise &middot; Distrato de multipropriedade GAV</p>
+    <h1>Central de Comandos GAV</h1>
+    <p class="subtitulo">
+      Cola o extrato, confere os campos, escolhe a variante da petição e recebe os trechos prontos —
+      ou, quando o caso pede algo que esta página não gera com segurança (réplica, coligação, tese
+      agravante), o comando exato para colar no chat com a skill <code>preenchedor-peticoes-gav</code>.
+    </p>
+    <div class="aviso-seguranca">
+      <strong>Sobre o preenchedor_peticao_interativo.jsx atual:</strong> ele chama a API da Anthropic
+      direto do navegador com uma chave embutida no código — qualquer pessoa que abrir o arquivo ou
+      inspecionar a rede vê a chave. Recomendo rotacionar essa chave. Esta página não faz nenhuma
+      chamada de API própria: a extração é só expressão regular sobre o texto colado, e a única coisa
+      externa que ela toca (opcional, na seção 5) é uma busca de leitura no seu Google Drive, com a sua
+      própria sessão — nenhuma chave nesta página.
+    </div>
+  </header>
+
+  <section class="bloco">
+    <div class="bloco-cabecalho"><span class="bloco-numero">1</span><h2>Extrato do contrato</h2></div>
+    <p class="bloco-nota">
+      Cole o extrato enviado pela GAV. Os campos abaixo são reconhecidos por rótulo
+      (Nome, CPF, Venda, RECEBIDO…) — nada é inventado: o que não for encontrado fica marcado para
+      revisão, igual ao <code>⚡</code> da skill.
+    </p>
+    <div class="painel">
+      <p class="exemplo-marca" id="marca-exemplo">⚡ exemplo fictício carregado — cole o extrato real para substituir</p>
+      <textarea id="extrato-bruto" spellcheck="false"></textarea>
+      <div class="linha-acoes">
+        <button class="botao" id="btn-extrair" type="button">Extrair campos</button>
+        <button class="botao discreto" id="btn-limpar" type="button">Limpar e colar o extrato real</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloco">
+    <div class="bloco-cabecalho"><span class="bloco-numero">2</span><h2>Conferir os dados</h2></div>
+    <p class="bloco-nota">Fundo amarelo = veio do extrato. Borda tracejada = não encontrado — edite antes de gerar os trechos.</p>
+    <div class="painel">
+      <div class="grade-campos" id="grade-campos"></div>
+
+      <div style="margin-top:18px">
+        <div class="bloco-cabecalho" style="margin-bottom:8px">
+          <h2 style="font-size:14px">Cotas</h2>
+          <button class="botao mini discreto" id="btn-add-cota" type="button" style="margin-left:auto">+ cota</button>
+        </div>
+        <div class="cotas-lista" id="cotas-lista"></div>
+        <div class="aviso-coligacao" id="aviso-coligacao" hidden></div>
+      </div>
+
+      <div style="margin-top:18px; display:flex; gap:24px; flex-wrap:wrap; align-items:center;">
+        <div>
+          <label style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--grafite-2)">Gênero da parte</label>
+          <div class="toggle-genero" style="margin-top:6px">
+            <button type="button" data-genero="f" aria-pressed="true">Autora</button>
+            <button type="button" data-genero="m" aria-pressed="false">Autor</button>
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px">
+          <input type="checkbox" id="chk-dano-moral"> incluir pedido de dano moral por negativação
+        </label>
+        <label style="display:flex;align-items:center;gap:7px;font-size:13px">
+          <input type="checkbox" id="chk-tese-agravante"> tese agravante (Bloco 6 / vícios / Pet Care)
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloco">
+    <div class="bloco-cabecalho"><span class="bloco-numero">3</span><h2>Variante da petição</h2></div>
+    <p class="bloco-nota">
+      As duas primeiras geram os 10 trechos completos (Parte 3 da skill, texto verbatim). As outras
+      duas dependem de estrutura que não está documentada aqui — a página monta o comando com os
+      dados já extraídos, para o chat montar a peça certa.
+    </p>
+    <div class="painel">
+      <div class="variantes" id="variantes"></div>
+    </div>
+  </section>
+
+  <section class="bloco">
+    <div class="bloco-cabecalho"><span class="bloco-numero">4</span><h2>Trechos / comando</h2></div>
+    <div class="painel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div>
+          <label style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--grafite-2)">Advogado(a)</label><br>
+          <select id="sel-advogado" style="margin-top:6px;font:400 13px/1 'IBM Plex Sans',sans-serif;padding:7px 9px;border-radius:3px;border:1.5px solid var(--linha-forte);background:var(--superficie);color:var(--grafite)"></select>
+        </div>
+        <div>
+          <label style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--grafite-2)">Parcelas das custas</label><br>
+          <select id="sel-parcelas" style="margin-top:6px;font:400 13px/1 'IBM Plex Sans',sans-serif;padding:7px 9px;border-radius:3px;border:1.5px solid var(--linha-forte);background:var(--superficie);color:var(--grafite)">
+            <option value="6">6x</option>
+            <option value="12" selected>12x</option>
+          </select>
+        </div>
+        <button class="botao" id="btn-copiar-tudo" type="button" style="margin-left:auto">Copiar todos os trechos</button>
+      </div>
+      <div id="saida-trechos"></div>
+      <table class="resumo-tabela" id="tabela-resumo" style="margin-top:16px"></table>
+    </div>
+  </section>
+
+  <section class="bloco">
+    <div class="bloco-cabecalho"><span class="bloco-numero">5</span><h2>Central de comandos da esteira</h2></div>
+    <p class="bloco-nota">Comando pronto para colar no chat do Claude Code, já com o cliente e a variante escolhidos.</p>
+    <div class="painel" id="comandos-esteira"></div>
+  </section>
+
+  <section class="bloco">
+    <div class="bloco-cabecalho"><span class="bloco-numero">6</span><h2>Buscar no Drive <span style="font-weight:400;color:var(--grafite-2);font-size:13px">(opcional, somente leitura)</span></h2></div>
+    <div class="painel">
+      <div class="linha-acoes" style="margin-top:0">
+        <button class="botao discreto" id="btn-buscar-drive" type="button">Buscar pasta do cliente</button>
+      </div>
+      <div id="drive-estado" style="margin-top:12px"></div>
+      <div id="drive-resultados"></div>
+    </div>
+  </section>
+
+  <footer class="rodape">
+    Extração feita por expressão regular sobre o texto colado — nada é enviado a lugar nenhum para
+    isso. Réplica, coligação de contratos e teses agravantes (Bloco 6, vícios construtivos, Pet Care)
+    têm estrutura própria documentada em <code>references/</code> da skill
+    <code>preenchedor-peticoes-gav</code> — esta página nunca tenta reconstruir esse conteúdo sozinha,
+    só compõe o pedido certo para o chat. Tabela de empreendimentos e advogados replicada da Parte 1 e
+    Parte 7 da skill; atualize os dois lugares juntos se algo mudar.
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ------------------------------------------------------------------
+  // Dados de referência (Parte 1 e Parte 7 da skill preenchedor-peticoes-gav)
+  // ------------------------------------------------------------------
+
+  var EMPREENDIMENTOS = {
+    "Porto 2 Life Resort": {
+      cnpj: "39.673.888/0001-69",
+      endereco: "Rua das Piscinas Naturais, s/n, Quadra A, Lote 08-A, Bairro N. Sra. do Ó – Vila do Porto, Ipojuca/PE, CEP 55.900-000",
+      uf: "PE", tese: "Bloco 6"
+    },
+    "GAV Porto Alto Resort / Muro Alto": {
+      cnpj: "34.832.326/0001-05",
+      endereco: "Rua das Piscinas Naturais, s/n, Quadra A, Bairro N. Sra. do Ó – Vila do Porto, Ipojuca/PE, CEP 55.900-000",
+      uf: "PE", tese: "Vícios construtivos / Pet Care-Dog Care"
+    },
+    "Jeriquiá Dunas/Lagoa Resort": {
+      cnpj: "33.598.849/0001-68",
+      endereco: "Rodovia CE-182, s/n, Fazenda Caiçara, Gleba I, Zona Rural, Cruz/CE, CEP 62.595-000",
+      uf: "CE", tese: null
+    },
+    "Oikos Maragogi Resort": {
+      cnpj: null, endereco: null, uf: "AL", tese: null
+    }
+  };
+
+  // Outorgados da procuração padrão (Cliente 193, conferida) + Parte 7 da skill.
+  var ADVOGADOS = [
+    { nome: "Gilzielle Veloso Pontes", oab: "OAB/PE 55.134", email: "dipallacio@gmail.com", nota: "assina as notificações à GAV" },
+    { nome: "Luan Victor de Melo Silva", oab: "OAB/PE 64.995", email: "dipallacio@gmail.com" },
+    { nome: "Raphael Carlos Pessoa Reis", oab: "OAB/PE 38.377", email: "dipallacio@gmail.com" },
+    { nome: "Diogo Serafim de Araújo", oab: "OAB/PE 51.758", email: "dipallacio@gmail.com" },
+    { nome: "José Weiden Dutra de Barros", oab: "OAB/PE 63.351-D", email: "dipallacio@gmail.com" },
+    { nome: "Aquiles de Souza Albuquerque", oab: "OAB/PE 15.669", email: "dipallacio@gmail.com" },
+    { nome: "Juliana Virgínia Ferreira da Silva", oab: "OAB/PE 53.673", email: "dipallacio@gmail.com" }
+  ];
+
+  var VARIANTES = [
+    { id: "inicial", titulo: "Petição Inicial", descricao: "advogado constituído — gera os 10 trechos", gera: true },
+    { id: "gratuita", titulo: "+ Justiça Gratuita", descricao: "mesma inicial, custas substituídas por gratuidade", gera: true },
+    { id: "parcelamento", titulo: "Parcelamento Avulso", descricao: "sem template verificado aqui — comando para o chat", gera: false },
+    { id: "replica", titulo: "Réplica", descricao: "10 seções fixas — comando para o chat", gera: false }
+  ];
+
+  var EXEMPLO = [
+    "Nome: MARIA EXEMPLO DA SILVA",
+    "CPF: 000.000.000-00",
+    "Identidade: 00.000.000-0",
+    "Estado Civil: Solteira",
+    "Profissão: Analista Administrativa",
+    "Endereço Residencial: Rua Ficticia, 123, Bairro Teste, Recife/PE",
+    "CEP: 00000-000",
+    "E-mail: exemplo@example.com",
+    "Data de Nascimento: 01/01/1990",
+    "Data da venda: 10/03/2023",
+    "Venda: 12345",
+    "Cota: 07",
+    "Fração: 1/50",
+    "Apartamento: 305",
+    "Bloco: 03",
+    "Empreendimento: Porto 2 Life Resort",
+    "VALOR TOTAL DA VENDA: R$ 42.000,00",
+    "Comissão de Corretagem: R$ 4.200,00",
+    "Sinal de Negócio: R$ 3.000,00 (4 parcelas)",
+    "Saldo Devedor: R$ 34.800,00 (70 parcelas)",
+    "RECEBIDO: R$ 18.500,00",
+  ].join("\n");
+
+  // ------------------------------------------------------------------
+  // Extenso PT-BR (verificado contra o exemplo da própria skill:
+  // 12.326,90 -> "doze mil, trezentos e vinte e seis reais e noventa centavos")
+  // ------------------------------------------------------------------
+
+  var UNI = ["", "um", "dois", "três", "quatro", "cinco", "seis", "sete", "oito", "nove"];
+  var DEZ10 = ["dez", "onze", "doze", "treze", "quatorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove"];
+  var DEZ = ["", "", "vinte", "trinta", "quarenta", "cinquenta", "sessenta", "setenta", "oitenta", "noventa"];
+  var CEM = ["", "cento", "duzentos", "trezentos", "quatrocentos", "quinhentos", "seiscentos", "setecentos", "oitocentos", "novecentos"];
+
+  function grupoExtenso(n) {
+    if (n === 0) return "";
+    if (n === 100) return "cem";
+    var c = Math.floor(n / 100), r = n % 100;
+    var partes = [];
+    if (c > 0) partes.push(CEM[c]);
+    if (r > 0) {
+      if (r < 10) partes.push(UNI[r]);
+      else if (r < 20) partes.push(DEZ10[r - 10]);
+      else {
+        var d = Math.floor(r / 10), u = r % 10;
+        partes.push(DEZ[d] + (u > 0 ? " e " + UNI[u] : ""));
+      }
+    }
+    return partes.join(" e ");
+  }
+
+  function numeroPorExtenso(n) {
+    n = Math.round(n);
+    if (n === 0) return "zero";
+    var milhoes = Math.floor(n / 1000000), resto1 = n % 1000000;
+    var milhares = Math.floor(resto1 / 1000), resto2 = resto1 % 1000;
+    var partes = [];
+    if (milhoes > 0) partes.push(grupoExtenso(milhoes) + (milhoes === 1 ? " milhão" : " milhões"));
+    if (milhares > 0) partes.push(milhares === 1 ? "mil" : grupoExtenso(milhares) + " mil");
+    if (resto2 > 0) partes.push(grupoExtenso(resto2));
+    if (partes.length === 0) return "zero";
+    if (partes.length === 1) return partes[0];
+    var ultimo = partes[partes.length - 1];
+    var anteriores = partes.slice(0, -1);
+    var usaE = resto2 > 0 && (resto2 < 100 || resto2 % 100 === 0);
+    return usaE ? anteriores.join(", ") + " e " + ultimo : partes.join(", ");
+  }
+
+  function valorExtenso(valor) {
+    valor = Math.max(0, valor || 0);
+    var reais = Math.floor(valor + 1e-6);
+    var centavos = Math.round((valor - reais) * 100);
+    var txt = numeroPorExtenso(reais) + (reais === 1 ? " real" : " reais");
+    if (centavos > 0) txt += " e " + numeroPorExtenso(centavos) + (centavos === 1 ? " centavo" : " centavos");
+    return txt;
+  }
+
+  function formatoMoeda(valor) {
+    return (valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  function moedaComExtenso(valor) {
+    return formatoMoeda(valor) + " (" + valorExtenso(valor) + ")";
+  }
+
+  function parseMoedaPtBr(str) {
+    if (!str) return 0;
+    var limpo = String(str).replace(/[^\d,.-]/g, "");
+    if (limpo.indexOf(",") > -1) limpo = limpo.replace(/\./g, "").replace(",", ".");
+    var n = parseFloat(limpo);
+    return isNaN(n) ? 0 : n;
+  }
+
+  // ------------------------------------------------------------------
+  // Extração por regex (Parte 1 da skill) — sem chamada de API nenhuma.
+  // ------------------------------------------------------------------
+
+  var PADROES = {
+    nome: /(?:^|\n)\s*(?:Nome|Cliente)\s*:?\s*([^\n]+)/i,
+    cpf: /CPF(?:\/CNPJ)?\s*:?\s*([\d.\/-]{11,18})/i,
+    rg: /(?:Identidade|RG)\s*:?\s*([A-Za-z0-9.\/-]{5,15})/i,
+    estadoCivil: /Estado\s*Civil\s*:?\s*([^\n,]+)/i,
+    profissao: /Profiss[ãa]o\s*:?\s*([^\n,]+)/i,
+    endereco: /Endere[çc]o(?:\s*Residencial)?\s*:?\s*([^\n]+)/i,
+    cep: /CEP\s*:?\s*([\d.-]{8,10})/i,
+    email: /E-?mail\s*:?\s*([\w.+-]+@[\w-]+\.[\w.-]+)/i,
+    dataNascimento: /(?:Data\s*de\s*Nascimento|Nascid[oa]\s*em)\s*:?\s*(\d{2}\/\d{2}\/\d{4})/i,
+    dataContrato: /(?:Data\s*da\s*[Vv]enda|Data\s*do\s*[Cc]ontrato)\s*:?\s*(\d{2}\/\d{2}\/\d{4})/i,
+    numeroVenda: /(?:N[ºo]\s*da\s*)?[Vv]enda\s*:?\s*(\d{3,8})/i,
+    valorTotalContrato: /VALOR\s*TOTAL\s*DA\s*VENDA\s*:?\s*R?\$?\s*([\d.,]+)/i,
+    comissaoCorretagem: /Comiss[ãa]o(?:\s*de\s*Corretagem)?\s*:?\s*R?\$?\s*([\d.,]+)/i,
+    valorSinal: /Sinal\s*(?:de\s*Neg[óo]cio)?\s*:?\s*R?\$?\s*([\d.,]+)/i,
+    valorSaldo: /Saldo(?:\s*Devedor|\s*Parcelado)?\s*:?\s*R?\$?\s*([\d.,]+)/i,
+    valorTotalPago: /(?:RECEBIDO|Total\s*Pago)\s*:?\s*R?\$?\s*([\d.,]+)/i,
+    // cota única — melhor esforço; casos com mais de uma cota exigem edição manual.
+    cotaNumero: /\bCota\s*(?:\/Fra[çc][ãa]o)?\s*:?\s*(\d{1,4})/i,
+    cotaFracao: /Fra[çc][ãa]o\s*:?\s*([\d\/.,]+\s*m?²?)/i,
+    cotaApto: /Apartamento\s*:?\s*([\w-]+)/i,
+    cotaBloco: /Bloco\s*:?\s*([\w-]+)/i
+  };
+
+  function extrairCampo(texto, chave) {
+    var m = PADROES[chave].exec(texto);
+    return m ? m[1].trim() : "";
+  }
+
+  function detectarEmpreendimento(texto) {
+    var nomes = Object.keys(EMPREENDIMENTOS);
+    for (var i = 0; i < nomes.length; i++) {
+      if (texto.toLowerCase().indexOf(nomes[i].toLowerCase()) > -1) return nomes[i];
+    }
+    // variações comuns
+    if (/porto\s*2\s*life/i.test(texto)) return "Porto 2 Life Resort";
+    if (/porto\s*alto|muro\s*alto/i.test(texto)) return "GAV Porto Alto Resort / Muro Alto";
+    if (/jeriqui[áa]/i.test(texto)) return "Jeriquiá Dunas/Lagoa Resort";
+    if (/oikos/i.test(texto)) return "Oikos Maragogi Resort";
+    return "";
+  }
+
+  function parseExtrato(texto) {
+    var campos = {};
+    Object.keys(PADROES).forEach(function (k) {
+      if (k.indexOf("cota") !== 0) campos[k] = extrairCampo(texto, k);
+    });
+    campos.empreendimento = detectarEmpreendimento(texto);
+    var cota = {
+      numero: extrairCampo(texto, "cotaNumero"),
+      fracao: extrairCampo(texto, "cotaFracao"),
+      apto: extrairCampo(texto, "cotaApto"),
+      bloco: extrairCampo(texto, "cotaBloco"),
+      empreendimento: campos.empreendimento
+    };
+    campos.cotas = (cota.numero || cota.apto) ? [cota] : [{ numero: "", fracao: "", apto: "", bloco: "", empreendimento: campos.empreendimento }];
+    return campos;
+  }
+
+  // ------------------------------------------------------------------
+  // Estado da página
+  // ------------------------------------------------------------------
+
+  var estado = {
+    campos: {}, cotas: [], genero: "f", variante: "inicial",
+    danoMoral: false, teseAgravante: false, advogadoIdx: 0, parcelas: "12"
+  };
+
+  var CAMPOS_TEXTO = [
+    ["nome", "Nome completo"], ["cpf", "CPF"], ["rg", "RG"], ["estadoCivil", "Estado civil"],
+    ["profissao", "Profissão"], ["endereco", "Endereço"], ["cep", "CEP"], ["email", "E-mail"],
+    ["dataNascimento", "Data de nascimento"], ["dataContrato", "Data do contrato"],
+    ["numeroVenda", "Nº da venda"]
+  ];
+  var CAMPOS_VALOR = [
+    ["valorTotalContrato", "Valor total do contrato"], ["comissaoCorretagem", "Comissão de corretagem"],
+    ["valorSinal", "Sinal"], ["valorSaldo", "Saldo"], ["valorTotalPago", "Total pago (RECEBIDO)"]
+  ];
+
+  function $(id) { return document.getElementById(id); }
+
+  function g(masc, fem) { return estado.genero === "m" ? masc : fem; }
+
+  // ------------------------------------------------------------------
+  // Render: campos
+  // ------------------------------------------------------------------
+
+  function renderCampos() {
+    var grade = $("grade-campos");
+    grade.innerHTML = "";
+    CAMPOS_TEXTO.concat(CAMPOS_VALOR).forEach(function (par) {
+      var chave = par[0], rotulo = par[1];
+      var valor = estado.campos[chave] || "";
+      var div = document.createElement("div");
+      div.className = "campo";
+      var isValor = CAMPOS_VALOR.some(function (p) { return p[0] === chave; });
+      div.innerHTML =
+        '<label for="c-' + chave + '">' + rotulo + '</label>' +
+        '<input id="c-' + chave + '" type="text" value="' + valor.replace(/"/g, "&quot;") + '"' +
+        ' class="' + (valor ? "extraido" : "faltando") + '" data-chave="' + chave + '" data-valor="' + (isValor ? "1" : "0") + '">' +
+        (valor ? "" : '<span class="marca-falta">⚡ não encontrado</span>');
+      grade.appendChild(div);
+    });
+    grade.querySelectorAll("input").forEach(function (inp) {
+      inp.addEventListener("input", function () {
+        estado.campos[inp.dataset.chave] = inp.value;
+        inp.className = inp.value ? "extraido" : "faltando";
+        renderTrechos(); renderResumo(); renderComandos();
+      });
+    });
+  }
+
+  function renderCotas() {
+    var lista = $("cotas-lista");
+    lista.innerHTML = "";
+    estado.cotas.forEach(function (cota, i) {
+      var linha = document.createElement("div");
+      linha.className = "cota-linha";
+      var opcoesEmp = Object.keys(EMPREENDIMENTOS).map(function (nome) {
+        return '<option value="' + nome + '"' + (cota.empreendimento === nome ? " selected" : "") + '>' + nome + "</option>";
+      }).join("");
+      linha.innerHTML =
+        '<div class="campo"><label>Cota nº</label><input data-i="' + i + '" data-c="numero" value="' + (cota.numero || "") + '"></div>' +
+        '<div class="campo"><label>Fração</label><input data-i="' + i + '" data-c="fracao" value="' + (cota.fracao || "") + '"></div>' +
+        '<div class="campo"><label>Apto/UH</label><input data-i="' + i + '" data-c="apto" value="' + (cota.apto || "") + '"></div>' +
+        '<div class="campo"><label>Bloco</label><input data-i="' + i + '" data-c="bloco" value="' + (cota.bloco || "") + '"></div>' +
+        '<div class="campo"><label>Empreendimento</label><select data-i="' + i + '" data-c="empreendimento"><option value="">— selecione —</option>' + opcoesEmp + '</select></div>' +
+        (estado.cotas.length > 1 ? '<button class="botao-remover" data-i="' + i + '" type="button">remover</button>' : "<span></span>");
+      lista.appendChild(linha);
+    });
+    lista.querySelectorAll("input,select").forEach(function (el) {
+      el.addEventListener("input", function () {
+        var i = Number(el.dataset.i), c = el.dataset.c;
+        estado.cotas[i][c] = el.value;
+        atualizarColigacao(); renderTrechos(); renderResumo(); renderComandos();
+      });
+    });
+    lista.querySelectorAll(".botao-remover").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        estado.cotas.splice(Number(btn.dataset.i), 1);
+        renderCotas(); atualizarColigacao(); renderTrechos();
+      });
+    });
+    atualizarColigacao();
+  }
+
+  function empreendimentosDistintos() {
+    var set = {};
+    estado.cotas.forEach(function (c) { if (c.empreendimento) set[c.empreendimento] = true; });
+    return Object.keys(set);
+  }
+
+  function atualizarColigacao() {
+    var aviso = $("aviso-coligacao");
+    var distintos = empreendimentosDistintos();
+    if (distintos.length > 1) {
+      aviso.hidden = false;
+      aviso.textContent = "Cotas em " + distintos.length + " empreendimentos diferentes (" + distintos.join(", ") +
+        ") — isto é um caso de conexão/coligação contratual. Os Trechos 1/4 padrão não se aplicam sozinhos; " +
+        "use o comando da seção 5 para pedir ao chat o bloco de réus múltiplos (references/conexao-coligacao.md).";
+    } else {
+      aviso.hidden = true;
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Render: variantes
+  // ------------------------------------------------------------------
+
+  function renderVariantes() {
+    var wrap = $("variantes");
+    wrap.innerHTML = "";
+    VARIANTES.forEach(function (v) {
+      var btn = document.createElement("button");
+      btn.type = "button"; btn.className = "variante-btn";
+      btn.setAttribute("aria-pressed", estado.variante === v.id ? "true" : "false");
+      btn.innerHTML = "<strong>" + v.titulo + "</strong><span>" + v.descricao + "</span>";
+      btn.addEventListener("click", function () { estado.variante = v.id; renderVariantes(); renderTrechos(); renderComandos(); });
+      wrap.appendChild(btn);
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Geração dos trechos (Parte 3 da skill, texto verbatim)
+  // ------------------------------------------------------------------
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function markdownParaHtml(txt) {
+    return escapeHtml(txt)
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/⚡([^\n]*)/g, '<mark>⚡$1</mark>');
+  }
+
+  function campoOuMarca(chave, rotulo) {
+    var v = estado.campos[chave];
+    return v ? v : "[___] ⚡ " + rotulo + " não informado";
+  }
+
+  function montarTrechos() {
+    var c = estado.campos;
+    var adv = ADVOGADOS[estado.advogadoIdx];
+    var emp = c.empreendimento ? EMPREENDIMENTOS[c.empreendimento] : null;
+    var valorPago = parseMoedaPtBr(c.valorTotalPago);
+    var comissao = parseMoedaPtBr(c.comissaoCorretagem);
+    var semComissao = Math.max(0, valorPago - comissao);
+    var v90 = semComissao * 0.90, v75 = semComissao * 0.75;
+    var nCotas = estado.cotas.length;
+    var multiEmpreendimento = empreendimentosDistintos().length > 1;
+
+    var trechos = [];
+
+    trechos.push({
+      id: "t1", titulo: "TRECHO 1 — Qualificação do Autor",
+      texto: "**" + campoOuMarca("nome", "nome") + "**, brasileiro(a), **" + campoOuMarca("estadoCivil", "estado civil") +
+        "**, **" + campoOuMarca("profissao", "profissão") + "**, portador(a) da cédula de identidade nº **" +
+        campoOuMarca("rg", "RG") + "**, expedida pela **[ÓRGÃO/UF]**, inscrito(a) no CPF sob o nº **" +
+        campoOuMarca("cpf", "CPF") + "**, nascido(a) em **" + campoOuMarca("dataNascimento", "data de nascimento") +
+        "**, residente e domiciliado(a) na **" + campoOuMarca("endereco", "endereço") + "**, CEP **" +
+        campoOuMarca("cep", "CEP") + "**" + (c.email ? ", **" + c.email + "**" : "") + ","
+    });
+
+    trechos.push({
+      id: "t2", titulo: "TRECHO 2 — Nota de intimações do advogado",
+      texto: "Antes, porém, pede-se que todas as intimações referentes a presente lide sejam publicadas exclusivamente " +
+        "em nome do advogado **" + adv.nome + "**, **" + adv.oab + "**.\n\n" +
+        "...seu procurador está à disposição do polo passivo para eventuais tratativas de acordo, através do endereço " +
+        "eletrônico: **" + adv.email + "** e dipallacio@gmail.com."
+    });
+
+    if (estado.variante === "gratuita") {
+      trechos.push({
+        id: "t3", titulo: "TRECHO 3 — Justiça gratuita",
+        pendente: true,
+        texto: "⚡ Texto de gratuidade da justiça não está documentado nesta ferramenta — nenhum modelo verificado " +
+          "para não inventar redação de um requerimento real. Use o comando da seção 5 para pedir ao chat (skill " +
+          "preenchedor-peticoes-gav) o texto padrão do escritório para hipossuficiência de **" +
+          campoOuMarca("nome", "nome") + "**."
+      });
+    } else {
+      trechos.push({
+        id: "t3", titulo: "TRECHO 3 — Parcelamento das custas",
+        texto: "Requer-se a Vossa Excelência que seja autorizado o parcelamento das custas em **" + estado.parcelas +
+          "** (**" + numeroPorExtenso(Number(estado.parcelas)) + "**) vezes, bem como seja determinado à " +
+          "Secretaria/Serventia que proceda com a emissão da primeira guia para pagamento.\n\n" +
+          "⚡ Confirme o número de parcelas com o usuário — varia caso a caso."
+      });
+    }
+
+    if (multiEmpreendimento) {
+      trechos.push({
+        id: "t4", titulo: "TRECHO 4 — Fatos (data e cotas)", pendente: true,
+        texto: "⚡ Caso de coligação contratual (" + empreendimentosDistintos().length + " empreendimentos) — o " +
+          "bloco de qualificação múltipla e a fundamentação de conexão têm estrutura própria " +
+          "(references/conexao-coligacao.md). Use o comando da seção 5."
+      });
+    } else if (estado.teseAgravante) {
+      trechos.push({
+        id: "t4", titulo: "TRECHO 4 — Fatos (data e cotas)", pendente: true,
+        texto: "⚡ Tese agravante marcada (Bloco 6 / vícios construtivos / Pet Care) — a redação dos fatos muda " +
+          "conforme a tese (references/teses-especiais.md). Use o comando da seção 5."
+      });
+    } else {
+      var listaCotas = estado.cotas.map(function (cota) {
+        return "▸ Cota **" + (cota.numero || "[___]") + "**, fração ideal de **" + (cota.fracao || "[___]") +
+          "**, apartamento/UH **" + (cota.apto || "[___]") + "**, bloco **" + (cota.bloco || "[___]") +
+          "** — empreendimento **" + (c.empreendimento || "[___] ⚡ empreendimento não informado") + "**;";
+      }).join("\n");
+      trechos.push({
+        id: "t4", titulo: "TRECHO 4 — Fatos (data e cotas)",
+        texto: "Inicialmente, convém esclarecer que " + g("o autor", "a autora") + " firmou um INSTRUMENTO PARTICULAR " +
+          "DE PROMESSA DE COMPRA E VENDA DE IMÓVEL com a empresa ré, em **" + campoOuMarca("dataContrato", "data do contrato") + "**.\n\n" +
+          "Em decorrência da insistência por parte da ré, " + g("o autor", "a autora") + " firmou **" + nCotas +
+          "** (" + numeroPorExtenso(nCotas) + ") Promessa(s) de Compra e Venda, destinada à aquisição de cota de " +
+          "multipropriedade no empreendimento **" + (c.empreendimento || "[___]") + "**, localizado em **" +
+          (emp && emp.endereco ? emp.endereco : "[___] ⚡ endereço do empreendimento não confirmado") + "**.\n\n" + listaCotas
+      });
+    }
+
+    trechos.push({
+      id: "t5", titulo: "TRECHO 5 — Valor total pago",
+      texto: "Das cotas adquiridas, " + g("o autor", "a autora") + " já desembolsou o valor global de **" +
+        moedaComExtenso(valorPago) + "**."
+    });
+
+    trechos.push({
+      id: "t6", titulo: "TRECHO 6 — Tutela de urgência",
+      texto: "Posto isto, REQUER que V. Exa. determine que a requerida cesse as cobranças das parcelas mensais " +
+        "vencidas ou vincendas, bem como das taxas condominiais e IPTU, e se abstenha de inserir o nome " + g("do autor", "da autora") +
+        " em cadastros de inadimplentes (SPC/SERASA), sob pena de multa diária de R$ 500,00 (quinhentos reais) até o " +
+        "limite de R$ 10.000,00 (dez mil reais).\n\nAinda, requer-se a majoração em caso de descumprimento reiterado " +
+        "por 05 (cinco) cobranças, elevando o valor da multa diária para R$ 1.000,00 (um mil reais) por cobrança, com " +
+        "limite de R$ 15.000,00 (quinze mil reais), sendo este independente da multa anterior por tratar-se de fato " +
+        "gerador diverso e posterior."
+    });
+
+    if (!multiEmpreendimento && !estado.teseAgravante) {
+      trechos.push({
+        id: "t7", titulo: "TRECHO 7 — Pedido de mérito (camadas)",
+        texto: "quanto às cotas, a declaração de nulidade da cláusula de retenção abusiva (art. 51, IV, CDC), com " +
+          "restituição em parcela única e retenção máxima de 10% (dez por cento) — equivalente a **" + moedaComExtenso(v90) + "**;\n\n" +
+          "subsidiariamente, e desde já, o depósito em juízo do valor incontroverso de 75% (setenta e cinco por " +
+          "cento) dos valores pagos — **" + moedaComExtenso(v75) + "** — enquanto se discute o percentual final de retenção." +
+          (estado.danoMoral ? "\n\nseja considerado dano moral in re ipsa em caso de negativação do nome " + g("do autor", "da autora") +
+            " em qualquer instituição de proteção ao crédito por fato relacionado a esta ação;" : "")
+      });
+    } else {
+      trechos.push({
+        id: "t7", titulo: "TRECHO 7 — Pedido de mérito (camadas)", pendente: true,
+        texto: "⚡ Com tese agravante ou coligação, o pedido de mérito ganha a camada de restituição integral " +
+          "(100%) para a(s) cota(s) afetada(s) antes das camadas padrão — ver Trecho 7 da skill e " +
+          "teses-especiais.md/conexao-coligacao.md. Use o comando da seção 5."
+      });
+    }
+
+    trechos.push({
+      id: "t8", titulo: "TRECHO 8 — Honorários",
+      texto: "a condenação da ré em honorários sucumbenciais de até 20% (vinte por cento) (art. 85, §2º, CPC), " +
+        "sobre a condenação ou o proveito econômico;"
+    });
+
+    trechos.push({
+      id: "t9", titulo: "TRECHO 9 — Valor da causa",
+      texto: "Dá-se à causa o valor de **" + moedaComExtenso(valorPago) + "**."
+    });
+
+    trechos.push({
+      id: "t10", titulo: "TRECHO 10 — Local, data e assinatura",
+      texto: "Ipojuca, **" + new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }) +
+        "**.\n\n**" + adv.nome + "**\n**" + adv.oab + "**"
+    });
+
+    return { trechos: trechos, valorPago: valorPago, comissao: comissao, semComissao: semComissao, v90: v90, v75: v75 };
+  }
+
+  var ultimoResultado = null;
+
+  function renderTrechos() {
+    if (estado.variante === "parcelamento" || estado.variante === "replica") {
+      $("saida-trechos").innerHTML =
+        '<div class="trecho pendente"><div class="trecho-cabecalho"><span class="trecho-titulo">' +
+        (estado.variante === "parcelamento" ? "Parcelamento Avulso" : "Réplica") +
+        '</span></div><div class="trecho-corpo">Esta variante não tem template verificado nesta página — ' +
+        (estado.variante === "replica"
+          ? "a réplica tem 10 seções fixas próprias (references/replica.md)."
+          : "o parcelamento avulso não está entre os trechos documentados na Parte 3 da skill.") +
+        ' Use o comando pronto na seção 5: ele já leva todos os dados extraídos para o chat montar a peça certa.</div></div>';
+      ultimoResultado = null;
+      return;
+    }
+    var r = montarTrechos();
+    ultimoResultado = r;
+    var html = r.trechos.map(function (t) {
+      return '<div class="trecho' + (t.pendente ? " pendente" : "") + '"><div class="trecho-cabecalho">' +
+        '<span class="trecho-titulo">' + t.titulo + '</span>' +
+        '<button class="botao mini discreto" data-copiar="' + t.id + '" type="button">Copiar</button>' +
+        '</div><div class="trecho-corpo">' + markdownParaHtml(t.texto) + '</div></div>';
+    }).join("");
+    $("saida-trechos").innerHTML = html;
+    $("saida-trechos").querySelectorAll("[data-copiar]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var t = r.trechos.find(function (x) { return x.id === btn.dataset.copiar; });
+        copiarTexto(t.texto, btn);
+      });
+    });
+  }
+
+  function renderResumo() {
+    var tabela = $("tabela-resumo");
+    if (!ultimoResultado) { tabela.innerHTML = ""; return; }
+    var r = ultimoResultado;
+    var linhas = [
+      ["Total pago", formatoMoeda(r.valorPago)],
+      ["Comissão de corretagem (excluída)", formatoMoeda(r.comissao)],
+      ["Piso subsidiário — retenção máx. 10% (90%)", formatoMoeda(r.v90)],
+      ["Depósito incontroverso (75%)", formatoMoeda(r.v75)],
+      ["Valor da causa", formatoMoeda(r.valorPago)],
+      ["Empreendimento(s)", empreendimentosDistintos().join(", ") || "—"]
+    ];
+    tabela.innerHTML = linhas.map(function (l) { return "<tr><td>" + l[0] + "</td><td>" + l[1] + "</td></tr>"; }).join("");
+  }
+
+  // ------------------------------------------------------------------
+  // Copiar
+  // ------------------------------------------------------------------
+
+  function copiarTexto(texto, botao) {
+    var restaurar = function (ok) {
+      if (!botao) return;
+      var original = botao.textContent;
+      botao.textContent = ok ? "Copiado" : "Não copiou";
+      setTimeout(function () { botao.textContent = original; }, 1600);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(function () { restaurar(true); }).catch(function () { copiarFallback(texto, restaurar); });
+    } else {
+      copiarFallback(texto, restaurar);
+    }
+  }
+  function copiarFallback(texto, cb) {
+    try {
+      var area = document.createElement("textarea");
+      area.value = texto; area.style.position = "fixed"; area.style.opacity = "0";
+      document.body.appendChild(area); area.select();
+      var ok = document.execCommand("copy");
+      document.body.removeChild(area);
+      cb(ok);
+    } catch (e) { cb(false); }
+  }
+
+  // ------------------------------------------------------------------
+  // Central de comandos da esteira
+  // ------------------------------------------------------------------
+
+  var RESUMO_VARIANTE = {
+    inicial: "petição inicial (advogado constituído)",
+    gratuita: "petição inicial com justiça gratuita",
+    parcelamento: "parcelamento avulso (só suspensão/parcelamento)",
+    replica: "réplica à contestação"
+  };
+
+  function renderComandos() {
+    var nome = estado.campos.nome || "[NOME DO CLIENTE]";
+    var variante = RESUMO_VARIANTE[estado.variante];
+    var comandos = [
+      { titulo: "Organizar a pasta no Drive", texto: "/gav-esteira " + nome },
+      { titulo: "Baixar documentos do WhatsApp", texto: "/gav-whatsapp " + nome }
+    ];
+
+    if (estado.variante === "inicial" || estado.variante === "gratuita") {
+      comandos.push({
+        titulo: "Montar a petição (trechos já prontos acima)",
+        texto: "/gav-peticao " + nome + " — variante: " + variante + ". Os trechos 1-10 já foram gerados na Central " +
+          "de Comandos; use-os para instruir a inicial."
+      });
+    } else {
+      var c = estado.campos;
+      var dadosResumo = [
+        "nome=" + (c.nome || "?"), "cpf=" + (c.cpf || "?"), "venda=" + (c.numeroVenda || "?"),
+        "empreendimento=" + (c.empreendimento || "?"), "valorPago=" + (c.valorTotalPago || "?")
+      ].join(", ");
+      comandos.push({
+        titulo: "Pedir a peça ao chat (sem template verificado aqui)",
+        texto: "Use a skill preenchedor-peticoes-gav para montar a petição em formato " + variante.toUpperCase() +
+          " para " + nome + ". Dados já extraídos: " + dadosResumo + ". Cotas: " + JSON.stringify(estado.cotas) + "."
+      });
+    }
+
+    var wrap = $("comandos-esteira");
+    wrap.innerHTML = comandos.map(function (c, i) {
+      return '<div class="comando-linha"><div style="flex:0 0 100%;font-size:12px;color:var(--grafite-2);margin-bottom:2px">' +
+        c.titulo + '</div><div class="comando-texto">' + escapeHtml(c.texto) + '</div>' +
+        '<button class="botao mini" data-comando="' + i + '" type="button">Copiar</button></div>';
+    }).join("");
+    wrap.querySelectorAll("[data-comando]").forEach(function (btn) {
+      btn.addEventListener("click", function () { copiarTexto(comandos[Number(btn.dataset.comando)].texto, btn); });
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Busca no Drive (opcional — mcp capability, somente leitura)
+  // ------------------------------------------------------------------
+
+  // Desabilitado por padrão até o mcp resolver — nunca fica "aparentemente pronto"
+  // enquanto ainda não se sabe se o conector existe (a resolução pode levar até ~10s).
+  var mcpNamespace = null;
+  $("btn-buscar-drive").disabled = true;
+  $("drive-estado").innerHTML = '<div class="estado-mcp">Verificando se a busca no Drive está disponível…</div>';
+
+  function atualizarEstadoMcp() {
+    var estadoEl = $("drive-estado");
+    var btn = $("btn-buscar-drive");
+    if (!mcpNamespace) {
+      estadoEl.innerHTML = '<div class="estado-mcp">Busca no Drive não disponível nesta visualização — use a skill ' +
+        '<code>gav-esteira</code> no chat para localizar a pasta.</div>';
+      btn.disabled = true;
+    } else {
+      estadoEl.innerHTML = "";
+      btn.disabled = false;
+    }
+  }
+  if (window.claude && typeof window.claude.use === "function") {
+    window.claude.use("mcp").then(function (m) { mcpNamespace = m; atualizarEstadoMcp(); }).catch(function () { mcpNamespace = null; atualizarEstadoMcp(); });
+  } else {
+    mcpNamespace = null; atualizarEstadoMcp();
+  }
+  $("btn-buscar-drive").addEventListener("click", function () {
+    var nome = (estado.campos.nome || "").trim();
+    if (!nome) {
+      $("drive-estado").innerHTML = '<div class="estado-mcp">Preencha o nome do cliente no passo 2 antes de buscar.</div>';
+      return;
+    }
+    if (!mcpNamespace) return;
+    var termo = nome.split(" ").pop();
+    $("drive-estado").innerHTML = '<div class="estado-mcp">Buscando "' + escapeHtml(termo) + '"…</div>';
+    $("drive-resultados").innerHTML = "";
+    mcpNamespace.callTool("Google Drive", "search_files", {
+      query: "title contains '" + termo.replace(/'/g, "\\'") + "'",
+      pageSize: 15, excludeContentSnippets: true
+    }).then(function (res) {
+      var payload = res && res.payload;
+      var arquivos = (payload && payload.files) || [];
+      if (arquivos.length === 0) {
+        $("drive-estado").innerHTML = '<div class="estado-mcp">Nenhuma pasta encontrada para "' + escapeHtml(termo) + '".</div>';
+        return;
+      }
+      $("drive-estado").innerHTML = '<div class="estado-mcp">' + arquivos.length + ' resultado(s):</div>';
+      $("drive-resultados").innerHTML = arquivos.map(function (a) {
+        return '<div class="drive-resultado"><span>' + (a.mimeType === "application/vnd.google-apps.folder" ? "📁" : "📄") + '</span>' +
+          '<a href="' + a.viewUrl + '" target="_blank" rel="noopener">' + escapeHtml(a.title) + '</a></div>';
+      }).join("");
+    }).catch(function (err) {
+      var codigo = err && err.code;
+      var msg = {
+        needs_reauth: "Reconecte o Google Drive em claude.ai Settings → Connectors.",
+        server_not_connected: "Adicione o Google Drive em claude.ai Settings → Connectors.",
+        not_granted: "Esta visualização não tem permissão para usar conectores.",
+        selection_required: "Há mais de uma conexão de Google Drive — escolha uma quando solicitado."
+      }[codigo] || "Não foi possível buscar agora (" + (codigo || "erro") + ").";
+      $("drive-estado").innerHTML = '<div class="estado-mcp">' + escapeHtml(msg) + '</div>';
+    });
+  });
+
+  // ------------------------------------------------------------------
+  // Ligações gerais
+  // ------------------------------------------------------------------
+
+  function carregarExtrato(texto, ehExemplo) {
+    $("extrato-bruto").value = texto;
+    $("marca-exemplo").style.display = ehExemplo ? "inline-flex" : "none";
+    var campos = parseExtrato(texto);
+    estado.campos = campos;
+    estado.cotas = campos.cotas;
+    renderCampos(); renderCotas(); renderTrechos(); renderResumo(); renderComandos();
+  }
+
+  $("btn-extrair").addEventListener("click", function () {
+    $("marca-exemplo").style.display = "none";
+    var campos = parseExtrato($("extrato-bruto").value);
+    estado.campos = campos; estado.cotas = campos.cotas;
+    renderCampos(); renderCotas(); renderTrechos(); renderResumo(); renderComandos();
+  });
+  $("btn-limpar").addEventListener("click", function () {
+    $("extrato-bruto").value = ""; $("marca-exemplo").style.display = "none";
+    $("extrato-bruto").focus();
+  });
+  $("btn-add-cota").addEventListener("click", function () {
+    estado.cotas.push({ numero: "", fracao: "", apto: "", bloco: "", empreendimento: estado.campos.empreendimento || "" });
+    renderCotas(); renderTrechos();
+  });
+  document.querySelectorAll(".toggle-genero button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      estado.genero = btn.dataset.genero;
+      document.querySelectorAll(".toggle-genero button").forEach(function (b) { b.setAttribute("aria-pressed", b === btn ? "true" : "false"); });
+      renderTrechos();
+    });
+  });
+  $("chk-dano-moral").addEventListener("change", function (e) { estado.danoMoral = e.target.checked; renderTrechos(); });
+  $("chk-tese-agravante").addEventListener("change", function (e) { estado.teseAgravante = e.target.checked; renderTrechos(); });
+  $("sel-parcelas").addEventListener("change", function (e) { estado.parcelas = e.target.value; renderTrechos(); });
+  $("btn-copiar-tudo").addEventListener("click", function (e) {
+    if (!ultimoResultado) { copiarTexto("(esta variante não gera trechos aqui — use o comando da seção 5)", e.target); return; }
+    var tudo = ultimoResultado.trechos.map(function (t) { return "--- " + t.titulo + " ---\n" + t.texto; }).join("\n\n");
+    copiarTexto(tudo, e.target);
+  });
+
+  var selAdv = $("sel-advogado");
+  selAdv.innerHTML = ADVOGADOS.map(function (a, i) {
+    return '<option value="' + i + '">' + a.nome + " — " + a.oab + (a.nota ? " (" + a.nota + ")" : "") + "</option>";
+  }).join("");
+  selAdv.addEventListener("change", function () { estado.advogadoIdx = Number(selAdv.value); renderTrechos(); });
+
+  // ------------------------------------------------------------------
+  // Estado inicial: exemplo fictício carregado, página já "viva".
+  // ------------------------------------------------------------------
+
+  carregarExtrato(EXEMPLO, true);
+})();
+</script>
