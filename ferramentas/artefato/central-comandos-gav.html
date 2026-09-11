@@ -414,8 +414,26 @@
   var VARIANTES = [
     { id: "inicial", titulo: "Petição Inicial", descricao: "advogado constituído — gera os 10 trechos", gera: true },
     { id: "gratuita", titulo: "+ Justiça Gratuita", descricao: "mesma inicial, custas substituídas por gratuidade", gera: true },
-    { id: "parcelamento", titulo: "Parcelamento Avulso", descricao: "sem template verificado aqui — comando para o chat", gera: false },
-    { id: "replica", titulo: "Réplica", descricao: "10 seções fixas — comando para o chat", gera: false }
+    { id: "parcelamento", titulo: "Parcelamento Avulso", descricao: "sem template documentado — comando para o chat", gera: false },
+    { id: "replica", titulo: "Réplica", descricao: "10 seções, argumentação caso a caso — comando para o chat", gera: false }
+  ];
+
+  // As 10 seções da réplica (references/replica.md) — títulos são estrutura fixa
+  // e seguros de reproduzir; o CONTEÚDO de cada seção exige doutrina e jurisprudência
+  // específicas do caso e NÃO é gerado aqui (ver aviso na seção de Réplica).
+  var SECOES_REPLICA = [
+    "Cabeçalho e qualificação",
+    "I.1 — Rejeição da preliminar de litisconsórcio ativo necessário",
+    "I.1 — Síntese objetiva",
+    "II.2 — Impropriedade da tese de \"cancelamento por vontade do autor\"",
+    "II.3 — Vulnerabilidade do consumidor / insuficiência da ciência formal",
+    "II.4 — Rescisão motivada e devolução integral (ou retenção máx. 25%)",
+    "II.5 — Impugnação à retenção automática de 50% (Lei 13.786/2018)",
+    "II.6 — Abusividade da cumulação das retenções contratuais",
+    "II.7 — Inadequação do adiamento da restituição",
+    "II.8 — Impugnação à retenção de fruição/taxas/encargos",
+    "II.9 — Casos análogos contra a mesma ré e isonomia",
+    "II.10 — Requerimentos finais"
   ];
 
   var EXEMPLO = [
@@ -580,8 +598,20 @@
 
   var estado = {
     campos: {}, cotas: [], genero: "f", variante: "inicial",
-    danoMoral: false, teseAgravante: false, advogadoIdx: 0, parcelas: "12"
+    danoMoral: false, teseAgravante: false, advogadoIdx: 0, parcelas: "12",
+    replica: { processo: "", teses: "", evidencias: "" }
   };
+
+  function renderCamposReplica() {
+    if (estado.variante !== "replica") return "";
+    return '<div class="painel" style="margin-top:12px;background:var(--superficie-2)">' +
+      '<div class="campo" style="margin-bottom:10px"><label>Nº do processo</label>' +
+      '<input data-replica="processo" value="' + (estado.replica.processo || "") + '" placeholder="0000000-00.2026.8.17.2730"></div>' +
+      '<div class="campo" style="margin-bottom:10px"><label>Teses que se aplicam (Bloco 6 / Pet Care / vícios / coligação — se houver)</label>' +
+      '<input data-replica="teses" value="' + (estado.replica.teses || "") + '" placeholder="ex.: Bloco 6 inoperante"></div>' +
+      '<div class="campo"><label>Arquivos de evidência do cliente (nomes exatos, se houver)</label>' +
+      '<input data-replica="evidencias" value="' + (estado.replica.evidencias || "") + '" placeholder="ex.: VIDEO BLOCO 06 BLOQUEADO.mp4"></div></div>';
+  }
 
   var CAMPOS_TEXTO = [
     ["nome", "Nome completo"], ["cpf", "CPF"], ["rg", "RG"], ["estadoCivil", "Estado civil"],
@@ -855,14 +885,31 @@
 
   function renderTrechos() {
     if (estado.variante === "parcelamento" || estado.variante === "replica") {
+      var corpo;
+      if (estado.variante === "replica") {
+        corpo = '<p style="margin:0 0 10px">A estrutura tem 12 itens fixos (references/replica.md) — reproduzo os ' +
+          '<strong>títulos</strong> abaixo porque são estrutura, não conteúdo. O texto de cada seção depende de ' +
+          'doutrina, jurisprudência e fatos específicos do caso — <mark>⚡ gerar isso aqui seria inventar ' +
+          'argumentação jurídica sem base</mark>, o que os próprios arquivos de referência instruem a não fazer ' +
+          '("não generalize", "pergunte ao usuário", "adaptar, não copiar cego"). Preencha o mini-formulário e use ' +
+          'o comando da seção 5.</p><ol style="margin:0 0 12px;padding-left:20px;font-size:12.5px;color:var(--grafite-2)">' +
+          SECOES_REPLICA.map(function (s) { return "<li>" + escapeHtml(s) + "</li>"; }).join("") + "</ol>";
+      } else {
+        corpo = '<p style="margin:0">Não há template verificado para Parcelamento Avulso em nenhuma referência ' +
+          'desta skill — é uma das 3 abas do preenchedor original, mas sem estrutura documentada em texto. Use o ' +
+          'comando da seção 5 para pedir ao chat, que tem mais contexto para montar essa peça com segurança.</p>';
+      }
       $("saida-trechos").innerHTML =
         '<div class="trecho pendente"><div class="trecho-cabecalho"><span class="trecho-titulo">' +
-        (estado.variante === "parcelamento" ? "Parcelamento Avulso" : "Réplica") +
-        '</span></div><div class="trecho-corpo">Esta variante não tem template verificado nesta página — ' +
-        (estado.variante === "replica"
-          ? "a réplica tem 10 seções fixas próprias (references/replica.md)."
-          : "o parcelamento avulso não está entre os trechos documentados na Parte 3 da skill.") +
-        ' Use o comando pronto na seção 5: ele já leva todos os dados extraídos para o chat montar a peça certa.</div></div>';
+        (estado.variante === "parcelamento" ? "Parcelamento Avulso" : "Réplica — estrutura") +
+        '</span></div><div class="trecho-corpo">' + corpo + '</div></div>' +
+        renderCamposReplica();
+      $("saida-trechos").querySelectorAll("[data-replica]").forEach(function (inp) {
+        inp.addEventListener("input", function () {
+          estado.replica[inp.dataset.replica] = inp.value;
+          renderComandos();
+        });
+      });
       ultimoResultado = null;
       return;
     }
@@ -957,10 +1004,16 @@
         "nome=" + (c.nome || "?"), "cpf=" + (c.cpf || "?"), "venda=" + (c.numeroVenda || "?"),
         "empreendimento=" + (c.empreendimento || "?"), "valorPago=" + (c.valorTotalPago || "?")
       ].join(", ");
+      var extra = "";
+      if (estado.variante === "replica") {
+        extra = " Processo nº " + (estado.replica.processo || "[___] ⚡ informar") + ". Teses aplicáveis: " +
+          (estado.replica.teses || "nenhuma indicada — perguntar se há Bloco 6/Pet Care/vícios/coligação") +
+          ". Arquivos de evidência do cliente: " + (estado.replica.evidencias || "nenhum indicado — perguntar ao cliente") + ".";
+      }
       comandos.push({
-        titulo: "Pedir a peça ao chat (sem template verificado aqui)",
+        titulo: "Pedir a peça ao chat (estrutura exige entrevista do caso, não é gerada aqui)",
         texto: "Use a skill preenchedor-peticoes-gav para montar a petição em formato " + variante.toUpperCase() +
-          " para " + nome + ". Dados já extraídos: " + dadosResumo + ". Cotas: " + JSON.stringify(estado.cotas) + "."
+          " para " + nome + ". Dados já extraídos: " + dadosResumo + ". Cotas: " + JSON.stringify(estado.cotas) + "." + extra
       });
     }
 
@@ -1049,14 +1102,14 @@
     var campos = parseExtrato(texto);
     estado.campos = campos;
     estado.cotas = campos.cotas;
-    renderCampos(); renderCotas(); renderTrechos(); renderResumo(); renderComandos();
+    renderVariantes(); renderCampos(); renderCotas(); renderTrechos(); renderResumo(); renderComandos();
   }
 
   $("btn-extrair").addEventListener("click", function () {
     $("marca-exemplo").style.display = "none";
     var campos = parseExtrato($("extrato-bruto").value);
     estado.campos = campos; estado.cotas = campos.cotas;
-    renderCampos(); renderCotas(); renderTrechos(); renderResumo(); renderComandos();
+    renderVariantes(); renderCampos(); renderCotas(); renderTrechos(); renderResumo(); renderComandos();
   });
   $("btn-limpar").addEventListener("click", function () {
     $("extrato-bruto").value = ""; $("marca-exemplo").style.display = "none";
