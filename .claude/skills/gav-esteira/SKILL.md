@@ -61,7 +61,9 @@ Devolve o nome canônico externo (com processo) e o interno (sem). Veja
 `references/drive.md` para o padrão.
 
 **Mostre a proposta de renome ao usuário e espere o "pode"** antes de aplicar.
-Renomear quebra link salvo e atalho — não é reversível de graça.
+Renomear quebra link salvo e atalho — não é reversível de graça. Junte numa só
+proposta o renome da pasta externa, o da interna e o da `NÃO USAR` (etapa 3),
+para o usuário aprovar tudo de uma vez em vez de três interrupções.
 
 Estrutura a produzir:
 
@@ -75,8 +77,13 @@ A subpasta interna já existe com outro nome? Renomeie. Não crie uma segunda.
 
 ## Etapa 3 — Pasta NÃO USAR
 
-Já existe em variantes (`Não usar `, `NAO USAR`). `gav.nomes.e_pasta_nao_usar()`
-reconhece todas. Reaproveite a que existir; crie só se não houver nenhuma.
+Já existe em variantes (`Não usar ` com espaço no fim, `NAO USAR`, `não-usar`).
+`gav.nomes.e_pasta_nao_usar()` reconhece todas.
+
+**Padronize para `NÃO USAR`.** Achou uma variante, proponha o renome junto com o
+da etapa 2 e aplique com o "pode" do usuário. Reaproveite sempre a pasta que
+existe — nunca crie uma segunda, que espalharia os originais em dois lugares.
+Só crie do zero se não houver nenhuma.
 
 Para lá vão, **por cópia antes de qualquer edição**: a procuração assinada
 original (`Procuracao_Interativa_*_assinado.pdf`), extratos crus (`extrato-N.pdf`)
@@ -108,6 +115,14 @@ A ferramenta reabre o arquivo gerado e prova que ficou limpo. Se imprimir
 
 Alvo: menos de 3 MB (o limite prático é 4 MB por arquivo no PJe).
 
+**Qual caminho usar depende de onde a esteira está rodando.** Confira antes:
+
+```bash
+python3 -m gav.drive_io cabe --bytes <fileSize que o Drive informou>
+```
+
+### Arquivo local (Claude Code na máquina do usuário)
+
 ```bash
 python3 -m gav.compressao "NÃO USAR/contrato-original.pdf" \
   "PASTA_INTERNA/04.1 - CONTRATO.pdf" --alvo-mb 3 --dividir-se-nao-couber \
@@ -115,8 +130,42 @@ python3 -m gav.compressao "NÃO USAR/contrato-original.pdf" \
 ```
 
 Busca o degrau mais leve que couber, em vez de aplicar uma taxa fixa. Se nem o
-máximo couber, divide em `04.1 - CONTRATO PARTE 1-3.pdf` etc., como já se faz.
-Confere página e texto: reprova se perder qualquer um.
+máximo couber, divide em `04.1 - CONTRATO PARTE 1-3.pdf` etc. Confere página e
+texto: reprova se perder qualquer um. **Preserva a camada de texto** — só
+recomprime as imagens.
+
+### Arquivo no Drive, sessão na web
+
+`download_file_content` devolve o PDF em base64 dentro do contexto: um contrato
+de 3,5 MB passa de 1,4 milhão de tokens, e o agente ainda teria de reemitir tudo
+para gravar em disco. **Não tente.** Em vez disso, mande o usuário para:
+
+**Contrato para o PJe** — https://claude.ai/code/artifact/35f23434-fbf4-4aa6-8699-1e6eecd5dad6
+
+Ele baixa o contrato do Drive, arrasta na página e recebe de volta as partes
+prontas. Roda inteiro no navegador dele, sem enviar o arquivo a lugar nenhum.
+
+Ao encaminhar, diga o essencial:
+
+- **Dividir vem primeiro.** É sem perda nenhuma e sai no padrão `PARTE 1-3`.
+- **Comprimir apaga a camada de texto** (transforma as páginas em imagem). Para
+  contrato digitalizado quase não muda nada; para contrato com texto de verdade,
+  divida. A própria página avisa quando detecta texto pesquisável.
+- Depois de salvar, ele sobe os arquivos para a pasta interna do cliente.
+
+Arquivos pequenos (procuração, extrato, RG, comprovante — até ~800 KB) passam
+tranquilos pelo MCP:
+
+```bash
+python3 -m gav.drive_io gravar "NÃO USAR/procuracao.pdf" \
+  --base64-de /tmp/b64.txt --esperado 521917
+```
+
+**Passe sempre `--esperado` com o `fileSize` que o Drive informou.** É a
+conferência exata contra truncamento. Sem ele resta o `%%EOF`, que também pega,
+mas o tamanho é definitivo. Cabeçalho não serve: base64 cortado no meio continua
+começando com `%PDF`, e abrir o arquivo também não prova nada — o PyMuPDF
+reconstrói PDF quebrado e abre um arquivo mutilado sem reclamar.
 
 ## Etapa 6 — Extrair o documento de identificação
 
@@ -143,9 +192,17 @@ python3 -m gav.identidade x.pdf --contrato ... --renderizar /tmp/paginas
 Abra os PNG com a ferramenta Read, **olhe** qual é o documento e repita com
 `--pagina N`. Nunca chute a página.
 
+Na web, com o contrato grande, a extração também sai pela página **Contrato para
+o PJe** (https://claude.ai/code/artifact/35f23434-fbf4-4aa6-8699-1e6eecd5dad6) —
+recorte sem perda das páginas 33-35. Lembre o usuário: se o contrato já está
+dividido, a página 33 do contrato inteiro cai no meio de outra parte, então ele
+precisa abrir a parte certa.
+
 ## Etapa 7 — Notificação de distrato à GAV
 
 Modelos, destinatários e campos obrigatórios em `references/email-gav.md`.
+**O padrão é o Modelo B (completo, art. 473 do Código Civil)** — use o curto só
+se o usuário pedir.
 
 Vai para `contato@gavresorts.com.br`. **Sem anexar a petição** — a notificação é
 extrajudicial e antecede o processo; anexar inicial entrega a estratégia.

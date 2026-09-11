@@ -1,0 +1,891 @@
+<title>Contrato para o PJe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:wght@500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  :root {
+    --tinta:      #17294F;
+    --tinta-viva: #24407C;
+    --ouro:       #8C6D2F;
+    --papel:      #F6F5F1;
+    --superficie: #FFFFFF;
+    --superficie-2: #EFEEE8;
+    --grafite:    #232A38;
+    --grafite-2:  #5B6474;
+    --linha:      #D9D7CE;
+    --linha-forte:#B9B6AA;
+    --ok:         #1C6B4F;
+    --ok-fundo:   #E4F0EA;
+    --atencao:    #8A5410;
+    --atencao-fundo: #F7EDDC;
+    --erro:       #9E2B25;
+    --erro-fundo: #F7E5E3;
+    --sombra: 0 1px 2px rgba(23,41,79,.07), 0 6px 18px -10px rgba(23,41,79,.22);
+    --raio: 3px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --tinta:      #C8D6F2;
+      --tinta-viva: #9FBCEE;
+      --ouro:       #D4AF6A;
+      --papel:      #0E1420;
+      --superficie: #161E2D;
+      --superficie-2: #1D2637;
+      --grafite:    #E4E7EE;
+      --grafite-2:  #98A2B6;
+      --linha:      #2B3549;
+      --linha-forte:#3E4A63;
+      --ok:         #6FD3A8;
+      --ok-fundo:   #12301F;
+      --atencao:    #E0A85C;
+      --atencao-fundo: #32250F;
+      --erro:       #F09189;
+      --erro-fundo: #331716;
+      --sombra: 0 1px 2px rgba(0,0,0,.4), 0 8px 22px -12px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --tinta:      #C8D6F2;
+    --tinta-viva: #9FBCEE;
+    --ouro:       #D4AF6A;
+    --papel:      #0E1420;
+    --superficie: #161E2D;
+    --superficie-2: #1D2637;
+    --grafite:    #E4E7EE;
+    --grafite-2:  #98A2B6;
+    --linha:      #2B3549;
+    --linha-forte:#3E4A63;
+    --ok:         #6FD3A8;
+    --ok-fundo:   #12301F;
+    --atencao:    #E0A85C;
+    --atencao-fundo: #32250F;
+    --erro:       #F09189;
+    --erro-fundo: #331716;
+    --sombra: 0 1px 2px rgba(0,0,0,.4), 0 8px 22px -12px rgba(0,0,0,.6);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--papel);
+    color: var(--grafite);
+    font: 400 15px/1.55 "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .folha { max-width: 880px; margin: 0 auto; padding-inline: 20px; padding-block: 0 64px; }
+
+  /* ---------- cabeçalho ---------- */
+  header.topo {
+    border-bottom: 2px solid var(--tinta);
+    padding-block: 30px 18px;
+    margin-bottom: 30px;
+  }
+  .marca {
+    font: 500 10.5px/1 "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--ouro);
+    margin: 0 0 12px;
+  }
+  h1 {
+    font: 600 clamp(27px, 6vw, 38px)/1.08 Spectral, Georgia, "Times New Roman", serif;
+    color: var(--tinta);
+    margin: 0 0 10px;
+    letter-spacing: -.012em;
+    text-wrap: balance;
+  }
+  .subtitulo { margin: 0; color: var(--grafite-2); max-width: 62ch; font-size: 14.5px; }
+  .subtitulo strong { color: var(--grafite); font-weight: 500; }
+
+  /* ---------- zona de entrada ---------- */
+  .entrada {
+    border: 1.5px dashed var(--linha-forte);
+    border-radius: var(--raio);
+    background: var(--superficie);
+    padding: 30px 22px;
+    text-align: center;
+    transition: border-color .15s, background .15s;
+  }
+  .entrada.sobre { border-color: var(--tinta-viva); background: var(--superficie-2); }
+  .entrada p { margin: 0 0 16px; color: var(--grafite-2); font-size: 14px; }
+
+  .botao {
+    font: 500 14px/1 "IBM Plex Sans", system-ui, sans-serif;
+    padding: 11px 18px;
+    border-radius: var(--raio);
+    border: 1px solid var(--tinta);
+    background: var(--tinta);
+    color: var(--papel);
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  :root[data-theme="dark"] .botao,
+  :root:not([data-theme="light"]) .botao { color: var(--papel); }
+  .botao:hover:not(:disabled) { opacity: .88; }
+  .botao:disabled { opacity: .38; cursor: not-allowed; }
+  .botao.discreto {
+    background: transparent; color: var(--tinta); border-color: var(--linha-forte);
+  }
+  .botao.mini { padding: 7px 13px; font-size: 13px; }
+  :is(button, input, select, [tabindex]):focus-visible {
+    outline: 2px solid var(--tinta-viva); outline-offset: 2px;
+  }
+
+  /* ---------- dossiê do arquivo ---------- */
+  .dossie {
+    background: var(--superficie);
+    border: 1px solid var(--linha);
+    border-left: 3px solid var(--tinta);
+    border-radius: var(--raio);
+    padding: 18px 20px;
+    box-shadow: var(--sombra);
+  }
+  .dossie h2 {
+    font: 600 16px/1.3 "IBM Plex Sans", system-ui, sans-serif;
+    margin: 0 0 14px;
+    word-break: break-word;
+  }
+  .medidas { display: flex; flex-wrap: wrap; gap: 10px 30px; margin: 0; }
+  .medida { display: flex; flex-direction: column; gap: 3px; }
+  .medida dt {
+    font: 500 10px/1 "IBM Plex Mono", ui-monospace, monospace;
+    letter-spacing: .13em; text-transform: uppercase; color: var(--grafite-2);
+  }
+  .medida dd {
+    margin: 0;
+    font: 500 19px/1.1 "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    color: var(--grafite);
+  }
+  .medida dd small { font-size: 12px; color: var(--grafite-2); font-weight: 400; }
+
+  .aviso {
+    margin-top: 16px; padding: 11px 14px; border-radius: var(--raio);
+    font-size: 13.5px; line-height: 1.5;
+    border-left: 3px solid currentColor;
+  }
+  .aviso.atencao { background: var(--atencao-fundo); color: var(--atencao); }
+  .aviso.ok      { background: var(--ok-fundo);      color: var(--ok); }
+  .aviso.erro    { background: var(--erro-fundo);    color: var(--erro); }
+  .aviso strong { font-weight: 600; }
+  .aviso .texto { color: var(--grafite); }
+
+  /* ---------- operações ---------- */
+  .operacoes { display: flex; flex-direction: column; gap: 16px; margin-top: 30px; }
+
+  .op {
+    background: var(--superficie);
+    border: 1px solid var(--linha);
+    border-radius: var(--raio);
+    padding: 18px 20px;
+    box-shadow: var(--sombra);
+  }
+  .op[data-perda="nao"] { border-top: 2px solid var(--ok); }
+  .op[data-perda="sim"] { border-top: 2px solid var(--atencao); }
+  .op.inativa { opacity: .5; }
+
+  .op-topo { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 5px; }
+  .op h3 {
+    font: 600 17px/1.25 Spectral, Georgia, serif;
+    margin: 0; color: var(--tinta);
+  }
+  .selo {
+    font: 500 10px/1 "IBM Plex Mono", ui-monospace, monospace;
+    letter-spacing: .1em; text-transform: uppercase;
+    padding: 4px 7px; border-radius: 2px; white-space: nowrap;
+  }
+  .selo.nao { background: var(--ok-fundo); color: var(--ok); }
+  .selo.sim { background: var(--atencao-fundo); color: var(--atencao); }
+  .op p.explica { margin: 0 0 14px; color: var(--grafite-2); font-size: 13.5px; max-width: 64ch; }
+
+  .controles { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+  .campo { display: flex; flex-direction: column; gap: 4px; }
+  .campo label {
+    font: 500 10px/1 "IBM Plex Mono", ui-monospace, monospace;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--grafite-2);
+  }
+  .campo input {
+    font: 400 14px/1 "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    padding: 9px 10px; width: 90px;
+    border: 1px solid var(--linha-forte); border-radius: var(--raio);
+    background: var(--papel); color: var(--grafite);
+  }
+
+  /* ---------- resultados ---------- */
+  .resultados { margin-top: 16px; display: flex; flex-direction: column; gap: 1px;
+                background: var(--linha); border: 1px solid var(--linha);
+                border-radius: var(--raio); overflow: hidden; }
+  .resultados:empty { display: none; }
+  .linha-res {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: var(--superficie); padding: 11px 14px;
+  }
+  .linha-res .nome {
+    flex: 1 1 200px; min-width: 0;
+    font: 400 13px/1.4 "IBM Plex Mono", ui-monospace, monospace;
+    word-break: break-all; color: var(--grafite);
+  }
+  .linha-res .tam {
+    font: 500 13px/1 "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .linha-res .tam.cabe { color: var(--ok); }
+  .linha-res .tam.estoura { color: var(--erro); }
+
+  .progresso { margin-top: 14px; font-size: 13px; color: var(--grafite-2); }
+  .barra { height: 3px; background: var(--superficie-2); border-radius: 2px; overflow: hidden; margin-top: 7px; }
+  .barra i { display: block; height: 100%; width: 0; background: var(--tinta-viva); transition: width .2s; }
+
+  footer.rodape {
+    margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--linha);
+    font-size: 12.5px; color: var(--grafite-2); line-height: 1.65;
+  }
+  footer.rodape code {
+    font: 400 12px/1 "IBM Plex Mono", ui-monospace, monospace;
+    background: var(--superficie-2); padding: 2px 5px; border-radius: 2px;
+    color: var(--grafite);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+  @media (max-width: 460px) {
+    .medidas { gap: 12px 22px; }
+    .campo input { width: 78px; }
+  }
+</style>
+
+<div class="folha">
+  <header class="topo">
+    <p class="marca">Di Pallacio Enterprise &middot; Distrato de multipropriedade</p>
+    <h1>Contrato para o PJe</h1>
+    <p class="subtitulo">
+      O contrato da GAV passa de 4 MB e não sobe no PJe. Aqui ele é dividido, comprimido
+      ou tem uma página extraída — <strong>tudo no seu navegador</strong>, sem enviar o
+      arquivo para lugar nenhum. Meta de trabalho: <strong>menos de 3 MB</strong> por arquivo.
+    </p>
+  </header>
+
+  <div class="entrada" id="zona">
+    <p>Arraste o PDF do contrato aqui, ou escolha o arquivo.</p>
+    <input type="file" id="escolher" accept="application/pdf,.pdf" hidden>
+    <button class="botao" id="btn-escolher" type="button">Escolher PDF</button>
+  </div>
+
+  <section id="painel" hidden>
+    <div class="dossie" style="margin-top:24px">
+      <h2 id="nome-arquivo">&nbsp;</h2>
+      <dl class="medidas">
+        <div class="medida"><dt>Tamanho</dt><dd id="m-tamanho">—</dd></div>
+        <div class="medida"><dt>Páginas</dt><dd id="m-paginas">—</dd></div>
+        <div class="medida"><dt>Camada de texto</dt><dd id="m-texto">—</dd></div>
+        <div class="medida"><dt>Média por página</dt><dd id="m-media">—</dd></div>
+      </dl>
+      <div id="diagnostico"></div>
+    </div>
+
+    <div class="operacoes">
+
+      <article class="op" data-perda="nao">
+        <div class="op-topo">
+          <h3>Dividir em partes</h3>
+          <span class="selo nao">Sem perda</span>
+        </div>
+        <p class="explica">
+          Reparte o contrato em arquivos que caibam no limite, sem tocar em uma única
+          imagem. Nada de qualidade se perde e o texto continua pesquisável. É o que o
+          escritório já faz à mão — os nomes saem no padrão <code>PARTE 1-3</code>.
+          Tente esta antes de comprimir.
+        </p>
+        <div class="controles">
+          <div class="campo">
+            <label for="alvo-dividir">Limite por parte (MB)</label>
+            <input type="number" id="alvo-dividir" value="3" min="0.5" max="20" step="0.5">
+          </div>
+          <button class="botao" id="btn-dividir" type="button">Dividir</button>
+        </div>
+        <div class="progresso" id="prog-dividir" hidden><span></span><div class="barra"><i></i></div></div>
+        <div class="resultados" id="res-dividir"></div>
+      </article>
+
+      <article class="op" data-perda="sim">
+        <div class="op-topo">
+          <h3>Comprimir em um arquivo só</h3>
+          <span class="selo sim">Com perda</span>
+        </div>
+        <p class="explica">
+          Reduz cada página a imagem, descendo a resolução até caber. Mantém um arquivo
+          único, mas <strong>apaga a camada de texto</strong> — o PDF deixa de ser
+          pesquisável. Para contrato digitalizado a diferença é pequena; para contrato
+          com texto de verdade, prefira dividir.
+        </p>
+        <div class="controles">
+          <div class="campo">
+            <label for="alvo-comprimir">Alvo (MB)</label>
+            <input type="number" id="alvo-comprimir" value="3" min="0.5" max="20" step="0.5">
+          </div>
+          <button class="botao" id="btn-comprimir" type="button">Comprimir</button>
+        </div>
+        <div class="progresso" id="prog-comprimir" hidden><span></span><div class="barra"><i></i></div></div>
+        <div class="resultados" id="res-comprimir"></div>
+      </article>
+
+      <article class="op" data-perda="nao">
+        <div class="op-topo">
+          <h3>Extrair páginas</h3>
+          <span class="selo nao">Sem perda</span>
+        </div>
+        <p class="explica">
+          Recorta uma faixa de páginas para um PDF à parte. O documento de identificação
+          do cliente costuma estar entre as páginas <strong>33 e 35</strong> do contrato —
+          quase sempre na 33 ou 34. Se o contrato já estiver dividido, conte a página pelo
+          arquivo que você abriu aqui, não pelo contrato inteiro.
+        </p>
+        <div class="controles">
+          <div class="campo">
+            <label for="pag-de">Da página</label>
+            <input type="number" id="pag-de" value="33" min="1" step="1">
+          </div>
+          <div class="campo">
+            <label for="pag-ate">Até</label>
+            <input type="number" id="pag-ate" value="35" min="1" step="1">
+          </div>
+          <button class="botao" id="btn-extrair" type="button">Extrair</button>
+        </div>
+        <div class="progresso" id="prog-extrair" hidden><span></span><div class="barra"><i></i></div></div>
+        <div class="resultados" id="res-extrair"></div>
+      </article>
+
+    </div>
+  </section>
+
+  <footer class="rodape">
+    O arquivo nunca sai do seu navegador: nada é enviado a servidor, e fechar a aba apaga
+    tudo. Depois de salvar, suba os arquivos para a pasta do cliente no Drive seguindo a
+    numeração do escritório — <code>04.1 - CONTRATO PARTE 1-3.pdf</code> para as partes,
+    <code>03 - DOC - IDENTIFICAÇÃO - NOME.pdf</code> para o documento de identificação.
+    <br><br>
+    A limpeza da procuração não é feita aqui: apagar cláusula de honorários exige remover
+    o texto do fluxo de conteúdo do PDF, e tarja desenhada por cima não serve. Isso roda
+    na esteira, com conferência automática do arquivo gerado.
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var MB = 1024 * 1024;
+  var arquivoAtual = null;
+  var bytesAtuais = null;
+  var totalPaginas = 0;
+  var salvador = null;
+
+  if (window.claude && typeof window.claude.use === "function") {
+    window.claude.use("downloads")
+      .then(function (d) { salvador = d; })
+      .catch(function () { salvador = null; });
+  }
+
+  // As bibliotecas vêm do CDN. Se alguma não chegar, o usuário precisa saber o
+  // que ainda funciona — não um "PDFLib is not defined" no meio da tela.
+  function conferirBibliotecas() {
+    var temLib = typeof window.PDFLib !== "undefined";
+    var temJs = typeof window.pdfjsLib !== "undefined";
+    if (temLib && temJs) { return; }
+
+    var zona = $("zona");
+    var aviso = document.createElement("div");
+    aviso.className = "aviso " + (temLib ? "atencao" : "erro");
+    aviso.style.textAlign = "left";
+    aviso.innerHTML = temLib
+      ? '<strong>A renderização de páginas não carregou.</strong> <span class="texto">' +
+        'Dividir e extrair continuam funcionando — comprimir, não. ' +
+        'Recarregue a página para tentar de novo.</span>'
+      : '<strong>As bibliotecas de PDF não carregaram.</strong> <span class="texto">' +
+        'Sem elas a página não consegue abrir o arquivo. Recarregue; se persistir, ' +
+        'pode ser bloqueio de rede ou extensão do navegador.</span>';
+    zona.appendChild(aviso);
+
+    if (!temLib) {
+      $("btn-escolher").disabled = true;
+      $("escolher").disabled = true;
+    }
+    if (!temJs) {
+      $("btn-comprimir").disabled = true;
+      $("btn-comprimir").closest(".op").classList.add("inativa");
+    }
+  }
+
+  if (window.pdfjsLib) {
+    try {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    } catch (e) { /* segue no fio principal */ }
+  }
+
+  function $(id) { return document.getElementById(id); }
+  function mb(bytes) { return (bytes / MB).toFixed(2); }
+
+  function progresso(qual, texto, fracao) {
+    var caixa = $("prog-" + qual);
+    caixa.hidden = false;
+    caixa.querySelector("span").textContent = texto;
+    caixa.querySelector("i").style.width = Math.round((fracao || 0) * 100) + "%";
+  }
+  function esconderProgresso(qual) { $("prog-" + qual).hidden = true; }
+
+  function limpar(qual) { $("res-" + qual).textContent = ""; }
+
+  function mensagem(qual, tipo, texto) {
+    var alvo = $("res-" + qual);
+    var div = document.createElement("div");
+    div.className = "linha-res";
+    var p = document.createElement("div");
+    p.className = "nome";
+    p.style.color = tipo === "erro" ? "var(--erro)" : "var(--grafite-2)";
+    p.style.fontFamily = '"IBM Plex Sans", system-ui, sans-serif';
+    p.textContent = texto;
+    div.appendChild(p);
+    alvo.appendChild(div);
+  }
+
+  function oferecer(qual, nome, blob, limiteMB) {
+    var alvo = $("res-" + qual);
+    var linha = document.createElement("div");
+    linha.className = "linha-res";
+
+    var nomeEl = document.createElement("div");
+    nomeEl.className = "nome";
+    nomeEl.textContent = nome;
+
+    var tam = document.createElement("span");
+    var cabe = limiteMB == null || blob.size <= limiteMB * MB;
+    tam.className = "tam " + (cabe ? "cabe" : "estoura");
+    tam.textContent = mb(blob.size) + " MB";
+
+    linha.appendChild(nomeEl);
+    linha.appendChild(tam);
+
+    if (salvador) {
+      var btn = document.createElement("button");
+      btn.className = "botao mini";
+      btn.type = "button";
+      btn.textContent = "Salvar";
+      btn.addEventListener("click", function () {
+        btn.disabled = true;
+        btn.textContent = "Salvando…";
+        salvador.save({ filename: nome, data: blob }).then(function () {
+          btn.textContent = "Salvo";
+        }).catch(function (err) {
+          btn.disabled = false;
+          var codigo = err && err.code;
+          btn.textContent = codigo === "declined" ? "Salvar" : "Tentar de novo";
+          if (codigo && codigo !== "declined") {
+            mensagem(qual, "erro", "Não deu para salvar " + nome + " (" + codigo + ").");
+          }
+        });
+      });
+      linha.appendChild(btn);
+    }
+    alvo.appendChild(linha);
+    return cabe;
+  }
+
+  function semSalvamento(qual) {
+    if (!salvador) {
+      mensagem(qual, "erro",
+        "Este visualizador não permite salvar arquivos, então os resultados acima não " +
+        "podem ser baixados daqui. Abra a página pelo link do artefato no navegador.");
+    }
+  }
+
+  // ---------- leitura do arquivo ----------
+
+  function carregar(file) {
+    if (!file) { return; }
+    if (!/\.pdf$/i.test(file.name) && file.type !== "application/pdf") {
+      $("painel").hidden = false;
+      $("nome-arquivo").textContent = file.name;
+      $("diagnostico").innerHTML =
+        '<div class="aviso erro"><strong>Isso não é um PDF.</strong> ' +
+        '<span class="texto">Escolha o arquivo do contrato em PDF.</span></div>';
+      return;
+    }
+    arquivoAtual = file;
+    $("painel").hidden = false;
+    $("nome-arquivo").textContent = file.name;
+    $("m-tamanho").innerHTML = mb(file.size) + ' <small>MB</small>';
+    $("m-paginas").textContent = "…";
+    $("m-texto").textContent = "…";
+    $("m-media").textContent = "…";
+    $("diagnostico").textContent = "";
+    ["dividir", "comprimir", "extrair"].forEach(limpar);
+
+    file.arrayBuffer().then(function (buf) {
+      bytesAtuais = buf;
+      return analisar(buf.slice(0), file);
+    }).catch(function (e) {
+      var detalhe = String(e && e.message || e);
+      var protegido = /password|encrypt/i.test(detalhe);
+      $("diagnostico").innerHTML =
+        '<div class="aviso erro"><strong>Não consegui abrir este PDF.</strong> ' +
+        '<span class="texto">' + (protegido
+          ? "O arquivo está protegido por senha. Remova a proteção e tente de novo."
+          : "Pode estar corrompido ou incompleto. Detalhe técnico: " + detalhe) +
+        '</span></div>';
+    });
+  }
+
+  function analisar(buf, file) {
+    return PDFLib.PDFDocument.load(buf, { ignoreEncryption: true }).then(function (doc) {
+      totalPaginas = doc.getPageCount();
+      $("m-paginas").textContent = totalPaginas;
+      $("m-media").innerHTML = mb(file.size / Math.max(totalPaginas, 1)) + ' <small>MB</small>';
+      $("pag-ate").max = totalPaginas;
+      $("pag-de").max = totalPaginas;
+      return medirTexto(buf);
+    }).then(function (info) {
+      var temTexto = info.mediaCaracteres >= 200;
+      $("m-texto").innerHTML = temTexto
+        ? 'sim <small>~' + Math.round(info.mediaCaracteres) + ' car./pág.</small>'
+        : 'não <small>digitalizado</small>';
+      diagnosticar(file, temTexto, info);
+    }).catch(function (e) {
+      $("m-texto").textContent = "não verificada";
+      diagnosticar(file, null, null);
+      console.warn(e);
+    });
+  }
+
+  function medirTexto(buf) {
+    if (!window.pdfjsLib) { return Promise.resolve({ mediaCaracteres: 0, amostradas: 0 }); }
+    // Uma cópia própria: pdf.js consome o buffer que recebe.
+    var copia = buf.slice(0);
+    return pdfjsLib.getDocument({ data: copia }).promise.then(function (pdf) {
+      var alvos = [];
+      var passo = Math.max(1, Math.floor(pdf.numPages / 5));
+      for (var p = 1; p <= pdf.numPages && alvos.length < 5; p += passo) { alvos.push(p); }
+      return Promise.all(alvos.map(function (n) {
+        return pdf.getPage(n).then(function (pg) { return pg.getTextContent(); })
+          .then(function (tc) {
+            return tc.items.reduce(function (soma, it) { return soma + (it.str || "").length; }, 0);
+          });
+      })).then(function (contagens) {
+        var soma = contagens.reduce(function (a, b) { return a + b; }, 0);
+        return { mediaCaracteres: soma / contagens.length, amostradas: contagens.length };
+      });
+    });
+  }
+
+  function diagnosticar(file, temTexto, info) {
+    var caixa = $("diagnostico");
+    var partes = [];
+    var alvo = 3;
+
+    if (file.size <= alvo * MB) {
+      partes.push('<div class="aviso ok"><strong>Já cabe.</strong> <span class="texto">' +
+        mb(file.size) + ' MB está abaixo dos ' + alvo + ' MB de meta — não precisa dividir ' +
+        'nem comprimir. Use a extração se precisar do documento de identificação.</span></div>');
+    } else {
+      var partesNecessarias = Math.ceil(file.size / (alvo * MB));
+      partes.push('<div class="aviso atencao"><strong>Passa da meta.</strong> ' +
+        '<span class="texto">' + mb(file.size) + ' MB. Dividir em <strong>' +
+        partesNecessarias + ' partes</strong> resolve sem perder nada — é o caminho ' +
+        'recomendado.</span></div>');
+    }
+
+    if (temTexto === true) {
+      partes.push('<div class="aviso atencao"><strong>Este PDF tem texto pesquisável' +
+        (info ? ' (~' + Math.round(info.mediaCaracteres) + ' caracteres por página)' : '') +
+        '.</strong> <span class="texto">Comprimir vai transformar tudo em imagem e apagar ' +
+        'esse texto. Prefira dividir.</span></div>');
+    }
+    caixa.innerHTML = partes.join("");
+  }
+
+  // ---------- dividir (sem perda) ----------
+
+  function dividir() {
+    var alvoMB = parseFloat($("alvo-dividir").value) || 3;
+    limpar("dividir");
+    $("btn-dividir").disabled = true;
+    progresso("dividir", "Preparando…", 0.05);
+
+    tentarDivisao(alvoMB, Math.max(2, Math.ceil(arquivoAtual.size / (alvoMB * MB))), 0)
+      .then(function (r) {
+        esconderProgresso("dividir");
+        var todasCabem = true;
+        r.partes.forEach(function (p) {
+          var cabe = oferecer("dividir", p.nome, p.blob, alvoMB);
+          if (!cabe) { todasCabem = false; }
+        });
+        if (!todasCabem) {
+          mensagem("dividir", "erro",
+            "Alguma parte ainda passou do limite — há páginas muito pesadas. " +
+            "Baixe o limite, ou comprima essa parte depois.");
+        }
+        semSalvamento("dividir");
+      })
+      .catch(function (e) {
+        esconderProgresso("dividir");
+        mensagem("dividir", "erro", "Falhou ao dividir: " + String(e && e.message || e));
+      })
+      .then(function () { $("btn-dividir").disabled = false; });
+  }
+
+  function tentarDivisao(alvoMB, nPartes, tentativa) {
+    if (tentativa > 5) {
+      return Promise.reject(new Error("não consegui partes sob " + alvoMB + " MB em 6 tentativas"));
+    }
+    progresso("dividir", "Tentando " + nPartes + " partes…", 0.15 + tentativa * 0.12);
+
+    return PDFLib.PDFDocument.load(bytesAtuais.slice(0), { ignoreEncryption: true })
+      .then(function (origem) {
+        var total = origem.getPageCount();
+        var porParte = Math.ceil(total / nPartes);
+        var indices = [];
+        for (var i = 0; i < nPartes; i++) {
+          var ini = i * porParte;
+          var fim = Math.min((i + 1) * porParte, total);
+          if (ini < fim) { indices.push([ini, fim]); }
+        }
+        var reais = indices.length;
+        var base = nomeBase(arquivoAtual.name);
+
+        return indices.reduce(function (cadeia, faixa, i) {
+          return cadeia.then(function (acc) {
+            return PDFLib.PDFDocument.create().then(function (novo) {
+              var lista = [];
+              for (var p = faixa[0]; p < faixa[1]; p++) { lista.push(p); }
+              return novo.copyPages(origem, lista).then(function (pgs) {
+                pgs.forEach(function (pg) { novo.addPage(pg); });
+                return novo.save();
+              }).then(function (bytes) {
+                acc.push({
+                  nome: base + " PARTE " + (i + 1) + "-" + reais + ".pdf",
+                  blob: new Blob([bytes], { type: "application/pdf" }),
+                  paginas: faixa[1] - faixa[0]
+                });
+                progresso("dividir", "Parte " + (i + 1) + " de " + reais + "…",
+                  0.2 + 0.7 * ((i + 1) / reais));
+                return acc;
+              });
+            });
+          });
+        }, Promise.resolve([]));
+      })
+      .then(function (partes) {
+        var maior = partes.reduce(function (m, p) { return Math.max(m, p.blob.size); }, 0);
+        var somaPaginas = partes.reduce(function (s, p) { return s + p.paginas; }, 0);
+        if (somaPaginas !== totalPaginas) {
+          throw new Error("a divisão perdeu páginas (" + totalPaginas + " viraram " + somaPaginas + ")");
+        }
+        if (maior > alvoMB * MB && nPartes < 40) {
+          return tentarDivisao(alvoMB, nPartes + 1, tentativa + 1);
+        }
+        return { partes: partes };
+      });
+  }
+
+  function nomeBase(nome) {
+    var limpo = nome.replace(/\.pdf$/i, "");
+    limpo = limpo.replace(/\s*PARTE\s*\d+\s*-\s*\d+\s*$/i, "");
+    return limpo.trim();
+  }
+
+  // ---------- comprimir (com perda) ----------
+
+  var DEGRAUS = [
+    { nome: "leve",      escala: 1.60, qualidade: 0.82 },
+    { nome: "moderado",  escala: 1.30, qualidade: 0.74 },
+    { nome: "padrão",    escala: 1.10, qualidade: 0.68 },
+    { nome: "forte",     escala: 0.92, qualidade: 0.58 },
+    { nome: "agressivo", escala: 0.78, qualidade: 0.48 },
+    { nome: "máximo",    escala: 0.64, qualidade: 0.38 }
+  ];
+
+  function comprimir() {
+    if (!window.pdfjsLib) {
+      limpar("comprimir");
+      mensagem("comprimir", "erro",
+        "A biblioteca de renderização não carregou, então a compressão não está " +
+        "disponível nesta sessão. Use a divisão em partes, que não depende dela.");
+      return;
+    }
+    var alvoMB = parseFloat($("alvo-comprimir").value) || 3;
+    limpar("comprimir");
+    $("btn-comprimir").disabled = true;
+
+    var base = nomeBase(arquivoAtual.name);
+
+    pdfjsLib.getDocument({ data: bytesAtuais.slice(0) }).promise
+      .then(function (pdf) { return descerDegraus(pdf, alvoMB, 0); })
+      .then(function (r) {
+        esconderProgresso("comprimir");
+        oferecer("comprimir", base + " (comprimido).pdf", r.blob, alvoMB);
+        var nota = "Degrau '" + r.degrau.nome + "'. " + mb(arquivoAtual.size) + " MB → " +
+          mb(r.blob.size) + " MB, " + totalPaginas + " páginas preservadas.";
+        if (r.blob.size > alvoMB * MB) {
+          mensagem("comprimir", "erro", nota +
+            " Não chegou ao alvo nem no degrau máximo — divida o contrato em partes.");
+        } else {
+          mensagem("comprimir", "ok", nota + " A camada de texto foi perdida, como avisado.");
+        }
+        semSalvamento("comprimir");
+      })
+      .catch(function (e) {
+        esconderProgresso("comprimir");
+        mensagem("comprimir", "erro", "Falhou ao comprimir: " + String(e && e.message || e));
+      })
+      .then(function () { $("btn-comprimir").disabled = false; });
+  }
+
+  function descerDegraus(pdf, alvoMB, i) {
+    if (i >= DEGRAUS.length) {
+      return Promise.reject(new Error("esgotei os degraus de compressão"));
+    }
+    var degrau = DEGRAUS[i];
+    return renderizarTudo(pdf, degrau, alvoMB, i).then(function (blob) {
+      if (blob.size <= alvoMB * MB || i === DEGRAUS.length - 1) {
+        return { blob: blob, degrau: degrau };
+      }
+      return descerDegraus(pdf, alvoMB, i + 1);
+    });
+  }
+
+  function renderizarTudo(pdf, degrau, alvoMB, indiceDegrau) {
+    return PDFLib.PDFDocument.create().then(function (saida) {
+      var n = pdf.numPages;
+      var base = indiceDegrau / DEGRAUS.length;
+
+      function proxima(p) {
+        if (p > n) { return Promise.resolve(); }
+        progresso("comprimir",
+          "Degrau '" + degrau.nome + "' — página " + p + " de " + n + "…",
+          base + (1 / DEGRAUS.length) * (p / n));
+        return pdf.getPage(p).then(function (pagina) {
+          var vp = pagina.getViewport({ scale: degrau.escala });
+          var canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.floor(vp.width));
+          canvas.height = Math.max(1, Math.floor(vp.height));
+          var ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          return pagina.render({ canvasContext: ctx, viewport: vp }).promise.then(function () {
+            return new Promise(function (res) {
+              canvas.toBlob(function (b) { res(b); }, "image/jpeg", degrau.qualidade);
+            });
+          }).then(function (blobImg) {
+            return blobImg.arrayBuffer();
+          }).then(function (bufImg) {
+            return saida.embedJpg(bufImg);
+          }).then(function (img) {
+            var original = pagina.getViewport({ scale: 1 });
+            var pg = saida.addPage([original.width, original.height]);
+            pg.drawImage(img, { x: 0, y: 0, width: original.width, height: original.height });
+            canvas.width = canvas.height = 0; // libera memória entre páginas
+            return proxima(p + 1);
+          });
+        });
+      }
+
+      return proxima(1).then(function () { return saida.save(); })
+        .then(function (bytes) {
+          if (saida.getPageCount() !== totalPaginas) {
+            throw new Error("a compressão mudou o número de páginas (" +
+              totalPaginas + " → " + saida.getPageCount() + ")");
+          }
+          return new Blob([bytes], { type: "application/pdf" });
+        });
+    });
+  }
+
+  // ---------- extrair (sem perda) ----------
+
+  function extrair() {
+    var de = parseInt($("pag-de").value, 10);
+    var ate = parseInt($("pag-ate").value, 10);
+    limpar("extrair");
+
+    if (!de || !ate || de < 1 || ate < de) {
+      mensagem("extrair", "erro", "Faixa inválida: informe da página menor para a maior.");
+      return;
+    }
+    if (de > totalPaginas) {
+      mensagem("extrair", "erro",
+        "Este arquivo tem " + totalPaginas + " páginas, então a página " + de +
+        " não existe nele. Se o contrato está dividido, a página 33 do contrato " +
+        "inteiro cai no meio de outra parte — abra a parte certa.");
+      return;
+    }
+    var fim = Math.min(ate, totalPaginas);
+
+    $("btn-extrair").disabled = true;
+    progresso("extrair", "Recortando páginas " + de + " a " + fim + "…", 0.4);
+
+    PDFLib.PDFDocument.load(bytesAtuais.slice(0), { ignoreEncryption: true })
+      .then(function (origem) {
+        return PDFLib.PDFDocument.create().then(function (novo) {
+          var lista = [];
+          for (var p = de - 1; p < fim; p++) { lista.push(p); }
+          return novo.copyPages(origem, lista).then(function (pgs) {
+            pgs.forEach(function (pg) { novo.addPage(pg); });
+            if (novo.getPageCount() !== lista.length) {
+              throw new Error("esperava " + lista.length + " páginas, saíram " + novo.getPageCount());
+            }
+            return novo.save();
+          });
+        });
+      })
+      .then(function (bytes) {
+        esconderProgresso("extrair");
+        var blob = new Blob([bytes], { type: "application/pdf" });
+        var rotulo = de === fim ? "pagina " + de : "paginas " + de + "-" + fim;
+        oferecer("extrair", nomeBase(arquivoAtual.name) + " (" + rotulo + ").pdf", blob, null);
+        if (fim < ate) {
+          mensagem("extrair", "ok", "A faixa foi cortada na página " + fim +
+            ", que é a última do arquivo.");
+        }
+        semSalvamento("extrair");
+      })
+      .catch(function (e) {
+        esconderProgresso("extrair");
+        mensagem("extrair", "erro", "Falhou ao extrair: " + String(e && e.message || e));
+      })
+      .then(function () { $("btn-extrair").disabled = false; });
+  }
+
+  // ---------- ligações ----------
+
+  $("btn-escolher").addEventListener("click", function () { $("escolher").click(); });
+  $("escolher").addEventListener("change", function (e) { carregar(e.target.files[0]); });
+  $("btn-dividir").addEventListener("click", dividir);
+  $("btn-comprimir").addEventListener("click", comprimir);
+  $("btn-extrair").addEventListener("click", extrair);
+
+  var zona = $("zona");
+  ["dragenter", "dragover"].forEach(function (ev) {
+    zona.addEventListener(ev, function (e) {
+      e.preventDefault(); zona.classList.add("sobre");
+    });
+  });
+  ["dragleave", "drop"].forEach(function (ev) {
+    zona.addEventListener(ev, function (e) {
+      e.preventDefault(); zona.classList.remove("sobre");
+    });
+  });
+  zona.addEventListener("drop", function (e) {
+    if (typeof window.PDFLib === "undefined") { return; }
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+      carregar(e.dataTransfer.files[0]);
+    }
+  });
+
+  conferirBibliotecas();
+})();
+</script>

@@ -17,7 +17,7 @@ sys.path.insert(0, str(RAIZ))
 
 import pymupdf  # noqa: E402
 
-from gav import compressao, identidade, nomes, procuracao  # noqa: E402
+from gav import compressao, drive_io, identidade, nomes, procuracao  # noqa: E402
 from gav.nucleo import (  # noqa: E402
     Dossie, EtapaBloqueada, Fonte, SemFonte, VerificacaoFalhou, preservar_original,
 )
@@ -270,6 +270,50 @@ def test_divisao_nao_perde_pagina(tmp: Path):
 
 
 # --------------------------------------------------------------------------
+# Ponte com o Drive
+# --------------------------------------------------------------------------
+
+def test_teto_de_transporte_pelo_mcp():
+    """Arquivo grande demais tem de ser recusado ANTES de alguém baixá-lo."""
+    cabe_pequeno, _ = drive_io.verificar_tamanho(254_551)      # RG
+    cabe_medio, _ = drive_io.verificar_tamanho(1_780_888)      # contrato parte 2
+    cabe_grande, msg = drive_io.verificar_tamanho(3_724_220)   # contrato parte 3
+    assert cabe_pequeno and cabe_medio and not cabe_grande
+    assert "navegador" in msg, "a recusa precisa dizer para onde ir"
+    _verde("teto de transporte recusa o contrato e libera os documentos pequenos")
+
+
+def test_base64_truncado_e_reprovado(tmp: Path):
+    """Base64 cortado ainda começa com %PDF — conferir só o cabeçalho passaria."""
+    origem = tmp / "01 - PROCURACAO.pdf"
+    tamanho = origem.stat().st_size
+    completo = drive_io.ler(origem)
+    info = drive_io.gravar(tmp / "volta.pdf", completo, esperado=tamanho)
+    assert info["paginas"] == 1 and info["conferido_contra_drive"]
+    assert (tmp / "volta.pdf").read_bytes() == origem.read_bytes()
+
+    import base64
+    truncado = completo[: len(completo) // 3]
+    bruto = base64.b64decode(truncado + "=" * (-len(truncado) % 4), validate=False)
+    assert bruto.startswith(b"%PDF"), "o teste precisa de um truncado que engane o cabeçalho"
+
+    # Sem o tamanho do Drive: o %%EOF ausente tem de bastar.
+    try:
+        drive_io.gravar(tmp / "ruim.pdf", truncado)
+        raise AssertionError("aceitou base64 truncado sem o tamanho de referência")
+    except ValueError as e:
+        assert "%%EOF" in str(e), str(e)
+
+    # Com o tamanho do Drive: a recusa é exata.
+    try:
+        drive_io.gravar(tmp / "ruim2.pdf", truncado, esperado=tamanho)
+        raise AssertionError("aceitou base64 truncado contra o tamanho do Drive")
+    except ValueError as e:
+        assert "truncado" in str(e) and str(tamanho) in str(e), str(e)
+    _verde("truncado reprova pelo %%EOF ausente e pelo tamanho do Drive")
+
+
+# --------------------------------------------------------------------------
 # Original preservado
 # --------------------------------------------------------------------------
 
@@ -303,6 +347,8 @@ def principal() -> int:
                            test_rg_numera_paginas_atraves_das_partes,
                            test_divisao_nao_perde_pagina,
                            test_copia_quando_ja_cabe_e_verificada]),
+        ("ponte com o Drive", [test_teto_de_transporte_pelo_mcp,
+                               test_base64_truncado_e_reprovado]),
         ("originais", [test_original_nunca_e_sobrescrito]),
     ]
     try:

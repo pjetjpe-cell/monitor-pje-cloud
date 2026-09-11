@@ -56,6 +56,36 @@ O RG entra escaneado, então roda OCR. Contrato dividido: passe as partes na
 ordem — a numeração é contínua (a p.34 do contrato costuma ser a p.6 da PARTE 3).
 Empatou ou pontuou baixo, **recusa**: renderize, olhe e indique com `--pagina`.
 
+### Ponte com o Drive (sessão na web)
+
+```bash
+python3 -m gav.drive_io cabe   --bytes 3724220        # vale baixar pelo MCP?
+python3 -m gav.drive_io gravar SAIDA.pdf --base64-de /tmp/b64.txt --esperado 521917
+python3 -m gav.drive_io ler    ENTRADA.pdf --para /tmp/b64.txt
+```
+
+O transporte pelo MCP tem teto: cada MB de PDF vira ~1,4 MB de base64 no
+contexto. Até ~800 KB tranquilo; acima de 2 MB, inviável.
+
+`gravar` confere três coisas: começa com `%PDF`, termina com `%%EOF` e tem
+exatamente os bytes que o Drive informou (`--esperado`). As duas últimas é que
+pegam truncamento — o cabeçalho sobrevive ao corte, e abrir o documento também
+não prova nada, porque o PyMuPDF reconstrói PDF quebrado e abre um arquivo
+mutilado sem reclamar.
+
+### Contrato grande na web: o artefato
+
+Acima do teto, o contrato é processado no navegador do usuário:
+
+**Contrato para o PJe** — https://claude.ai/code/artifact/35f23434-fbf4-4aa6-8699-1e6eecd5dad6
+
+Fonte versionada em `ferramentas/artefato/contrato-pje.html`. Divide (sem perda,
+no padrão `PARTE 1-3`), comprime (com perda, avisando que apaga a camada de
+texto) e extrai faixa de páginas (sem perda, para o RG). Nada sai do navegador.
+
+Para republicar depois de editar o arquivo, passe a URL acima como `url` na
+ferramenta Artifact — publicar sem ela cria um artefato separado.
+
 ### Nomes de pasta
 
 ```bash
