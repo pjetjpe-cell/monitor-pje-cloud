@@ -23,6 +23,19 @@ Este projeto inclui 10 skills especializadas. Use `/nome-da-skill` para invocar:
 | `/code-reviewer` | Code review sistemático com severidade |
 | `/deep-research` | Pesquisa multi-fonte com verificação adversarial |
 
+### Esteira GAV (distrato de multipropriedade)
+
+| Skill | Descrição |
+|-------|-----------|
+| `/gav-esteira` | Organizador de pastas no Drive, ponta a ponta: localiza o cliente, normaliza a pasta, cria NÃO USAR, limpa a procuração, comprime o contrato, extrai o RG, notifica a GAV |
+| `/gav-whatsapp` | Baixa os documentos do cliente no WhatsApp Web e arquiva no Drive |
+| `/gav-peticao` | Monta a inicial pelo PREENCHEDOR DE PETIÇÃO INTERATIVO |
+
+As três se apoiam nos CLIs de `ferramentas/` (ver `ferramentas/README.md`), que
+fazem o trabalho mecânico de forma determinística e **conferem o resultado**
+antes de aprovar. Duas travas estruturais: etapa não roda fora de ordem e campo
+não entra no dossiê sem fonte.
+
 ## Stack Técnica
 
 - **Runtime:** Node.js / TypeScript
@@ -40,6 +53,8 @@ npm run build      # Build de produção
 npm test           # Testes unitários
 npx playwright test # Testes E2E
 npm run lint       # Linter
+
+cd ferramentas && python3 testes/test_esteira.py   # Testes da esteira GAV
 ```
 
 ## Contexto PJe

@@ -27,3 +27,8 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+
+# Esteira GAV: dossiês e manifestos carregam dados de cliente — nunca versionar.
+dossie*.json
+manifesto-*.json
+ferramentas/**/__pycache__/

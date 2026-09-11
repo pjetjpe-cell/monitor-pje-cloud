@@ -1,0 +1,9 @@
+# Ferramentas da esteira GAV.
+# PyMuPDF faz redação real, compressão com alvo, extração de página e OCR.
+pymupdf>=1.26
+
+# OCR do RG escaneado depende do binário do Tesseract, não de pacote Python:
+#   Debian/Ubuntu  apt-get install tesseract-ocr tesseract-ocr-por
+#   macOS          brew install tesseract tesseract-lang
+#   Windows        https://github.com/UB-Mannheim/tesseract/wiki
+# Sem ele a extração do RG não adivinha: recusa e manda conferir a olho.
