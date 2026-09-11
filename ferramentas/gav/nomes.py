@@ -180,13 +180,22 @@ def estrutura_esperada(nome_externo: str, nome_interno: str) -> dict[str, Any]:
     }
 
 
-# Numeração dos documentos dentro da pasta de peticionamento, como já se usa.
+# Numeração dos documentos na pasta de peticionamento.
+#
+# Esta é a numeração da pasta da cliente 193 (JANICE), confirmada como a
+# oficial. Existe outra em uso no Drive — a do AYRES e da KAREN, em que 02 é o
+# documento de identificação, 03 o histórico de pagamentos e 05 o comprovante de
+# residência. São incompatíveis: 05 é comprovante de residência lá e 07 aqui.
+# Ao organizar uma pasta que siga a outra, avise o usuário antes de renumerar.
+#
+# O 05 está deliberadamente ausente. Nenhuma pasta nesta numeração tem um, e não
+# se inventa um rótulo para tapar buraco: precisando de um documento entre o
+# contrato e a carteira de trabalho, pergunte ao usuário como nomear.
 DOCUMENTOS = [
     ("01", "PROCURAÇÃO", "procuração limpa (sem honorários/percentual/0,5 SM)"),
     ("02", "EXTRATO DE COTA", "extrato da cota enviado pela GAV"),
     ("03", "DOC - IDENTIFICAÇÃO", "RG/CNH extraído do contrato (pp. 33-35)"),
-    ("04.1", "CONTRATO", "contrato comprimido (<3 MB) ou dividido em partes"),
-    ("05", "COMPROVANTE DE PAGAMENTO", "comprovantes das parcelas pagas"),
+    ("04.1", "CONTRATO", "contrato dividido por tamanho: PARTE 1-N, cada uma <3 MB"),
     ("06", "CARTEIRA DE TRABALHO", "para justiça gratuita, quando for o caso"),
     ("07", "COMPROVANTE DE RESIDÊNCIA", "comprovante de endereço"),
     ("08", "NOTIFICAÇÃO EXTRAJUDICIAL", "PDF do e-mail enviado à GAV"),
@@ -197,8 +206,12 @@ def nome_documento(codigo: str, cliente: str | None = None) -> str:
     """Nome de arquivo no padrão da pasta: '01 - PROCURAÇÃO - JANICE.pdf'."""
     entrada = next((d for d in DOCUMENTOS if d[0] == codigo), None)
     if entrada is None:
+        extra = ""
+        if codigo in ("05", "5"):
+            extra = (" O 05 não existe nesta numeração — pergunte ao usuário "
+                     "como nomear o documento em vez de escolher um rótulo.")
         raise ValueError(f"código de documento desconhecido: {codigo!r} "
-                         f"(use um de {[d[0] for d in DOCUMENTOS]})")
+                         f"(use um de {[d[0] for d in DOCUMENTOS]}).{extra}")
     base = f"{entrada[0]} - {entrada[1]}"
     if cliente:
         primeiro = cliente.strip().split()[0].upper()

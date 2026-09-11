@@ -50,6 +50,40 @@ e, se voltar mais de uma, pergunte.
     └── manifesto-*.json                              ← trilha do que foi feito
 ```
 
+## Duas numerações em uso — confira antes de renomear
+
+Há duas convenções vivas no Drive, e elas **se contradizem**: o 05 é comprovante
+de residência numa e o 07 é na outra.
+
+| Nº | Oficial (JANICE, cliente 193) | Outra em uso (AYRES, KAREN) |
+|---|---|---|
+| 01 | Procuração | Procuração |
+| 02 | Extrato de cota | **Doc identificação** |
+| 03 | **Doc identificação** | Histórico de pagamentos (03.1, 03.2 por cota) |
+| 04 | Contrato (04.1 PARTE 1-N) | Contrato por componente (04.1.1 quadro-resumo, 04.1.2 termo de verificação, 04.1.3 normas gerais, 04.1.4 regulamento) |
+| 05 | *(não existe)* | **Comprovante de residência** |
+| 06 | Carteira de trabalho | Notificação extrajudicial |
+| 07 | **Comprovante de residência** | — |
+| 08 | Notificação extrajudicial | — |
+
+**A oficial é a da JANICE** — é a que `gav.nomes.DOCUMENTOS` implementa.
+
+O **05 não existe** nela. Não invente rótulo para tapar o buraco: precisando de
+um documento entre o contrato e a carteira de trabalho, pergunte como nomear.
+`nome_documento("05", ...)` levanta erro de propósito.
+
+Abrindo uma pasta que segue a outra numeração (Ayres, Karen, Nilton, Sibely,
+Camila, Debora, Monique, Roberio, Thiago), **avise o usuário antes de renumerar**.
+Renumerar mexe em pasta que pode já estar peticionada, e o 02 de uma é o 03 da
+outra — trocar em silêncio embaralha a instrução do processo.
+
+## Divisão do contrato
+
+Por **tamanho**, em `04.1 - CONTRATO PARTE 1-N.pdf`, cada parte abaixo de 3 MB.
+A divisão por componente que aparece nas pastas do Pitangui (quadro-resumo,
+termo de verificação, normas gerais, regulamento) é feita à mão quando o
+contrato já vem separado pela GAV — a esteira não tenta reconhecer seções.
+
 Marcadores soltos como o Google Doc `FALTA E-MAIL` sinalizam pendência. Leia
 antes de concluir que a pasta está pronta; não apague sem perguntar.
 
