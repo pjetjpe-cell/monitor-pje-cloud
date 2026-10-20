@@ -1,0 +1,1187 @@
+<title>Estúdio de Vídeo IA</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&family=Work+Sans:wght@500;700;800&display=swap">
+<style>
+/* Layout: sala de edição — roteiro de cenas à esquerda, monitor de prévia fixo à direita, timeline com timecode embaixo do monitor */
+:root {
+  --bg: #eceff4;
+  --panel: #ffffff;
+  --panel-2: #f5f7fa;
+  --ink: #131925;
+  --muted: #586378;
+  --line: #d3d8e2;
+  --accent: #2747d0;
+  --accent-ink: #ffffff;
+  --tally: #c76f1c;
+  --hook: #2747d0;
+  --body-role: #1d7f78;
+  --cta: #c76f1c;
+  --ok: #1d7a4b;
+  --warn: #a35a00;
+  --bad: #b3261e;
+  --monitor: #0b0e14;
+  --f-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1017; --panel: #151a24; --panel-2: #1b212d; --ink: #e6e9f0; --muted: #929bad;
+    --line: #2a3141; --accent: #7f95ff; --accent-ink: #0d1017; --tally: #f0a24e;
+    --hook: #7f95ff; --body-role: #4cc2b8; --cta: #f0a24e; --ok: #4fc58a; --warn: #f0b14e; --bad: #ff8a80;
+    --monitor: #05070b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1017; --panel: #151a24; --panel-2: #1b212d; --ink: #e6e9f0; --muted: #929bad;
+  --line: #2a3141; --accent: #7f95ff; --accent-ink: #0d1017; --tally: #f0a24e;
+  --hook: #7f95ff; --body-role: #4cc2b8; --cta: #f0a24e; --ok: #4fc58a; --warn: #f0b14e; --bad: #ff8a80;
+  --monitor: #05070b; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
+.wrap { max-width: 1320px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+header.topo { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); }
+.topo .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding-block: 10px; }
+.marca-app { display: flex; align-items: baseline; gap: 10px; margin-right: auto; }
+.marca-app h1 { font-family: var(--f-display); font-weight: 800; font-size: 26px; letter-spacing: 0.02em; text-transform: uppercase; margin: 0; line-height: 1; }
+.marca-app .rec { width: 10px; height: 10px; border-radius: 50%; background: var(--bad); display: inline-block; align-self: center; }
+.marca-app small { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.proj { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.status { font-family: var(--f-mono); font-size: 12px; padding: 3px 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.status[data-s="salvo"] { color: var(--ok); border-color: currentColor; }
+.status[data-s="salvando"], .status[data-s="pendente"] { color: var(--warn); border-color: currentColor; }
+.status[data-s="erro"] { color: var(--bad); border-color: currentColor; }
+
+nav.abas { display: flex; gap: 4px; overflow-x: auto; padding-block: 0; }
+nav.abas button { border: 0; background: none; font: 600 14px var(--f-body); color: var(--muted); padding: 10px 14px; border-bottom: 3px solid transparent; cursor: pointer; white-space: nowrap; }
+nav.abas button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+button, .btn { font: 500 14px var(--f-body); border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 6px; padding: 7px 12px; cursor: pointer; }
+button:hover { border-color: var(--muted); }
+button.pri { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+button.perigo { color: var(--bad); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input, select, textarea { font: 14px var(--f-body); color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; width: 100%; min-width: 0; }
+textarea { resize: vertical; min-height: 58px; }
+input[type="color"] { padding: 2px; height: 36px; width: 48px; flex: none; }
+label { display: grid; gap: 4px; font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.02em; min-width: 0; }
+
+main { padding-block: 20px 60px; }
+.painel { display: none; }
+.painel.ativo { display: block; }
+.grade { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 400px); gap: 20px; align-items: start; }
+.cartao { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; min-width: 0; }
+.cartao + .cartao { margin-top: 16px; }
+h2 { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; font-size: 22px; margin: 0 0 12px; line-height: 1.1; text-wrap: balance; }
+h3 { font-size: 15px; margin: 0 0 8px; }
+.sub { color: var(--muted); font-size: 13px; margin: -6px 0 14px; max-width: 65ch; }
+.campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.campos .larga { grid-column: 1 / -1; }
+.cor { display: flex; gap: 6px; align-items: center; }
+.dica { font-size: 13px; color: var(--muted); background: var(--panel-2); border: 1px dashed var(--line); border-radius: 8px; padding: 10px 12px; margin-top: 12px; }
+.dica b { color: var(--ink); }
+
+.etapas { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.etapa { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; border: 1px solid var(--line); border-radius: 99px; padding: 4px 10px 4px 6px; cursor: pointer; background: var(--panel-2); color: var(--muted); }
+.etapa input { width: 16px; height: 16px; margin: 0; accent-color: var(--ok); }
+.etapa:has(input:checked) { color: var(--ok); border-color: currentColor; }
+.etapa .n { font-family: var(--f-mono); font-size: 11px; }
+
+.cenas-cab { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.cenas-cab h2 { margin: 0; }
+.tempo-total { font-family: var(--f-mono); font-size: 13px; color: var(--muted); }
+.tempo-total b { color: var(--ink); }
+.tempo-total.fora b { color: var(--warn); }
+.cena { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); }
+.cena:first-of-type { border-top: 0; }
+.cena .num { font-family: var(--f-display); font-weight: 800; font-size: 34px; line-height: 1; text-align: center; border-left: 4px solid var(--body-role); padding-left: 6px; }
+.cena[data-papel="gancho"] .num { border-color: var(--hook); }
+.cena[data-papel="cta"] .num { border-color: var(--cta); }
+.cena .tc { display: block; font-family: var(--f-mono); font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 6px; line-height: 1.3; }
+.cena .linha { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+.cena .corpo { display: grid; gap: 8px; min-width: 0; }
+.cena .acoes { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.cena .acoes button { padding: 4px 9px; font-size: 13px; }
+.cena .midia { font-size: 12px; color: var(--muted); font-family: var(--f-mono); overflow-wrap: anywhere; }
+.vazio { text-align: center; padding: 26px 10px; color: var(--muted); }
+
+.monitor { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 110px); }
+.tela-caixa { background: var(--monitor); border-radius: 10px; padding: 12px; display: grid; place-items: center; }
+#tela { display: block; max-width: 100%; max-height: 62vh; width: auto; height: auto; border-radius: 3px; background: #000; }
+.transporte { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.transporte .tcode { font-family: var(--f-mono); font-size: 15px; font-weight: 600; margin-left: auto; font-variant-numeric: tabular-nums; }
+.timeline { position: relative; display: flex; height: 34px; margin-top: 10px; border-radius: 4px; overflow: hidden; cursor: pointer; background: var(--panel-2); border: 1px solid var(--line); }
+.timeline .bloco { flex-basis: 0; min-width: 2px; border-right: 1px solid var(--panel); display: grid; place-items: center; font: 600 11px var(--f-mono); color: #fff; overflow: hidden; }
+.timeline .bloco[data-papel="gancho"] { background: var(--hook); }
+.timeline .bloco[data-papel="conteudo"] { background: var(--body-role); }
+.timeline .bloco[data-papel="cta"] { background: var(--cta); }
+.timeline .cabeca { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ink); box-shadow: 0 0 0 1px var(--panel); pointer-events: none; }
+.legenda-cores { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+.legenda-cores i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.export { margin-top: 14px; display: grid; gap: 8px; }
+.export .linha { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.barra { height: 6px; background: var(--panel-2); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
+.barra > div { height: 100%; width: 0; background: var(--bad); }
+.msg { font-size: 13px; color: var(--muted); }
+.msg.erro { color: var(--bad); }
+
+.ia { margin-top: 14px; border: 1px solid var(--accent); border-radius: 10px; padding: 14px; background: var(--panel-2); }
+.ia pre, .saida { white-space: pre-wrap; font-family: var(--f-body); font-size: 14px; margin: 0; overflow-wrap: anywhere; }
+.ia ol { margin: 8px 0; padding-left: 22px; font-size: 14px; }
+.ia ol li { margin-bottom: 4px; }
+
+.modelos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.modelo { text-align: left; display: grid; gap: 6px; padding: 14px; border-radius: 10px; background: var(--panel); }
+.modelo b { font-size: 15px; }
+.modelo span { font-size: 13px; color: var(--muted); }
+.modelo .tag { font-family: var(--f-mono); font-size: 11px; color: var(--accent); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.chips button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.codigo { position: relative; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 12px 12px 12px 14px; overflow-x: auto; }
+.codigo pre, .codigo code { font-family: var(--f-mono); font-size: 13px; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.receitas { display: grid; gap: 14px; }
+.receita { display: grid; gap: 6px; }
+.receita .cab { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+.receita p { margin: 0; font-size: 13px; color: var(--muted); }
+textarea.prompt { min-height: 360px; font-family: var(--f-mono); font-size: 13px; line-height: 1.55; background: var(--panel-2); }
+
+.tabela { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.guia-grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.guia-grade .cartao + .cartao { margin-top: 0; }
+ol.fluxo, ul.lista { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14px; max-width: 65ch; }
+a { color: var(--accent); }
+
+@media (max-width: 900px) {
+  .grade { grid-template-columns: minmax(0, 1fr); }
+  .monitor { position: static; order: -1; }
+  #tela { max-height: 52vh; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<header class="topo">
+  <div class="wrap">
+    <div class="marca-app"><span class="rec" aria-hidden="true"></span><h1>Estúdio de Vídeo</h1><small>Claude dirige · você aprova</small></div>
+    <div class="proj">
+      <label for="sel-proj" style="position:absolute;left:-9999px">Projeto</label>
+      <select id="sel-proj" aria-label="Projeto aberto" style="width:auto;max-width:240px"></select>
+      <button id="btn-novo" type="button">+ Novo</button>
+      <button id="btn-dup" type="button">Duplicar</button>
+      <button id="btn-del" type="button" class="perigo">Excluir</button>
+      <span id="del-conf" hidden><button id="btn-del-sim" type="button" class="perigo">Confirmar exclusão</button> <button id="btn-del-nao" type="button">Cancelar</button></span>
+      <span class="status" id="status" data-s="">Carregando…</span>
+    </div>
+  </div>
+  <div class="wrap">
+    <nav class="abas" role="tablist" aria-label="Seções">
+      <button role="tab" data-aba="roteiro" aria-selected="true">Roteiro e prévia</button>
+      <button role="tab" data-aba="prompt" aria-selected="false">Prompt para o Claude Code</button>
+      <button role="tab" data-aba="ffmpeg" aria-selected="false">Receitas FFmpeg</button>
+      <button role="tab" data-aba="guia" aria-selected="false">Guia de ferramentas</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- Seletor de modelo (novo projeto / estado vazio) -->
+  <section id="novo-painel" class="cartao" hidden style="margin-bottom:16px">
+    <h2>Começar um projeto</h2>
+    <p class="sub">Cada modelo já vem com um storyboard inicial no padrão gancho → conteúdo → CTA. Depois é só ajustar as cenas.</p>
+    <div class="modelos" id="modelos"></div>
+    <div style="margin-top:12px"><button id="btn-novo-fechar" type="button">Fechar</button></div>
+  </section>
+
+  <!-- ROTEIRO -->
+  <section class="painel ativo" id="aba-roteiro">
+    <div class="grade" id="grade-roteiro">
+      <div>
+        <div class="cartao" id="briefing">
+          <h2>Briefing</h2>
+          <div class="campos">
+            <label class="larga">Nome do projeto<input id="b-nome" data-b="nome"></label>
+            <label>Tipo de vídeo<select id="b-tipo" data-b="tipo"></select></label>
+            <label>Formato<select id="b-formato" data-b="formato"><option value="9:16">9:16 · Reels/Shorts</option><option value="16:9">16:9 · YouTube</option><option value="1:1">1:1 · Feed</option></select></label>
+            <label>Duração alvo (s)<input id="b-alvo" data-b="alvo" type="number" min="5" max="600" step="1"></label>
+            <label class="larga">Objetivo / tema<textarea id="b-objetivo" data-b="objetivo" rows="2"></textarea></label>
+            <label>Público<input id="b-publico" data-b="publico"></label>
+            <label>Referência (link ou arquivo)<input id="b-ref" data-b="referencia" placeholder="youtu.be/… ou site da marca"></label>
+            <label>Pasta do vídeo bruto<input id="b-pasta" data-b="pasta" placeholder="projetos/001-nome/video.mp4"></label>
+            <label>BPM da música<input id="b-bpm" data-b="bpm" type="number" min="40" max="220" placeholder="120"></label>
+            <label>Orçamento de créditos<input id="b-orc" data-b="orcamento" type="number" min="0" placeholder="ex.: 100"></label>
+          </div>
+          <h3 style="margin-top:16px">Identidade visual</h3>
+          <div class="campos">
+            <label>Marca<input id="m-nome" data-b="marca.nome"></label>
+            <label>Cor de fundo<span class="cor"><input type="color" id="m-pri" data-b="marca.primaria"><input id="m-pri-t" data-b="marca.primaria" aria-label="Cor de fundo em hexadecimal"></span></label>
+            <label>Cor de destaque<span class="cor"><input type="color" id="m-sec" data-b="marca.secundaria"><input id="m-sec-t" data-b="marca.secundaria" aria-label="Cor de destaque em hexadecimal"></span></label>
+            <label>Cor do texto<span class="cor"><input type="color" id="m-txt" data-b="marca.texto"><input id="m-txt-t" data-b="marca.texto" aria-label="Cor do texto em hexadecimal"></span></label>
+            <label>Fonte dos títulos<select id="m-ft" data-b="marca.fonteTitulo"></select></label>
+            <label>Fonte da legenda<select id="m-fx" data-b="marca.fonteTexto"></select></label>
+            <label class="larga">Chamada final (CTA)<input id="m-cta" data-b="marca.cta"></label>
+            <label class="larga">Aviso no rodapé do CTA<input id="m-aviso" data-b="marca.aviso" placeholder="opcional"></label>
+          </div>
+          <div class="dica" id="dica-ferramenta"></div>
+          <div class="etapas" id="etapas" aria-label="Fluxo padrão em 5 passos"></div>
+        </div>
+
+        <div class="cartao">
+          <div class="cenas-cab">
+            <h2>Storyboard</h2>
+            <span class="tempo-total" id="tempo-total"></span>
+          </div>
+          <div id="cenas"></div>
+          <div class="acoes" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+            <button id="btn-cena" type="button" class="pri">+ Cena</button>
+            <button id="btn-gerar" type="button" hidden>Gerar roteiro com Claude</button>
+            <button id="btn-revisar" type="button" hidden>Revisar com Claude</button>
+          </div>
+          <div class="ia" id="ia" hidden>
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">
+              <h3 id="ia-titulo" style="margin:0">Claude</h3>
+              <span style="display:flex;gap:6px;flex-wrap:wrap"><button id="ia-usar" type="button" class="pri" hidden>Usar este roteiro</button><button id="ia-fechar" type="button">Fechar</button></span>
+            </div>
+            <div id="ia-corpo" class="saida" style="margin-top:10px"></div>
+          </div>
+        </div>
+
+        <div class="cartao">
+          <h2>Notas e próximas melhorias</h2>
+          <p class="sub">O que ajustar na próxima rodada. Fica salvo com o projeto, então o Claude consegue ler depois.</p>
+          <label for="b-notas" style="position:absolute;left:-9999px">Notas</label>
+          <textarea id="b-notas" data-b="notas" rows="4" placeholder="ex.: legenda maior na cena 3; trocar a música; testar versão 16:9"></textarea>
+        </div>
+      </div>
+
+      <aside class="monitor cartao" aria-label="Prévia do vídeo">
+        <div class="tela-caixa"><canvas id="tela" width="1080" height="1920" aria-label="Prévia animada do vídeo"></canvas></div>
+        <div class="transporte">
+          <button id="btn-play" type="button" class="pri" aria-label="Reproduzir">▶ Play</button>
+          <button id="btn-inicio" type="button" aria-label="Voltar ao início">⏮</button>
+          <span class="tcode" id="tcode">00:00:00</span>
+        </div>
+        <div class="timeline" id="timeline" role="slider" aria-label="Posição no vídeo" tabindex="0"></div>
+        <div class="legenda-cores"><span><i style="background:var(--hook)"></i>Gancho</span><span><i style="background:var(--body-role)"></i>Conteúdo</span><span><i style="background:var(--cta)"></i>CTA</span></div>
+        <div class="export">
+          <div class="linha">
+            <label class="btn" for="f-musica" style="display:inline-block;font-size:14px;color:var(--ink);font-weight:500;letter-spacing:0">♪ Música</label>
+            <input type="file" id="f-musica" accept="audio/*" hidden>
+            <span class="msg" id="musica-nome">sem trilha</span>
+            <button id="btn-musica-tirar" type="button" hidden>Remover</button>
+          </div>
+          <div class="linha">
+            <button id="btn-exportar" type="button" class="pri">● Gravar vídeo</button>
+            <button id="btn-salvar-video" type="button" hidden>Salvar arquivo</button>
+          </div>
+          <div class="barra" hidden id="barra"><div></div></div>
+          <p class="msg" id="msg-export">Grava a prévia em tempo real, com a trilha, no formato escolhido. Mantenha esta aba visível durante a gravação.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- PROMPT -->
+  <section class="painel" id="aba-prompt">
+    <div class="cartao">
+      <h2>Prompt para o Claude Code</h2>
+      <p class="sub">Montado a partir do briefing e do storyboard. Cole numa sessão do Claude Code aberta na pasta do estúdio (Remotion ou HyperFrames).</p>
+      <div class="chips" id="chips-prompt"></div>
+      <label for="saida-prompt" style="position:absolute;left:-9999px">Prompt gerado</label>
+      <textarea id="saida-prompt" class="prompt" readonly></textarea>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+        <button id="btn-copiar-prompt" type="button" class="pri">Copiar prompt</button>
+        <button id="btn-copiar-srt" type="button">Copiar legenda (.srt)</button>
+        <button id="btn-copiar-json" type="button">Copiar roteiro em JSON</button>
+        <button id="btn-baixar-json" type="button" hidden>Baixar roteiro (.json)</button>
+        <span class="msg" id="msg-prompt" aria-live="polite"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FFMPEG -->
+  <section class="painel" id="aba-ffmpeg">
+    <div class="cartao">
+      <h2>Receitas FFmpeg</h2>
+      <p class="sub">Troque os nomes dos arquivos e os comandos se ajustam. Instale com <code>winget install Gyan.FFmpeg</code>.</p>
+      <div class="campos" style="margin-bottom:16px">
+        <label>Arquivo de entrada<input id="ff-in" value="in.mp4"></label>
+        <label>Arquivo de saída<input id="ff-out" value="out.mp4"></label>
+        <label>Legenda (.srt)<input id="ff-srt" value="legenda.srt"></label>
+      </div>
+      <div class="receitas" id="receitas"></div>
+    </div>
+  </section>
+
+  <!-- GUIA -->
+  <section class="painel" id="aba-guia">
+    <div class="guia-grade">
+      <div class="cartao">
+        <h2>Mentalidade</h2>
+        <ul class="lista">
+          <li><b>Claude</b> é o diretor.</li>
+          <li><b>/watch</b> são os olhos: lê frames e transcrição.</li>
+          <li><b>Remotion / HyperFrames</b> são as mãos: vídeo em código, sempre editável.</li>
+          <li><b>Higgsfield / Google Flow</b> são a imaginação: imagem e vídeo gerados.</li>
+        </ul>
+      </div>
+      <div class="cartao">
+        <h2>Fluxo padrão</h2>
+        <ol class="fluxo">
+          <li>Transcrever palavra por palavra com tempos (faster-whisper, grátis). Corrigir nomes ("Cloud" → "Claude").</li>
+          <li>Cortar tempo morto: silêncios e erros.</li>
+          <li>Extrair frames (/watch) para saber a posição do rosto e do cenário.</li>
+          <li>Storyboard numerado (gancho → conteúdo → CTA) e aprovação antes de renderizar.</li>
+          <li>Render e loop de verificação: o Claude critica os próprios frames e corrige. Saída MP4 16:9 e/ou 9:16.</li>
+        </ol>
+      </div>
+      <div class="cartao">
+        <h2>Regras de ouro do prompt</h2>
+        <ul class="lista">
+          <li>Referência vale mais que descrição. Pode ser só de ritmo ou BPM.</li>
+          <li>Estilo limpo "Apple" evita cara de IA.</li>
+          <li>Diga quando cada elemento entra: "quando eu disser X, mostre o logo de X".</li>
+          <li>Feche com: "diretrizes gerais — tem liberdade criativa para melhorar".</li>
+          <li>Reserve um terço livre para o PiP. Prints reais valem mais que recriações.</li>
+          <li>Esforço médio já basta. Atualize a skill de estilo após cada projeto. Defina orçamento de créditos.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="cartao" style="margin-top:16px">
+      <h2>Quando usar o quê</h2>
+      <div class="tabela"><table>
+        <thead><tr><th>Vídeo</th><th>Grátis</th><th>Pago / gerado</th></tr></thead>
+        <tbody>
+          <tr><td>Talking-head (cortes, zoom, legenda)</td><td>Remotion + /watch; HyperFrames /talking-head-recut + /embedded-captions</td><td>Higgsfield Katana</td></tr>
+          <tr><td>Motion graphics / lançamento</td><td>HyperFrames /motion-graphics, /product-launch-video</td><td>Claude Motion + Higgsfield MCP (exporta After Effects e Blender)</td></tr>
+          <tr><td>No ritmo da música</td><td>HyperFrames /music-to-video</td><td>Katana aura edit</td></tr>
+          <tr><td>Explicativo sem rosto</td><td>HyperFrames /faceless-explainer + TTS (Kokoro, Piper, Edge-TTS)</td><td>—</td></tr>
+          <tr><td>B-roll realista</td><td>Google Flow (~50 créditos/dia por Gmail, 720p)</td><td>Higgsfield: Seedance 2.5, Kling 3, Veo, Sora</td></tr>
+          <tr><td>Avatar / influenciador</td><td>ChatGPT ou Gemini (character sheet) + Google Flow (replace) + CapCut</td><td>Genjutsu (~US$ 5 por 15 s em 720p)</td></tr>
+          <tr><td>Edição manual</td><td>DaVinci Resolve, CapCut, Shotcut, Kdenlive, OpenShot, Blender</td><td>—</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="cartao" style="margin-top:16px">
+      <h2>Instalação no Windows</h2>
+      <div class="receitas" id="instalacao"></div>
+    </div>
+    <div class="guia-grade" style="margin-top:16px">
+      <div class="cartao">
+        <h2>Higgsfield</h2>
+        <ul class="lista">
+          <li>MCP: <code>https://mcp.higgsfield.ai/mcp</code> (OAuth, sem chave). Claude → Personalizar → Conectores → Higgsfield.</li>
+          <li>Produção realista: assets (produto, personagem, locais, figurino) → shotlist com prefixo de estilo fixo → gerar cena a cena e montar os segundos bons.</li>
+          <li>Rosto consistente: ficha de 3 painéis, fundo neutro, salvar como element. Keyframe importa mais que prompt.</li>
+          <li>Esconder cortes: match de ação, wipe em primeiro plano, som puxando o plano.</li>
+          <li>API pré-paga: Kling 3.0 US$ 0,20/s, Seedance 2.5 US$ 0,14/s.</li>
+          <li>Golpe: "ilimitado grátis com link secreto" é isca. Créditos legítimos vêm dos posts oficiais da @higgsfield no X.</li>
+        </ul>
+      </div>
+      <div class="cartao">
+        <h2>Fontes estudadas</h2>
+        <ul class="lista">
+          <li><a href="https://youtu.be/5HYYXYYCrL4" target="_blank" rel="noopener">Claude Motion + Higgsfield</a></li>
+          <li><a href="https://youtu.be/0I5AWAuPFj0" target="_blank" rel="noopener">Remotion grátis × Higgsfield (repo mackswendhell/studio)</a></li>
+          <li><a href="https://youtu.be/PeQNydT-xF8" target="_blank" rel="noopener">HyperFrames: 5 passos e PiP</a></li>
+          <li><a href="https://youtu.be/1IuB9IRyOCs" target="_blank" rel="noopener">HyperFrames: edição, motion com áudio, 3D</a></li>
+          <li><a href="https://youtu.be/-ClLe2Kkb84" target="_blank" rel="noopener">Influenciador de IA grátis (ChatGPT + Flow + CapCut)</a></li>
+          <li><a href="https://youtu.be/pBDO7B8mrAQ" target="_blank" rel="noopener">Higgsfield API sem mensalidade</a></li>
+          <li><a href="https://youtu.be/Zc716lwhrAs" target="_blank" rel="noopener">Créditos grátis via X</a></li>
+          <li><a href="https://www.youtube.com/@higgsfieldai" target="_blank" rel="noopener">Canal @higgsfieldai</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const FPS = 30;
+const CHAVE_LOCAL = 'estudio-video-v1';
+
+const TIPOS = {
+  juridico: { rotulo: 'Explicativo sem rosto', ferramenta: 'HyperFrames <b>/faceless-explainer</b> + TTS pt-BR (Edge-TTS Francisca ou Antonio). Sem custo.', prompt: 'E' },
+  talking:  { rotulo: 'Talking-head', ferramenta: '<b>Remotion + /watch</b> ou HyperFrames <b>/talking-head-recut</b> + <b>/embedded-captions</b> (grátis). Pago: Higgsfield Katana.', prompt: 'A' },
+  motion:   { rotulo: 'Motion graphics / lançamento', ferramenta: 'HyperFrames <b>/motion-graphics</b> ou <b>/product-launch-video</b>. Pago: Claude Motion + Higgsfield MCP.', prompt: 'B' },
+  musica:   { rotulo: 'No ritmo da música', ferramenta: 'HyperFrames <b>/music-to-video</b>. Pago: Katana aura edit.', prompt: 'B' },
+  avatar:   { rotulo: 'Avatar / influenciador de IA', ferramenta: 'ChatGPT ou Gemini (character sheet) + <b>Google Flow</b> (vídeo base ≤ 10 s → replace) + CapCut.', prompt: 'D' },
+  estilo:   { rotulo: 'Copiar estilo de referência', ferramenta: '<b>/watch</b> na referência e criação de uma skill <b>estilo-nome</b>, testada num reel de 15 s.', prompt: 'C' },
+};
+const ENQ = { titulo: 'Título na tela', camera: 'Câmera cheia', dividida: 'Tela dividida', print: 'Print', broll: 'B-roll', pip: 'PiP (rosto no canto)' };
+const PAPEIS = { gancho: 'Gancho', conteudo: 'Conteúdo', cta: 'CTA' };
+const ETAPAS = [['transcrever', 'Transcrever'], ['cortar', 'Cortar tempo morto'], ['frames', 'Extrair frames'], ['plano', 'Storyboard aprovado'], ['render', 'Render + revisão']];
+const FONTES = ['Playfair Display', 'Work Sans', 'Big Shoulders Display', 'IBM Plex Sans'];
+const PROMPTS = { A: 'A · Editar talking-head', B: 'B · Motion graphics', C: 'C · Estilo → skill', D: 'D · Avatar (Flow)', E: 'E · Jurídico sem rosto' };
+
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)).replace(/-/g, '').slice(0, 20);
+const cena = (papel, enquadramento, duracao, titulo, fala, visual) => ({ id: uid(), papel, enquadramento, duracao, titulo, fala: fala || '', visual: visual || '', midia: null });
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const easeOut = x => 1 - Math.pow(1 - clamp(x), 3);
+
+function base(extra) {
+  return Object.assign({
+    id: uid(), nome: 'Novo vídeo', tipo: 'juridico', formato: '9:16', alvo: 30, objetivo: '', publico: '', referencia: '', pasta: '', bpm: '', orcamento: '',
+    marca: { nome: 'Minha marca', primaria: '#14213d', secundaria: '#fca311', texto: '#ffffff', fonteTitulo: 'Work Sans', fonteTexto: 'Work Sans', cta: 'Siga para mais', aviso: '' },
+    cenas: [], etapas: {}, notas: '', criado: Date.now(), atualizado: Date.now(),
+  }, extra);
+}
+const MODELOS = {
+  juridico: {
+    titulo: 'Jurídico DI PALLACIO', tag: 'Prompt E · 9:16 · 45 s', desc: 'Explicativo sem rosto sobre distrato de multipropriedade. Linguagem simples, sem prometer resultado.',
+    criar: () => base({
+      nome: 'Distrato de multipropriedade · Reels', tipo: 'juridico', formato: '9:16', alvo: 45,
+      objetivo: 'Explicar, em linguagem simples, que quem se arrependeu da compra de multipropriedade pode buscar orientação sobre o distrato.',
+      publico: 'Compradores de multipropriedade em resorts', referencia: '',
+      marca: { nome: 'DI PALLACIO', primaria: '#0d2340', secundaria: '#b8863e', texto: '#f7f4ec', fonteTitulo: 'Playfair Display', fonteTexto: 'Work Sans', cta: 'Fale com a DI PALLACIO', aviso: 'Conteúdo informativo. Não substitui uma consulta jurídica.' },
+      cenas: [
+        cena('gancho', 'titulo', 4, 'Comprou multipropriedade e se arrependeu?', 'Você comprou uma multipropriedade e hoje as parcelas pesam no orçamento?'),
+        cena('conteudo', 'titulo', 8, 'O consumidor tem proteção', 'O Código de Defesa do Consumidor também vale para quem comprou fração de imóvel em resort.'),
+        cena('conteudo', 'print', 8, 'Leia a cláusula de rescisão', 'O primeiro passo é ler o contrato: veja a cláusula de rescisão e quanto você já pagou.', 'Print de uma cláusula genérica, sem dados de cliente'),
+        cena('conteudo', 'dividida', 8, 'Retenção alta pode ser discutida', 'Retenções muito altas podem ser questionadas. Cada caso é analisado de forma individual.', 'Calculadora ou extrato desfocado'),
+        cena('conteudo', 'titulo', 8, 'Separe seus documentos', 'Separe o contrato, os comprovantes de pagamento e as conversas com a empresa.'),
+        cena('cta', 'titulo', 7, 'Quer entender o seu caso?', 'Quer entender o seu caso? Fale com a DI PALLACIO.'),
+      ],
+    }),
+  },
+  talking: {
+    titulo: 'Talking-head', tag: 'Prompt A · 9:16 · 60 s', desc: 'Você falando para a câmera, com cortes, prints, B-roll e legendas animadas.',
+    criar: () => base({
+      nome: 'Talking-head', tipo: 'talking', formato: '9:16', alvo: 60, pasta: 'projetos/001-video/video.mp4',
+      marca: { nome: 'Seu nome', primaria: '#111418', secundaria: '#4f7cff', texto: '#ffffff', fonteTitulo: 'Work Sans', fonteTexto: 'Work Sans', cta: 'Comenta "QUERO" que eu te mando', aviso: '' },
+      cenas: [
+        cena('gancho', 'camera', 3, 'A frase que prende', 'Escreva aqui a primeira frase do vídeo.'),
+        cena('conteudo', 'dividida', 10, 'Ponto 1', 'Explique o primeiro ponto.', 'Print na metade de cima'),
+        cena('conteudo', 'print', 10, 'Ponto 2', 'Mostre na tela o que está falando.', 'Print real da pasta prints/'),
+        cena('conteudo', 'broll', 10, 'Ponto 3', 'Exemplo prático.', 'B-roll do Google Flow'),
+        cena('conteudo', 'pip', 15, 'Demonstração', 'Mostre a tela com você no canto.', 'Gravação de tela, rosto no terço livre'),
+        cena('cta', 'camera', 6, 'Chamada final', 'Diga o que a pessoa deve fazer agora.'),
+      ],
+    }),
+  },
+  motion: {
+    titulo: 'Motion graphics', tag: 'Prompt B · 16:9 · 20 s', desc: 'Peça curta de lançamento, cortes no beat e terço esquerdo livre para PiP.',
+    criar: () => base({
+      nome: 'Lançamento em motion', tipo: 'motion', formato: '16:9', alvo: 20, bpm: 120,
+      marca: { nome: 'Marca', primaria: '#0f0f12', secundaria: '#e8e1d0', texto: '#ffffff', fonteTitulo: 'Big Shoulders Display', fonteTexto: 'IBM Plex Sans', cta: 'Disponível agora', aviso: '' },
+      cenas: [
+        cena('gancho', 'titulo', 2, 'Uma promessa em 4 palavras'),
+        cena('conteudo', 'print', 4, 'Recurso 1', '', 'Print do produto'),
+        cena('conteudo', 'print', 4, 'Recurso 2', '', 'Print do produto'),
+        cena('conteudo', 'pip', 6, 'Como funciona', '', 'Tela + PiP no terço esquerdo'),
+        cena('cta', 'titulo', 4, 'Nome do produto'),
+      ],
+    }),
+  },
+  branco: { titulo: 'Em branco', tag: 'Escolha o tipo depois', desc: 'Um projeto vazio com uma cena de gancho.', criar: () => base({ cenas: [cena('gancho', 'titulo', 3, 'Seu gancho aqui')] }) },
+};
+
+// ---------- estado ----------
+const S = { projetos: {}, ativo: null, db: null, assets: null, sample: null, downloads: null, sujo: false, salvando: false, resalvar: false, primeiraFoto: false, promptEscolhido: null };
+let timerSalvar = null;
+const ativo = () => S.projetos[S.ativo] || null;
+
+function lerLocal() {
+  try { const d = JSON.parse(localStorage.getItem(CHAVE_LOCAL) || 'null'); if (d && d.projetos) { S.projetos = d.projetos; S.ativo = d.ativo; } } catch (e) {}
+}
+function gravarLocal() {
+  try {
+    const projetos = {}; for (const id in S.projetos) projetos[id] = limpar(S.projetos[id]);
+    localStorage.setItem(CHAVE_LOCAL, JSON.stringify({ projetos, ativo: S.ativo }));
+  } catch (e) {}
+}
+// Remove anexos que só existem nesta aba (sem armazenamento de arquivos)
+function limpar(p) {
+  const c = JSON.parse(JSON.stringify(p)); delete c.id; delete c._novo;
+  (c.cenas || []).forEach(x => { if (x.midia && x.midia.local) x.midia = null; });
+  return c;
+}
+function setStatus(s, txt) {
+  const el = $('#status'); el.dataset.s = s;
+  el.textContent = txt || ({ salvo: 'Salvo', salvando: 'Salvando…', pendente: 'Alterações pendentes', local: 'Salvo só neste navegador', erro: 'Erro ao salvar' }[s] || '');
+}
+function mudou() {
+  const p = ativo(); if (!p) return;
+  p.atualizado = Date.now(); S.sujo = true;
+  clearTimeout(timerSalvar); setStatus('pendente');
+  timerSalvar = setTimeout(salvar, 700);
+}
+async function salvar() {
+  clearTimeout(timerSalvar); timerSalvar = null;
+  const p = ativo(); if (!p) return;
+  gravarLocal();
+  if (!S.db) { S.sujo = false; setStatus('local'); return; }
+  if (S.salvando) { S.resalvar = true; return; }
+  S.salvando = true; S.sujo = false; setStatus('salvando');
+  try { await S.db.collection('projetos').doc(p.id).set(limpar(p)); setStatus('salvo'); }
+  catch (e) { S.sujo = true; setStatus('erro', 'Erro ao salvar: ' + (e && e.message || 'tente de novo')); }
+  S.salvando = false;
+  if (S.resalvar) { S.resalvar = false; salvar(); }
+}
+function flush() { if (timerSalvar) salvar(); }
+
+async function conectar() {
+  const c = window.claude;
+  if (!c || !c.use) { setStatus('local'); return; }
+  c.use('sample').then(s => { S.sample = s; $('#btn-gerar').hidden = !s; $('#btn-revisar').hidden = !s; }).catch(() => {});
+  c.use('assets').then(a => { S.assets = a; }).catch(() => {});
+  c.use('downloads').then(d => { S.downloads = d; $('#btn-baixar-json').hidden = !d; }).catch(() => {});
+  let db = null; try { db = await c.use('db'); } catch (e) {}
+  if (!db) { setStatus('local'); return; }
+  S.db = db;
+  db.collection('projetos').onSnapshot(snap => {
+    const vistos = new Set(); let render = false;
+    snap.docs.forEach(d => {
+      const dados = d.data(); if (!dados) return; vistos.add(d.id);
+      if (d.id === S.ativo && (S.sujo || S.salvando || timerSalvar)) return;
+      const atual = S.projetos[d.id];
+      if (atual && estavel(limpar(atual)) === estavel(dados)) return;
+      const novo = Object.assign({}, dados, { id: d.id });
+      if (atual) (novo.cenas || []).forEach(cn => { const ant = (atual.cenas || []).find(x => x.id === cn.id); if (!cn.midia && ant && ant.midia && ant.midia.local) cn.midia = ant.midia; });
+      S.projetos[d.id] = novo; if (d.id === S.ativo) render = true; else render = render || 'lista';
+    });
+    if (!S.primeiraFoto) {
+      // Primeira resposta do banco: ele passa a ser a fonte; projetos que só existiam no cache local saem
+      for (const id of Object.keys(S.projetos)) if (!vistos.has(id) && !S.projetos[id]._novo) delete S.projetos[id];
+      S.primeiraFoto = true; render = true;
+    } else {
+      for (const id of Object.keys(S.projetos)) if (!vistos.has(id) && !S.projetos[id]._novo && id !== S.ativo) { delete S.projetos[id]; render = render || 'lista'; }
+    }
+    for (const id of vistos) if (S.projetos[id]) delete S.projetos[id]._novo;
+    if (!S.projetos[S.ativo]) { S.ativo = maisRecente(); render = true; }
+    gravarLocal();
+    if (!S.sujo && !S.salvando) setStatus('salvo');
+    if (render === true) renderTudo(); else if (render) renderSeletor();
+  }, e => setStatus('erro', 'Sem conexão com o banco'));
+}
+// JSON com chaves ordenadas, para comparar o que veio do banco com o que está na tela
+function estavel(v) { return JSON.stringify(v, (k, x) => (x && typeof x === 'object' && !Array.isArray(x) ? Object.keys(x).sort().reduce((o, kk) => (o[kk] = x[kk], o), {}) : x)); }
+function maisRecente() {
+  return Object.values(S.projetos).sort((a, b) => (b.atualizado || 0) - (a.atualizado || 0))[0]?.id || null;
+}
+
+// ---------- caminhos de campos ----------
+const getP = (o, path) => path.split('.').reduce((a, k) => (a == null ? a : a[k]), o);
+function setP(o, path, v) { const ks = path.split('.'); let a = o; ks.slice(0, -1).forEach(k => { a[k] = a[k] || {}; a = a[k]; }); a[ks[ks.length - 1]] = v; }
+
+// ---------- render ----------
+function opcoes(sel, obj) { sel.innerHTML = ''; for (const [v, t] of Object.entries(obj)) { const o = document.createElement('option'); o.value = v; o.textContent = typeof t === 'string' ? t : t.rotulo; sel.appendChild(o); } }
+opcoes($('#b-tipo'), TIPOS);
+for (const sel of [$('#m-ft'), $('#m-fx')]) opcoes(sel, Object.fromEntries(FONTES.map(f => [f, f])));
+
+function renderModelos() {
+  const box = $('#modelos'); box.innerHTML = '';
+  for (const [k, m] of Object.entries(MODELOS)) {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'modelo'; b.dataset.modelo = k;
+    b.innerHTML = `<span class="tag"></span><b></b><span></span>`;
+    b.children[0].textContent = m.tag; b.children[1].textContent = m.titulo; b.children[2].textContent = m.desc;
+    box.appendChild(b);
+  }
+}
+function renderSeletor() {
+  const sel = $('#sel-proj'); sel.innerHTML = '';
+  const lista = Object.values(S.projetos).sort((a, b) => (b.atualizado || 0) - (a.atualizado || 0));
+  for (const p of lista) { const o = document.createElement('option'); o.value = p.id; o.textContent = p.nome || 'Sem nome'; sel.appendChild(o); }
+  sel.value = S.ativo || '';
+  const tem = lista.length > 0;
+  sel.hidden = !tem; $('#btn-dup').hidden = !tem; $('#btn-del').hidden = !tem;
+}
+function renderBriefing() {
+  const p = ativo(); if (!p) return;
+  $$('[data-b]').forEach(el => {
+    if (el === document.activeElement) return;
+    const v = getP(p, el.dataset.b);
+    if (el.type === 'color') el.value = /^#[0-9a-f]{6}$/i.test(v || '') ? v : '#000000';
+    else el.value = v == null ? '' : v;
+  });
+  $('#dica-ferramenta').innerHTML = '<b>Ferramenta indicada:</b> ' + (TIPOS[p.tipo] || TIPOS.juridico).ferramenta;
+  const et = $('#etapas'); et.innerHTML = '';
+  ETAPAS.forEach(([k, t], i) => {
+    const l = document.createElement('label'); l.className = 'etapa';
+    l.innerHTML = `<input type="checkbox" id="et-${k}" data-etapa="${k}"><span class="n">${i + 1}</span><span></span>`;
+    l.lastChild.textContent = t; l.querySelector('input').checked = !!(p.etapas || {})[k];
+    et.appendChild(l);
+  });
+}
+const tcCurto = s => { s = Math.max(0, s); const m = Math.floor(s / 60), r = Math.floor(s % 60); return `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`; };
+const tcLongo = s => { s = Math.max(0, s); const m = Math.floor(s / 60), r = Math.floor(s % 60), f = Math.floor((s % 1) * FPS); return `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}:${String(f).padStart(2, '0')}`; };
+const total = p => (p ? p.cenas.reduce((a, c) => a + (Number(c.duracao) || 0), 0) : 0);
+
+function renderCenas() {
+  const p = ativo(); const box = $('#cenas'); box.innerHTML = '';
+  if (!p) return;
+  if (!p.cenas.length) { box.innerHTML = '<p class="vazio">Nenhuma cena ainda. Adicione a primeira com “+ Cena” ou peça um roteiro ao Claude.</p>'; }
+  p.cenas.forEach((c, i) => {
+    const d = document.createElement('div'); d.className = 'cena'; d.dataset.i = i; d.dataset.papel = c.papel;
+    d.innerHTML = `
+      <div class="num">${i + 1}<span class="tc" data-tc></span></div>
+      <div class="corpo">
+        <div class="linha">
+          <label>Papel<select id="c-${c.id}-papel" data-c="papel"></select></label>
+          <label>Enquadramento<select id="c-${c.id}-enq" data-c="enquadramento"></select></label>
+          <label>Duração (s)<input id="c-${c.id}-dur" data-c="duracao" type="number" min="0.5" max="120" step="0.5"></label>
+        </div>
+        <label>Texto na tela<input id="c-${c.id}-tit" data-c="titulo" placeholder="até 7 palavras"></label>
+        <label>Fala / legenda<textarea id="c-${c.id}-fala" data-c="fala" rows="2" placeholder="O que é dito nesta cena. Vira a legenda animada."></textarea></label>
+        <label>O que aparece (nota para o Claude)<input id="c-${c.id}-vis" data-c="visual" placeholder="print, B-roll, gesto, logo…"></label>
+        <div class="acoes">
+          <label class="btn" for="c-${c.id}-img" style="display:inline-block;font-size:13px;padding:4px 9px;color:var(--ink);font-weight:500;letter-spacing:0">Anexar imagem</label>
+          <input type="file" id="c-${c.id}-img" data-img accept="image/*" hidden>
+          <button type="button" data-acao="sobe" aria-label="Mover cena para cima" ${i === 0 ? 'disabled' : ''}>↑</button>
+          <button type="button" data-acao="desce" aria-label="Mover cena para baixo" ${i === p.cenas.length - 1 ? 'disabled' : ''}>↓</button>
+          <button type="button" data-acao="dup">Duplicar</button>
+          <button type="button" data-acao="tirar-img" ${c.midia ? '' : 'hidden'}>Remover imagem</button>
+          <button type="button" data-acao="del" class="perigo">Excluir</button>
+          <button type="button" data-acao="ir">Ver na prévia</button>
+        </div>
+        <span class="midia" data-midia></span>
+      </div>`;
+    opcoes(d.querySelector('[data-c="papel"]'), PAPEIS);
+    opcoes(d.querySelector('[data-c="enquadramento"]'), ENQ);
+    d.querySelectorAll('[data-c]').forEach(el => { el.value = c[el.dataset.c] ?? ''; });
+    d.querySelector('[data-midia]').textContent = c.midia ? '🖼 ' + (c.midia.nome || 'imagem') + (c.midia.local ? ' (só nesta aba)' : '') : '';
+    box.appendChild(d);
+  });
+  atualizarTempos();
+}
+function atualizarTempos() {
+  const p = ativo(); if (!p) return;
+  let a = 0;
+  $$('#cenas .cena').forEach((el, i) => { const c = p.cenas[i]; const ini = a; a += Number(c.duracao) || 0; el.querySelector('[data-tc]').textContent = `${tcCurto(ini)}\n${tcCurto(a)}`; el.dataset.papel = c.papel; });
+  const T = total(p), alvo = Number(p.alvo) || 0;
+  const tt = $('#tempo-total');
+  tt.innerHTML = `<b>${tcCurto(T)}</b> de ${tcCurto(alvo)} alvo · ${p.cenas.length} cena${p.cenas.length === 1 ? '' : 's'}`;
+  tt.classList.toggle('fora', alvo > 0 && Math.abs(T - alvo) > Math.max(3, alvo * 0.15));
+  renderTimeline();
+}
+function renderTimeline() {
+  const p = ativo(); const tl = $('#timeline'); tl.innerHTML = '';
+  if (!p) return;
+  p.cenas.forEach((c, i) => { const b = document.createElement('div'); b.className = 'bloco'; b.dataset.papel = c.papel; b.style.flexGrow = Math.max(0.1, Number(c.duracao) || 0); b.textContent = i + 1; b.title = `${i + 1}. ${c.titulo || ''}`; tl.appendChild(b); });
+  const h = document.createElement('div'); h.className = 'cabeca'; tl.appendChild(h);
+  moverCabeca();
+}
+function moverCabeca() {
+  const p = ativo(); const T = total(p); const h = $('#timeline .cabeca'); if (!h) return;
+  h.style.left = (T ? clamp(tAtual / T) * 100 : 0) + '%';
+  $('#tcode').textContent = `${tcLongo(tAtual)} / ${tcLongo(T)}`;
+  $('#timeline').setAttribute('aria-valuetext', `${tcCurto(tAtual)} de ${tcCurto(T)}`);
+}
+function renderTudo() {
+  const vazio = !ativo();
+  $('#novo-painel').hidden = !vazio;
+  $('#btn-novo-fechar').hidden = vazio;
+  $('#grade-roteiro').hidden = vazio;
+  renderSeletor(); renderReceitas();
+  if (vazio) return;
+  renderBriefing(); renderCenas(); carregarFontes().then(desenharParado);
+  renderPrompt();
+}
+
+// ---------- eventos do briefing ----------
+$('#aba-roteiro').addEventListener('input', e => {
+  const el = e.target; const p = ativo(); if (!p) return;
+  if (el.dataset.b) {
+    let v = el.value;
+    if (el.type === 'number') v = v === '' ? '' : Number(v);
+    if (/^marca\.(primaria|secundaria|texto)$/.test(el.dataset.b) && el.type !== 'color' && !/^#[0-9a-f]{6}$/i.test(v)) return;
+    setP(p, el.dataset.b, v);
+    $$(`[data-b="${el.dataset.b}"]`).forEach(o => { if (o !== el) o.value = v; });
+    if (el.dataset.b === 'nome') renderSeletor();
+    if (el.dataset.b === 'tipo') { $('#dica-ferramenta').innerHTML = '<b>Ferramenta indicada:</b> ' + TIPOS[v].ferramenta; S.promptEscolhido = null; }
+    if (el.dataset.b === 'alvo') atualizarTempos();
+    if (el.dataset.b.startsWith('marca.fonte')) carregarFontes().then(desenharParado);
+    mudou(); desenharParado(); return;
+  }
+  if (el.dataset.etapa) { p.etapas = p.etapas || {}; p.etapas[el.dataset.etapa] = el.checked; mudou(); return; }
+  const cl = el.closest('.cena');
+  if (cl && el.dataset.c) {
+    const c = p.cenas[Number(cl.dataset.i)];
+    c[el.dataset.c] = el.dataset.c === 'duracao' ? Math.max(0, Number(el.value) || 0) : el.value;
+    if (el.dataset.c === 'duracao' || el.dataset.c === 'papel') atualizarTempos();
+    mudou(); desenharParado();
+  }
+});
+$('#aba-roteiro').addEventListener('change', async e => {
+  const el = e.target; if (!el.dataset.img) return;
+  const cl = el.closest('.cena'); const p = ativo(); const c = p.cenas[Number(cl.dataset.i)];
+  const f = el.files && el.files[0]; el.value = ''; if (!f) return;
+  const span = cl.querySelector('[data-midia]');
+  if (f.size > 20 * 1024 * 1024) { span.textContent = 'Imagem acima de 20 MB. Reduza e tente de novo.'; return; }
+  const local = URL.createObjectURL(f);
+  if (S.assets) {
+    span.textContent = 'Enviando imagem…';
+    try { const r = await S.assets.upload(f); c.midia = { id: r.id, url: r.url, nome: f.name }; cacheImg(r.url, local); }
+    catch (err) { c.midia = { url: local, nome: f.name, local: true }; }
+  } else c.midia = { url: local, nome: f.name, local: true };
+  mudou(); renderCenas(); desenharParado();
+});
+$('#cenas').addEventListener('click', e => {
+  const b = e.target.closest('button[data-acao]'); if (!b) return;
+  const p = ativo(); const i = Number(b.closest('.cena').dataset.i); const a = b.dataset.acao;
+  if (a === 'sobe' && i > 0) [p.cenas[i - 1], p.cenas[i]] = [p.cenas[i], p.cenas[i - 1]];
+  else if (a === 'desce' && i < p.cenas.length - 1) [p.cenas[i + 1], p.cenas[i]] = [p.cenas[i], p.cenas[i + 1]];
+  else if (a === 'dup') p.cenas.splice(i + 1, 0, Object.assign(JSON.parse(JSON.stringify(p.cenas[i])), { id: uid() }));
+  else if (a === 'del') p.cenas.splice(i, 1);
+  else if (a === 'tirar-img') p.cenas[i].midia = null;
+  else if (a === 'ir') { pausar(); tAtual = p.cenas.slice(0, i).reduce((s, c) => s + (Number(c.duracao) || 0), 0) + 0.6; desenharParado(); return; }
+  mudou(); renderCenas(); desenharParado();
+});
+$('#btn-cena').addEventListener('click', () => {
+  const p = ativo(); const n = p.cenas.length;
+  p.cenas.splice(Math.max(0, n - (p.cenas[n - 1]?.papel === 'cta' ? 1 : 0)), 0, cena(n ? 'conteudo' : 'gancho', 'titulo', 5, 'Nova cena'));
+  mudou(); renderCenas(); desenharParado();
+});
+
+// ---------- projetos ----------
+function abrir(id) { flush(); pausar(); S.ativo = id; tAtual = 0; gravarLocal(); fecharIA(); renderTudo(); }
+function criar(p) { p._novo = true; S.projetos[p.id] = p; abrir(p.id); mudou(); }
+$('#sel-proj').addEventListener('change', e => abrir(e.target.value));
+$('#btn-novo').addEventListener('click', () => { $('#novo-painel').hidden = false; $('#btn-novo-fechar').hidden = !ativo(); $('#novo-painel').scrollIntoView({ block: 'nearest' }); });
+$('#btn-novo-fechar').addEventListener('click', () => { $('#novo-painel').hidden = true; });
+$('#modelos').addEventListener('click', e => { const b = e.target.closest('[data-modelo]'); if (!b) return; $('#novo-painel').hidden = true; mostrarAba('roteiro'); criar(MODELOS[b.dataset.modelo].criar()); });
+$('#btn-dup').addEventListener('click', () => { const p = ativo(); if (!p) return; const c = JSON.parse(JSON.stringify(p)); c.id = uid(); c.nome = p.nome + ' (cópia)'; c.criado = Date.now(); c.cenas.forEach(x => x.id = uid()); criar(c); });
+$('#btn-del').addEventListener('click', () => { $('#btn-del').hidden = true; $('#del-conf').hidden = false; });
+$('#btn-del-nao').addEventListener('click', () => { $('#btn-del').hidden = false; $('#del-conf').hidden = true; });
+$('#btn-del-sim').addEventListener('click', async () => {
+  const id = S.ativo; $('#btn-del').hidden = false; $('#del-conf').hidden = true;
+  clearTimeout(timerSalvar); timerSalvar = null; S.sujo = false;
+  delete S.projetos[id]; S.ativo = maisRecente(); gravarLocal(); renderTudo();
+  if (S.db) { try { await S.db.collection('projetos').doc(id).delete(); setStatus('salvo', 'Projeto excluído'); } catch (e) { setStatus('erro', 'Não consegui excluir no banco'); } }
+});
+
+// ---------- abas ----------
+function mostrarAba(nome) {
+  $$('nav.abas button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.aba === nome)));
+  $$('.painel').forEach(p => p.classList.toggle('ativo', p.id === 'aba-' + nome));
+  if (nome === 'prompt') renderPrompt();
+  if (nome === 'roteiro') desenharParado(); else pausar();
+}
+$('nav.abas').addEventListener('click', e => { const b = e.target.closest('[data-aba]'); if (b) mostrarAba(b.dataset.aba); });
+
+// =====================================================================
+// PRÉVIA — o vídeo é desenhado em canvas a partir do storyboard
+// =====================================================================
+const cv = $('#tela'); const cx = cv.getContext('2d');
+let tAtual = 0, tocando = false, t0 = 0, aoTerminar = null;
+const imgs = new Map();
+function cacheImg(url, objUrl) { const im = new Image(); im.onload = desenharParado; im.src = objUrl; imgs.set(url, im); }
+function imgDe(c) {
+  if (!c.midia || !c.midia.url) return null;
+  const u = c.midia.url; let im = imgs.get(u);
+  if (!im) {
+    im = new Image(); imgs.set(u, im);
+    // Busca como blob para não "sujar" o canvas na gravação
+    fetch(u).then(r => { if (!r.ok) throw 0; return r.blob(); }).then(b => { im.onload = desenharParado; im.src = URL.createObjectURL(b); })
+      .catch(() => { im.onload = desenharParado; im.src = u; });
+  }
+  return im.complete && im.naturalWidth ? im : null;
+}
+function dims(f) { return f === '16:9' ? [1920, 1080] : f === '1:1' ? [1080, 1080] : [1080, 1920]; }
+function cenaEm(p, t) {
+  let a = 0;
+  for (let i = 0; i < p.cenas.length; i++) { const d = Number(p.cenas[i].duracao) || 0; if (t < a + d || i === p.cenas.length - 1) return { i, c: p.cenas[i], lt: clamp(t - a, 0, d), d, ini: a }; a += d; }
+  return null;
+}
+function rgba(hex, a) { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); const n = m ? parseInt(m[1], 16) : 0; return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+function quebrar(txt, maxW) {
+  const ws = String(txt || '').split(/\s+/).filter(Boolean); const ls = []; let l = '';
+  for (const w of ws) { const t = l ? l + ' ' + w : w; if (cx.measureText(t).width > maxW && l) { ls.push(l); l = w; } else l = t; }
+  if (l) ls.push(l); return ls;
+}
+function cobrir(im, x, y, w, h, zoom = 1, px = 0, py = 0, conter = false) {
+  const r = conter ? Math.min(w / im.naturalWidth, h / im.naturalHeight) : Math.max(w / im.naturalWidth, h / im.naturalHeight);
+  const iw = im.naturalWidth * r * zoom, ih = im.naturalHeight * r * zoom;
+  cx.save(); cx.beginPath(); cx.rect(x, y, w, h); cx.clip();
+  cx.drawImage(im, x + (w - iw) / 2 + px * w, y + (h - ih) / 2 + py * h, iw, ih); cx.restore();
+}
+function rrect(x, y, w, h, r) { cx.beginPath(); cx.moveTo(x + r, y); cx.arcTo(x + w, y, x + w, y + h, r); cx.arcTo(x + w, y + h, x, y + h, r); cx.arcTo(x, y + h, x, y, r); cx.arcTo(x, y, x + w, y, r); cx.closePath(); }
+function silhueta(cxp, cyp, r, cor) {
+  cx.fillStyle = cor; cx.beginPath(); cx.arc(cxp, cyp - r * 0.25, r * 0.42, 0, Math.PI * 2); cx.fill();
+  cx.beginPath(); cx.ellipse(cxp, cyp + r * 0.95, r * 0.85, r * 0.75, 0, Math.PI, 0); cx.fill();
+}
+function marcador(x, y, w, h, rotulo, m, k, pessoa) {
+  cx.save(); cx.fillStyle = rgba(m.texto, 0.06); cx.fillRect(x, y, w, h);
+  cx.strokeStyle = rgba(m.secundaria, 0.7); cx.lineWidth = 3 * k; cx.setLineDash([14 * k, 10 * k]); cx.strokeRect(x + 6 * k, y + 6 * k, w - 12 * k, h - 12 * k); cx.setLineDash([]);
+  if (pessoa) { cx.save(); cx.beginPath(); cx.rect(x, y, w, h); cx.clip(); silhueta(x + w / 2, y + h * 0.55, Math.min(w, h) * 0.38, rgba(m.texto, 0.12)); cx.restore(); }
+  cx.fillStyle = rgba(m.texto, 0.55); cx.font = `600 ${26 * k}px "IBM Plex Mono", monospace`; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+  cx.fillText(rotulo, x + w / 2, y + (pessoa ? h * 0.14 : h / 2)); cx.restore();
+}
+function titulo(txt, x, y, maxW, m, k, tam, alinhar = 'left', alpha = 1, maxLinhas = 4) {
+  if (!txt) return y;
+  let t = tam;
+  cx.font = `700 ${t * k}px "${m.fonteTitulo}", serif`;
+  let ls = quebrar(txt, maxW);
+  while (ls.length > maxLinhas && t > 40) { t -= 6; cx.font = `700 ${t * k}px "${m.fonteTitulo}", serif`; ls = quebrar(txt, maxW); }
+  cx.save(); cx.globalAlpha = alpha; cx.fillStyle = m.texto; cx.textAlign = alinhar; cx.textBaseline = 'top';
+  const lh = t * k * 1.12; ls.forEach((l, i) => cx.fillText(l, x, y + i * lh)); cx.restore();
+  return y + ls.length * lh;
+}
+function chip(txt, x, y, maxW, m, k, alpha) {
+  if (!txt) return;
+  cx.save(); cx.globalAlpha = alpha; cx.font = `700 ${46 * k}px "${m.fonteTitulo}", serif`;
+  const ls = quebrar(txt, maxW - 48 * k).slice(0, 3); const lh = 54 * k;
+  const w = Math.max(...ls.map(l => cx.measureText(l).width)) + 48 * k, h = ls.length * lh + 30 * k;
+  cx.fillStyle = rgba(m.primaria, 0.86); rrect(x, y, w, h, 14 * k); cx.fill();
+  cx.fillStyle = m.secundaria; cx.fillRect(x, y + 16 * k, 6 * k, h - 32 * k);
+  cx.fillStyle = m.texto; cx.textBaseline = 'top'; ls.forEach((l, i) => cx.fillText(l, x + 26 * k, y + 15 * k + i * lh)); cx.restore();
+}
+function legenda(c, lt, d, W, H, m, k, y) {
+  const ws = String(c.fala || '').split(/\s+/).filter(Boolean); if (!ws.length) return;
+  const ini = 0.15, fim = Math.max(ini + 0.1, d - 0.25), per = (fim - ini) / ws.length;
+  const idx = Math.floor((lt - ini) / per); if (idx < 0) return;
+  const k3 = Math.min(idx, ws.length - 1); const g = Math.floor(k3 / 3); const grupo = ws.slice(g * 3, g * 3 + 3);
+  let tam = 66 * k; cx.font = `800 ${tam}px "${m.fonteTexto}", sans-serif`;
+  const esp = () => cx.measureText(' ').width;
+  let largura = grupo.reduce((s, w) => s + cx.measureText(w).width, 0) + esp() * (grupo.length - 1);
+  while (largura > W * 0.88 && tam > 30) { tam -= 4; cx.font = `800 ${tam}px "${m.fonteTexto}", sans-serif`; largura = grupo.reduce((s, w) => s + cx.measureText(w).width, 0) + esp() * (grupo.length - 1); }
+  let x = (W - largura) / 2;
+  cx.save(); cx.textBaseline = 'middle'; cx.textAlign = 'left'; cx.lineJoin = 'round'; cx.lineWidth = tam * 0.16; cx.strokeStyle = 'rgba(0,0,0,0.78)';
+  grupo.forEach((w, j) => {
+    const atual = g * 3 + j === k3 && idx < ws.length; const pop = atual ? 1 + 0.06 * (1 - easeOut(((lt - ini) % per) / Math.min(per, 0.2))) : 1;
+    cx.save(); const wd = cx.measureText(w).width; cx.translate(x + wd / 2, y); cx.scale(pop, pop);
+    cx.strokeText(w, -wd / 2, 0); cx.fillStyle = atual ? m.secundaria : '#ffffff'; cx.fillText(w, -wd / 2, 0); cx.restore();
+    x += wd + esp();
+  });
+  cx.restore();
+}
+function desenhar(t) {
+  const p = ativo(); if (!p) return;
+  const [W, H] = dims(p.formato); if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  const m = p.marca || {}; const k = Math.min(W, H) / 1080; const vert = H > W; const pad = W * (vert ? 0.08 : 0.06);
+  cx.setTransform(1, 0, 0, 1, 0, 0); cx.globalAlpha = 1;
+  cx.fillStyle = m.primaria || '#000'; cx.fillRect(0, 0, W, H);
+  const s = cenaEm(p, t);
+  if (!s) { cx.fillStyle = rgba(m.texto, 0.5); cx.font = `600 ${40 * k}px "IBM Plex Sans", sans-serif`; cx.textAlign = 'center'; cx.fillText('Adicione uma cena', W / 2, H / 2); return; }
+  const { c, lt, d } = s; const ent = easeOut(lt / 0.45); const prog = d ? lt / d : 0; const subir = (1 - ent) * 50 * k;
+  const im = imgDe(c);
+  const yLeg = vert ? H * 0.78 : H * 0.87;
+  switch (c.enquadramento) {
+    case 'camera':
+      if (im) cobrir(im, 0, 0, W, H, 1 + 0.06 * prog); else marcador(0, 0, W, H, 'CÂMERA CHEIA · seu vídeo aqui', m, k, true);
+      chip(c.titulo, pad, H * (vert ? 0.12 : 0.1) + subir, W * (vert ? 0.84 : 0.5), m, k, ent); break;
+    case 'broll':
+      if (im) cobrir(im, 0, 0, W, H, 1.1 - 0.08 * prog, 0.02 - 0.04 * prog, 0); else marcador(0, 0, W, H, 'B-ROLL · ' + (c.visual || 'imagem de apoio'), m, k, false);
+      chip(c.titulo, pad, H * (vert ? 0.12 : 0.1) + subir, W * (vert ? 0.84 : 0.5), m, k, ent); break;
+    case 'pip': {
+      if (im) cobrir(im, 0, 0, W, H, 1 + 0.03 * prog); else marcador(0, 0, W, H, 'TELA / PRINT', m, k, false);
+      const r = vert ? W * 0.17 : H * 0.2; const pcx = vert ? pad + r : W * 0.17, pcy = vert ? H * 0.62 : H * 0.6;
+      cx.save(); cx.globalAlpha = ent; cx.beginPath(); cx.arc(pcx, pcy, r, 0, Math.PI * 2); cx.fillStyle = rgba(m.primaria, 0.92); cx.fill(); cx.clip();
+      silhueta(pcx, pcy + r * 0.1, r * 0.9, rgba(m.texto, 0.22)); cx.restore();
+      cx.save(); cx.globalAlpha = ent; cx.lineWidth = 8 * k; cx.strokeStyle = m.secundaria; cx.beginPath(); cx.arc(pcx, pcy, r, 0, Math.PI * 2); cx.stroke(); cx.restore();
+      chip(c.titulo, pad, H * (vert ? 0.12 : 0.1) + subir, W * (vert ? 0.84 : 0.5), m, k, ent); break;
+    }
+    case 'dividida': {
+      if (vert) {
+        if (im) cobrir(im, 0, 0, W, H * 0.5, 1.04 - 0.04 * prog); else marcador(0, 0, W, H * 0.5, c.visual ? c.visual.toUpperCase().slice(0, 34) : 'IMAGEM / PRINT', m, k, false);
+        cx.fillStyle = m.secundaria; cx.fillRect(0, H * 0.5 - 4 * k, W * ent, 8 * k);
+        titulo(c.titulo, pad, H * 0.55 + subir, W - pad * 2, m, k, 78, 'left', ent, 3);
+      } else {
+        if (im) cobrir(im, 0, 0, W * 0.5, H, 1.04 - 0.04 * prog); else marcador(0, 0, W * 0.5, H, 'IMAGEM / PRINT', m, k, false);
+        cx.fillStyle = m.secundaria; cx.fillRect(W * 0.5 - 4 * k, 0, 8 * k, H * ent);
+        titulo(c.titulo, W * 0.55, H * 0.28 + subir, W * 0.39, m, k, 84, 'left', ent, 4);
+      }
+      break;
+    }
+    case 'print': {
+      const r = vert ? { x: pad, y: H * 0.3, w: W - pad * 2, h: H * 0.38 } : { x: W * 0.4, y: H * 0.14, w: W * 0.54, h: H * 0.62 };
+      const z = 0.94 + 0.06 * ent + 0.05 * prog;
+      cx.save(); cx.translate(r.x + r.w / 2, r.y + r.h / 2); cx.scale(z, z); cx.translate(-(r.x + r.w / 2), -(r.y + r.h / 2));
+      cx.shadowColor = 'rgba(0,0,0,0.45)'; cx.shadowBlur = 50 * k; cx.shadowOffsetY = 20 * k;
+      cx.fillStyle = '#ffffff'; rrect(r.x, r.y, r.w, r.h, 22 * k); cx.fill(); cx.shadowColor = 'transparent';
+      cx.save(); rrect(r.x, r.y, r.w, r.h, 22 * k); cx.clip();
+      if (im) cobrir(im, r.x, r.y, r.w, r.h, 1, 0, 0, true);
+      else { cx.fillStyle = '#e9ecf2'; cx.fillRect(r.x, r.y, r.w, r.h); cx.fillStyle = '#b9c0cc'; for (let i = 0; i < 6; i++) cx.fillRect(r.x + 40 * k, r.y + (50 + i * 56) * k, (r.w - 80 * k) * (i % 3 === 2 ? 0.6 : 0.92), 22 * k); cx.fillStyle = '#7b8494'; cx.font = `600 ${24 * k}px "IBM Plex Mono", monospace`; cx.textAlign = 'center'; cx.fillText('PRINT · anexe a imagem real', r.x + r.w / 2, r.y + r.h - 40 * k); }
+      cx.restore(); cx.restore();
+      if (vert) titulo(c.titulo, pad, H * 0.12 + subir, W - pad * 2, m, k, 72, 'left', ent, 3);
+      else titulo(c.titulo, pad, H * 0.24 + subir, W * 0.3, m, k, 72, 'left', ent, 5);
+      break;
+    }
+    default: {
+      const y0 = vert ? H * 0.3 : H * 0.26;
+      const yf = titulo(c.titulo, pad, y0 + subir, W - pad * 2 - (vert ? 0 : W * 0.2), m, k, vert ? 104 : 112, 'left', ent, 5);
+      cx.fillStyle = m.secundaria; cx.fillRect(pad, yf + 30 * k, 150 * k * easeOut((lt - 0.2) / 0.5), 10 * k);
+    }
+  }
+  // CTA
+  if (c.papel === 'cta' && m.cta) {
+    const a = easeOut((lt - 0.4) / 0.4); const yc = vert ? H * 0.64 : H * 0.7;
+    cx.save(); cx.globalAlpha = a; cx.font = `700 ${50 * k}px "${m.fonteTexto}", sans-serif`;
+    const tw = Math.min(cx.measureText(m.cta).width, W * 0.8); const bw = tw + 90 * k, bh = 104 * k; const bx = vert ? (W - bw) / 2 : pad;
+    cx.translate(bx + bw / 2, yc); cx.scale(0.9 + 0.1 * a, 0.9 + 0.1 * a); cx.translate(-(bx + bw / 2), -yc);
+    cx.fillStyle = m.secundaria; rrect(bx, yc - bh / 2, bw, bh, bh / 2); cx.fill();
+    cx.fillStyle = m.primaria; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(m.cta, bx + bw / 2, yc + 2 * k, W * 0.8); cx.restore();
+    if (m.aviso) { cx.save(); cx.globalAlpha = 0.75 * a; cx.fillStyle = m.texto; cx.font = `500 ${24 * k}px "${m.fonteTexto}", sans-serif`; cx.textAlign = 'center'; cx.textBaseline = 'alphabetic'; cx.fillText(m.aviso, W / 2, H - 44 * k, W - pad * 2); cx.restore(); }
+  }
+  legenda(c, lt, d, W, H, m, k, c.papel === 'cta' && vert ? H * 0.8 : yLeg);
+  // Marca d'água da marca no topo
+  if (m.nome) {
+    cx.save(); cx.fillStyle = rgba(m.texto, 0.85); cx.font = `700 ${24 * k}px "${m.fonteTexto}", sans-serif`; cx.textBaseline = 'top'; cx.textAlign = 'left';
+    if ('letterSpacing' in cx) cx.letterSpacing = `${5 * k}px`;
+    const ym = vert ? H * 0.05 : H * 0.045; cx.fillStyle = m.secundaria; cx.fillRect(pad, ym + 8 * k, 26 * k, 4 * k);
+    cx.fillStyle = rgba(m.texto, 0.9); cx.fillText(String(m.nome).toUpperCase(), pad + 40 * k, ym); cx.restore();
+  }
+}
+function desenharParado() { if (!tocando && ativo()) { desenhar(Math.min(tAtual, Math.max(0, total(ativo()) - 0.001))); moverCabeca(); } }
+const fontesCarregadas = new Set();
+function carregarFontes() {
+  const p = ativo(); if (!p || !document.fonts) return Promise.resolve();
+  const lista = [`700 40px "${p.marca.fonteTitulo}"`, `800 40px "${p.marca.fonteTexto}"`, `700 40px "${p.marca.fonteTexto}"`, `600 20px "IBM Plex Mono"`].filter(f => !fontesCarregadas.has(f));
+  return Promise.all(lista.map(f => document.fonts.load(f).then(() => fontesCarregadas.add(f)).catch(() => {}))).then(() => {});
+}
+
+// ---------- reprodução ----------
+function loop(agora) {
+  if (!tocando) return;
+  const T = total(ativo()); tAtual = (agora - t0) / 1000;
+  if (tAtual >= T) { tAtual = T; tocando = false; desenhar(Math.max(0, T - 0.001)); moverCabeca(); pararMusica(); botaoPlay(); const f = aoTerminar; aoTerminar = null; if (f) f(); return; }
+  desenhar(tAtual); moverCabeca(); requestAnimationFrame(loop);
+}
+function tocar() { const T = total(ativo()); if (!T) return; if (tAtual >= T - 0.05) tAtual = 0; tocando = true; t0 = performance.now() - tAtual * 1000; tocarMusica(tAtual); botaoPlay(); requestAnimationFrame(loop); }
+function pausar() { if (!tocando) return; tocando = false; pararMusica(); botaoPlay(); if (gravador && gravador.state === 'recording') cancelarGravacao(); }
+function botaoPlay() { const b = $('#btn-play'); b.textContent = tocando ? '❚❚ Pausar' : '▶ Play'; b.setAttribute('aria-label', tocando ? 'Pausar' : 'Reproduzir'); }
+$('#btn-play').addEventListener('click', () => (tocando ? pausar() : tocar()));
+$('#btn-inicio').addEventListener('click', () => { const era = tocando; pausar(); tAtual = 0; desenharParado(); if (era) tocar(); });
+function buscar(clientX) { const r = $('#timeline').getBoundingClientRect(); const T = total(ativo()); const era = tocando && !gravador; if (gravador) return; pausar(); tAtual = clamp((clientX - r.left) / r.width) * T; desenharParado(); if (era) tocar(); }
+$('#timeline').addEventListener('pointerdown', e => { buscar(e.clientX); const mv = ev => buscar(ev.clientX); const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); }; addEventListener('pointermove', mv); addEventListener('pointerup', up); });
+$('#timeline').addEventListener('keydown', e => { const T = total(ativo()); if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); pausar(); tAtual = clamp(tAtual + (e.key === 'ArrowRight' ? 1 : -1), 0, T); desenharParado(); } if (e.key === ' ') { e.preventDefault(); tocando ? pausar() : tocar(); } });
+
+// ---------- música (Web Audio, para tocar e gravar junto) ----------
+let actx = null, buffer = null, fonteAudio = null, destGrav = null;
+function garantirAudio() { if (!actx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); destGrav = actx.createMediaStreamDestination(); } return actx; }
+$('#f-musica').addEventListener('change', async e => {
+  const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
+  const ac = garantirAudio(); if (!ac) { $('#musica-nome').textContent = 'Este navegador não toca áudio aqui.'; return; }
+  $('#musica-nome').textContent = 'Lendo ' + f.name + '…';
+  try { buffer = await ac.decodeAudioData(await f.arrayBuffer()); $('#musica-nome').textContent = f.name + ' · ' + tcCurto(buffer.duration) + ' (só nesta aba)'; $('#btn-musica-tirar').hidden = false; }
+  catch (err) { buffer = null; $('#musica-nome').textContent = 'Não consegui ler esse áudio. Tente MP3 ou WAV.'; }
+});
+$('#btn-musica-tirar').addEventListener('click', () => { pararMusica(); buffer = null; $('#musica-nome').textContent = 'sem trilha'; $('#btn-musica-tirar').hidden = true; });
+function tocarMusica(off) {
+  if (!buffer || !actx) return; if (actx.state === 'suspended') actx.resume();
+  pararMusica(); if (off >= buffer.duration) return;
+  fonteAudio = actx.createBufferSource(); fonteAudio.buffer = buffer;
+  const g = actx.createGain(); const T = total(ativo()); const fim = actx.currentTime + (T - off);
+  g.gain.setValueAtTime(1, actx.currentTime); if (T - off > 1.2) { g.gain.setValueAtTime(1, fim - 1); g.gain.linearRampToValueAtTime(0, fim); }
+  fonteAudio.connect(g); g.connect(actx.destination); g.connect(destGrav); fonteAudio.start(0, off);
+}
+function pararMusica() { if (fonteAudio) { try { fonteAudio.stop(); } catch (e) {} fonteAudio = null; } }
+
+// ---------- gravação ----------
+let gravador = null, partes = [], ultimoVideo = null, cancelado = false;
+function mimeVideo() {
+  if (!window.MediaRecorder) return null;
+  return ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'].find(t => { try { return MediaRecorder.isTypeSupported(t); } catch (e) { return false; } }) || null;
+}
+function cancelarGravacao() { cancelado = true; try { gravador.stop(); } catch (e) {} }
+$('#btn-exportar').addEventListener('click', async () => {
+  const msg = $('#msg-export'); msg.classList.remove('erro');
+  if (gravador) { cancelado = true; if (tocando) pausar(); else cancelarGravacao(); return; }
+  const p = ativo(); const T = total(p); if (!T) { msg.textContent = 'Adicione ao menos uma cena com duração.'; return; }
+  const mime = mimeVideo();
+  if (!mime || !cv.captureStream) { msg.classList.add('erro'); msg.textContent = 'Este navegador não grava vídeo a partir da prévia. Use o Chrome ou o Edge no computador.'; return; }
+  await carregarFontes();
+  let stream;
+  try { stream = cv.captureStream(FPS); } catch (e) { msg.classList.add('erro'); msg.textContent = 'Uma imagem anexada bloqueou a gravação. Reanexe a imagem e tente de novo.'; return; }
+  if (buffer && garantirAudio()) destGrav.stream.getAudioTracks().forEach(t => stream.addTrack(t));
+  partes = []; cancelado = false; ultimoVideo = null; $('#btn-salvar-video').hidden = true;
+  try { gravador = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 10_000_000 }); }
+  catch (e) { msg.classList.add('erro'); msg.textContent = 'Não consegui iniciar a gravação: ' + e.message; return; }
+  gravador.ondataavailable = ev => { if (ev.data && ev.data.size) partes.push(ev.data); };
+  gravador.onerror = ev => { msg.classList.add('erro'); msg.textContent = 'A gravação falhou. Se houver imagem anexada de outro lugar, reanexe-a.'; };
+  gravador.onstop = () => {
+    const ext = mime.includes('mp4') ? 'mp4' : 'webm';
+    $('#barra').hidden = true; $('#btn-exportar').textContent = '● Gravar vídeo';
+    if (!cancelado && partes.length) {
+      ultimoVideo = { blob: new Blob(partes, { type: mime.split(';')[0] }), ext };
+      const mb = (ultimoVideo.blob.size / 1048576).toFixed(1);
+      const b = $('#btn-salvar-video'); b.hidden = false; b.textContent = `Salvar ${ext.toUpperCase()} (${mb} MB)`;
+      msg.textContent = ext === 'webm' ? 'Pronto. O navegador gravou em WebM; a receita "WebM → MP4" da aba FFmpeg converte para MP4.' : 'Pronto. Vídeo gravado em MP4.';
+      if (!S.downloads) msg.textContent += ' Para salvar o arquivo, abra este estúdio no claude.ai.';
+    } else if (cancelado) msg.textContent = 'Gravação cancelada.';
+    gravador = null; stream.getVideoTracks().forEach(t => t.stop());
+  };
+  gravador.start(500);
+  $('#btn-exportar').textContent = '■ Parar gravação'; $('#barra').hidden = false; msg.textContent = `Gravando ${tcCurto(T)} em tempo real…`;
+  const barra = $('#barra > div'); const tick = () => { if (!gravador) return; barra.style.width = (clamp(tAtual / T) * 100) + '%'; requestAnimationFrame(tick); }; tick();
+  tAtual = 0; aoTerminar = () => setTimeout(() => { if (gravador) gravador.stop(); }, 200); tocar();
+});
+$('#btn-salvar-video').addEventListener('click', async () => {
+  if (!ultimoVideo) return; const msg = $('#msg-export');
+  if (!S.downloads) { msg.textContent = 'Salvar arquivos funciona quando o estúdio é aberto no claude.ai.'; return; }
+  try { await S.downloads.save({ filename: slug(ativo().nome) + '.' + ultimoVideo.ext, data: ultimoVideo.blob }); msg.textContent = 'Arquivo salvo.'; }
+  catch (e) { msg.textContent = e && e.code === 'declined' ? 'Download cancelado.' : 'Não consegui salvar: ' + (e && e.message || 'tente de novo'); }
+});
+
+// =====================================================================
+// PROMPT
+// =====================================================================
+const slug = s => String(s || 'video').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'video';
+const fmtTxt = f => ({ '9:16': '9:16 (1080x1920)', '16:9': '16:9 (1920x1080)', '1:1': '1:1 (1080x1080)' }[f] || f);
+function roteiroTexto(p) {
+  let a = 0;
+  return p.cenas.map((c, i) => { const ini = a; a += Number(c.duracao) || 0;
+    return `${i + 1}. [${tcCurto(ini)}–${tcCurto(a)}] ${PAPEIS[c.papel]} · ${ENQ[c.enquadramento]} — ${c.titulo || '(sem texto na tela)'}` +
+      (c.fala ? `\n   Fala: "${c.fala}"` : '') + (c.visual ? `\n   Visual: ${c.visual}` : '') + (c.midia ? `\n   Imagem anexada: ${c.midia.nome || 'sim'}` : ''); }).join('\n');
+}
+function montarPrompt(p, v) {
+  const m = p.marca; const T = Math.round(total(p)) || p.alvo; const fmt = fmtTxt(p.formato); const ref = p.referencia || '<referência>';
+  const L = [];
+  if (v === 'A') L.push(`O vídeo está em ${p.pasta || '<pasta do vídeo>'}.`, `1) Transcreva palavra por palavra com timestamps, com muita atenção; corrija nomes (ex.: "Cloud" → "Claude").`, `2) Corte silêncios e erros.`, `3) Extraia frames para saber minha posição.`, `4) Proponha um plano numerado (gancho, conteúdo, CTA) alternando câmera cheia, tela dividida, prints da pasta prints/ e B-roll.`, `Estilo limpo Apple; identidade visual da referência ${ref}. Legendas animadas. Formato ${fmt}.`);
+  if (v === 'B') L.push(`Crie um vídeo de ${T} s para ${m.nome}; pesquise a identidade visual em ${ref}.`, `Sound design e música com cortes no beat (~${p.bpm || 120} BPM).`, `Faça o storyboard primeiro. Deixe o terço esquerdo livre para PiP. Formato ${fmt}.`);
+  if (v === 'C') L.push(`Analise esta referência com /watch: ${ref}.`, `Descreva estrutura, ritmo, BPM, enquadramentos, tipografia e movimento.`, `Crie a skill estilo-${slug(m.nome || p.nome)} com essas regras e teste num reel de 15 s em ${fmt}.`);
+  if (v === 'D') L.push(`Referências para o Google Flow: vídeo base de até 10 s + character sheet do personagem (3 painéis, fundo neutro) + imagem da cena.`, `Prompt: "Replace the man in the reference video with the character from the character sheet. Keep exactly the same motion, timing, camera and framing. ${p.formato}."`, `Depois monte no CapCut. Use só personagens fictícios ou pessoas que autorizaram o uso da imagem.`);
+  if (v === 'E') L.push(`Crie um vídeo explicativo sem rosto de ${T} s em ${fmt} para ${m.nome}.`, `Tema: ${p.objetivo || '<tema>'}`, `Linguagem simples, sem prometer resultado. Narração TTS pt-BR (Edge-TTS Francisca ou Antonio). Legendas grandes.`, `Cores da marca: fundo ${m.primaria}, destaque ${m.secundaria}, texto ${m.texto}. Fontes: ${m.fonteTitulo} nos títulos e ${m.fonteTexto} nas legendas.`, `CTA final: "${m.cta}". Não use dados de clientes.` + (m.aviso ? ` Inclua o aviso: "${m.aviso}".` : ''));
+  if (p.objetivo && v !== 'E') L.push(`Objetivo: ${p.objetivo}`);
+  if (p.publico) L.push(`Público: ${p.publico}`);
+  if (v !== 'D' && v !== 'E') L.push(`Marca: ${m.nome} · fundo ${m.primaria}, destaque ${m.secundaria}, texto ${m.texto} · fontes ${m.fonteTitulo} / ${m.fonteTexto} · CTA "${m.cta}".`);
+  if (p.cenas.length) L.push('', 'Storyboard (ponto de partida, com o momento em que cada elemento entra):', roteiroTexto(p));
+  L.push('', 'Regras:', '- Espere minha aprovação do plano antes de renderizar.', '- Gere frames de revisão, critique e corrija antes de entregar.', '- Prints reais valem mais que recriações.');
+  if (p.orcamento) L.push(`- Orçamento: no máximo ${p.orcamento} créditos.`);
+  L.push(`- Entregue MP4 ${fmt}.`, '- Ao final, atualize a skill de estilo com o que aprendemos neste projeto.');
+  if (p.notas) L.push('', 'Ajustes pedidos nesta rodada:', p.notas);
+  L.push('', 'Diretrizes gerais — tem liberdade criativa para melhorar.');
+  return L.join('\n');
+}
+function renderPrompt() {
+  const p = ativo(); if (!p) return;
+  const sug = (TIPOS[p.tipo] || TIPOS.juridico).prompt; const v = S.promptEscolhido || sug;
+  const ch = $('#chips-prompt'); ch.innerHTML = '';
+  for (const [k, t] of Object.entries(PROMPTS)) { const b = document.createElement('button'); b.type = 'button'; b.dataset.v = k; b.textContent = t + (k === sug ? ' · indicado' : ''); b.setAttribute('aria-pressed', String(k === v)); ch.appendChild(b); }
+  $('#saida-prompt').value = montarPrompt(p, v);
+}
+$('#chips-prompt').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; S.promptEscolhido = b.dataset.v; renderPrompt(); });
+function srt(p) {
+  const f = s => { const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), r = Math.floor(s % 60), ms = Math.round((s % 1) * 1000); return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')},${String(ms).padStart(3, '0')}`; };
+  let a = 0, n = 1; const out = [];
+  p.cenas.forEach(c => { const d = Number(c.duracao) || 0; const ws = String(c.fala || '').split(/\s+/).filter(Boolean);
+    if (ws.length) { const per = (d - 0.4) / ws.length; for (let i = 0; i < ws.length; i += 6) { const ini = a + 0.15 + i * per, fim = a + 0.15 + Math.min(ws.length, i + 6) * per; out.push(`${n++}\n${f(ini)} --> ${f(fim)}\n${ws.slice(i, i + 6).join(' ')}\n`); } }
+    a += d; });
+  return out.join('\n');
+}
+function jsonRoteiro(p) { const c = limpar(p); delete c.etapas; return JSON.stringify(Object.assign({ duracaoTotal: total(p) }, c), null, 2); }
+async function copiar(txt, msgEl) {
+  try { await navigator.clipboard.writeText(txt); msgEl.textContent = 'Copiado.'; }
+  catch (e) {
+    const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+    document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (er) {} ta.remove();
+    msgEl.textContent = ok ? 'Copiado.' : 'Não consegui copiar. Selecione o texto e use Ctrl+C.';
+  }
+  setTimeout(() => { msgEl.textContent = ''; }, 3500);
+}
+$('#btn-copiar-prompt').addEventListener('click', () => copiar($('#saida-prompt').value, $('#msg-prompt')));
+$('#btn-copiar-srt').addEventListener('click', () => copiar(srt(ativo()) || '(nenhuma cena tem fala)', $('#msg-prompt')));
+$('#btn-copiar-json').addEventListener('click', () => copiar(jsonRoteiro(ativo()), $('#msg-prompt')));
+$('#btn-baixar-json').addEventListener('click', async () => {
+  try { await S.downloads.save({ filename: slug(ativo().nome) + '-roteiro.json', data: jsonRoteiro(ativo()) }); $('#msg-prompt').textContent = 'Arquivo salvo.'; }
+  catch (e) { $('#msg-prompt').textContent = e && e.code === 'declined' ? 'Download cancelado.' : 'Não consegui salvar o arquivo.'; }
+});
+
+// =====================================================================
+// FFMPEG
+// =====================================================================
+function receitas(i, o, s) {
+  const q = x => (/\s/.test(x) ? `"${x}"` : x);
+  i = q(i || 'in.mp4'); o = q(o || 'out.mp4'); s = s || 'legenda.srt';
+  return [
+    ['Vertical 9:16 com fundo desfocado', 'Transforma um vídeo horizontal em Reels sem cortar a imagem.', `ffmpeg -i ${i} -vf "split[a][b];[a]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20[bg];[b]scale=1080:-2[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2" -c:a copy ${o}`],
+    ['Cortar silêncios automaticamente', 'auto-editor remove os trechos mudos e deixa 0,2 s de respiro.', `auto-editor ${i} --margin 0.2s`],
+    ['Detectar silêncios', 'Lista onde o áudio fica abaixo de −35 dB por mais de meio segundo.', `ffmpeg -i ${i} -af silencedetect=n=-35dB:d=0.5 -f null -`],
+    ['Queimar legenda', 'Grava o .srt dentro da imagem. Copie a legenda na aba Prompt.', `ffmpeg -i ${i} -vf subtitles=${s} ${o}`],
+    ['Um frame a cada 4 s', 'Para o Claude enxergar o vídeo e saber onde está o rosto.', `mkdir frames\nffmpeg -i ${i} -vf fps=1/4 frames/f_%04d.jpg`],
+    ['Áudio no padrão das redes', 'Normaliza para −14 LUFS sem recodificar o vídeo.', `ffmpeg -i ${i} -af loudnorm=I=-14:TP=-1.5:LRA=11 -c:v copy ${o}`],
+    ['WebM do estúdio → MP4', 'Converte a gravação desta página para MP4 compatível com Instagram e WhatsApp.', `ffmpeg -i ${q(slug(ativo()?.nome) + '.webm')} -c:v libx264 -crf 18 -preset slow -pix_fmt yuv420p -r 30 -c:a aac -b:a 192k -movflags +faststart ${o}`],
+    ['Baixar a referência', 'yt-dlp baixa o vídeo de referência para estudar com /watch.', `yt-dlp -f "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]" -o referencia.mp4 "${ativo()?.referencia || 'URL'}"`],
+  ];
+}
+function blocoCodigo(t, d, cmd, extra) {
+  const r = document.createElement('div'); r.className = 'receita';
+  r.innerHTML = `<div class="cab"><h3 style="margin:0"></h3><button type="button" data-copiar>Copiar</button></div><p></p><div class="codigo"><pre><code></code></pre></div>`;
+  r.querySelector('h3').textContent = t; r.querySelector('p').textContent = d; r.querySelector('code').textContent = cmd; if (!d) r.querySelector('p').remove();
+  return r;
+}
+function renderReceitas() {
+  const box = $('#receitas'); box.innerHTML = '';
+  receitas($('#ff-in').value, $('#ff-out').value, $('#ff-srt').value).forEach(([t, d, c]) => box.appendChild(blocoCodigo(t, d, c)));
+}
+['#ff-in', '#ff-out', '#ff-srt'].forEach(s => $(s).addEventListener('input', renderReceitas));
+const INSTALA = [
+  ['Ferramentas de linha de comando', 'FFmpeg, yt-dlp, Deno, faster-whisper e auto-editor.', 'winget install Gyan.FFmpeg\nwinget install yt-dlp.yt-dlp\nwinget install DenoLand.Deno\npip install faster-whisper auto-editor'],
+  ['Remotion (grátis para pessoa física e empresa de até 3 pessoas)', '', 'npx -y skills add remotion-dev/skills -s remotion-best-practices -a claude-code -y\nnpx create-video@latest\nnpx remotion studio'],
+  ['HyperFrames (HeyGen, Apache 2.0, Node 22+)', 'Skills: /faceless-explainer, /talking-head-recut, /embedded-captions, /motion-graphics, /music-to-video, /media-use…', 'claude plugin marketplace add heygen-com/hyperframes\nclaude plugin install hyperframes@hyperframes\nnpx hyperframes init\nnpx hyperframes preview'],
+  ['/watch (olhos do Claude)', 'Opções: --start/--end, --detail transcript|efficient|balanced, --max-frames, --resolution 1024, --engine gemini.', 'claude plugin marketplace add bradautomates/claude-video\nclaude plugin install watch@claude-video'],
+  ['Estúdio pronto em PT-BR', 'Entrada em projetos/001-nome/ (vídeo e prints); saída em edicoes/.', 'git clone https://github.com/mackswendhell/studio C:\\dev\\studio\ncd C:\\dev\\studio\nnpm run instalar'],
+];
+INSTALA.forEach(([t, d, c]) => $('#instalacao').appendChild(blocoCodigo(t, d, c)));
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-copiar]'); if (!b) return;
+  const code = b.closest('.receita').querySelector('code'); const antes = b.textContent;
+  try { await navigator.clipboard.writeText(code.textContent); b.textContent = 'Copiado'; }
+  catch (err) { const r = document.createRange(); r.selectNodeContents(code); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Selecionado: Ctrl+C'; }
+  setTimeout(() => { b.textContent = antes; }, 2000);
+});
+
+// =====================================================================
+// CLAUDE (gerar e revisar roteiro)
+// =====================================================================
+let propostaIA = null, abortIA = null;
+function fecharIA() { if (abortIA) abortIA.abort(); abortIA = null; propostaIA = null; $('#ia').hidden = true; $('#ia-usar').hidden = true; }
+$('#ia-fechar').addEventListener('click', fecharIA);
+function briefingTexto(p) {
+  return `Projeto: ${p.nome}\nTipo: ${(TIPOS[p.tipo] || {}).rotulo}\nFormato: ${fmtTxt(p.formato)}\nDuração alvo: ${p.alvo} s\nObjetivo: ${p.objetivo || '-'}\nPúblico: ${p.publico || '-'}\nReferência: ${p.referencia || '-'}\nMarca: ${p.marca.nome} · CTA "${p.marca.cta}"` + (p.marca.aviso ? ` · aviso "${p.marca.aviso}"` : '');
+}
+const REGRAS_IA = `Regras de roteiro: gancho forte nos primeiros 3 segundos; estrutura gancho → conteúdo → CTA; frases curtas e faladas; texto na tela com até 7 palavras; alterne enquadramentos para manter ritmo; diga o que aparece em cada cena; prints reais valem mais que recriações. Se o tema for jurídico: linguagem simples, nunca prometa resultado, nunca use dados de clientes reais.`;
+$('#btn-gerar').addEventListener('click', async () => {
+  const p = ativo(); if (!S.sample || !p) return; fecharIA();
+  $('#ia').hidden = false; $('#ia-titulo').textContent = 'Roteiro sugerido pelo Claude'; $('#ia-corpo').textContent = 'Escrevendo o roteiro…';
+  abortIA = new AbortController(); const sinal = abortIA.signal;
+  const pedido = `Você é diretor de vídeos curtos para redes sociais em português do Brasil. Escreva um storyboard para o briefing abaixo.\n\n${briefingTexto(p)}\n\n${REGRAS_IA}\n\nA soma das durações deve ficar perto de ${p.alvo} segundos. Enquadramentos possíveis: titulo (só texto na tela), camera (rosto em câmera cheia), dividida (metade imagem, metade texto), print (captura de tela em destaque), broll (imagem de apoio em tela cheia), pip (tela com rosto no canto). Para vídeo sem rosto, não use camera nem pip.\n\nResponda SOMENTE com JSON neste formato:\n{"cenas":[{"papel":"gancho|conteudo|cta","enquadramento":"titulo|camera|dividida|print|broll|pip","duracao":4,"titulo":"texto na tela","fala":"narração desta cena","visual":"o que aparece"}]}`;
+  try {
+    const r = await S.sample.json(pedido, { signal: sinal, modelTier: 'default' });
+    const cenas = (r && Array.isArray(r.cenas) ? r.cenas : []).filter(c => c && typeof c === 'object').slice(0, 30).map(c => cena(
+      PAPEIS[c.papel] ? c.papel : 'conteudo', ENQ[c.enquadramento] ? c.enquadramento : 'titulo', clamp(Number(c.duracao) || 4, 0.5, 120),
+      String(c.titulo || '').slice(0, 120), String(c.fala || '').slice(0, 600), String(c.visual || '').slice(0, 200)));
+    if (!cenas.length) throw { message: 'A resposta veio sem cenas.' };
+    propostaIA = cenas; const box = $('#ia-corpo'); box.innerHTML = '';
+    const ol = document.createElement('ol'); let a = 0;
+    cenas.forEach(c => { const li = document.createElement('li'); const ini = a; a += c.duracao; li.textContent = `[${tcCurto(ini)}–${tcCurto(a)}] ${PAPEIS[c.papel]} · ${ENQ[c.enquadramento]} — ${c.titulo}${c.fala ? ' · “' + c.fala + '”' : ''}`; ol.appendChild(li); });
+    const nota = document.createElement('p'); nota.className = 'msg'; nota.textContent = `${cenas.length} cenas, ${tcCurto(a)} no total. “Usar este roteiro” substitui as ${p.cenas.length} cenas atuais.`;
+    box.append(ol, nota); $('#ia-usar').hidden = false;
+  } catch (e) {
+    if (sinal.aborted) return;
+    $('#ia-corpo').textContent = e && e.code === 'rate_limited' ? 'Muitos pedidos seguidos. Espere um minuto e tente de novo.' : e && e.code === 'not_granted' ? 'O acesso ao Claude não foi liberado nesta página.' : 'Não consegui gerar o roteiro: ' + (e && e.message || 'tente de novo');
+  }
+});
+$('#ia-usar').addEventListener('click', () => { const p = ativo(); if (!propostaIA || !p) return; p.cenas = propostaIA; fecharIA(); pausar(); tAtual = 0; mudou(); renderCenas(); desenharParado(); });
+$('#btn-revisar').addEventListener('click', async () => {
+  const p = ativo(); if (!S.sample || !p) return; fecharIA();
+  $('#ia').hidden = false; $('#ia-titulo').textContent = 'Revisão do Claude'; $('#ia-corpo').textContent = 'Lendo o roteiro…';
+  abortIA = new AbortController(); const sinal = abortIA.signal;
+  const pedido = `Você é um editor de vídeo exigente. Revise o storyboard abaixo e responda em português do Brasil, em texto simples (sem markdown), com no máximo 8 itens numerados, do mais importante ao menos importante. Para cada item: o número da cena, o problema e a correção exata (texto novo, duração nova ou enquadramento novo). Termine com uma linha "Nota do gancho: X/10".\n\n${briefingTexto(p)}\n\n${REGRAS_IA}\n\nStoryboard (${Math.round(total(p))} s):\n${roteiroTexto(p)}`;
+  try { await S.sample(pedido, { signal: sinal, modelTier: 'default', onText: u => { $('#ia-corpo').textContent = u.text; } }); }
+  catch (e) { if (sinal.aborted) return; $('#ia-corpo').textContent = e && e.code === 'rate_limited' ? 'Muitos pedidos seguidos. Espere um minuto e tente de novo.' : 'Não consegui revisar agora: ' + (e && e.message || 'tente de novo'); }
+});
+
+// ---------- início ----------
+renderModelos();
+lerLocal();
+if (!S.projetos[S.ativo]) S.ativo = maisRecente();
+renderTudo();
+setStatus('', 'Conectando…');
+conectar();
+if (document.fonts) document.fonts.ready.then(desenharParado);
+addEventListener('pagehide', flush);
+})();
+</script>

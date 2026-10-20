@@ -113,6 +113,17 @@ texto) e extrai faixa de páginas (sem perda, para o RG). Nada sai do navegador.
 Para republicar depois de editar o arquivo, passe a URL acima como `url` na
 ferramenta Artifact — publicar sem ela cria um artefato separado.
 
+### Estúdio de Vídeo IA
+
+**Estúdio de Vídeo** — https://claude.ai/artifact/BayMkHnhaoRtq3pU6pyRNh
+
+Fonte versionada em `ferramentas/artefato/estudio-video.html`. Construído sobre
+a base "Edição de Vídeo com IA" (Drive): briefing, storyboard por cenas
+(gancho → conteúdo → CTA), prévia animada em canvas que grava o vídeo
+(MP4 ou WebM, com trilha), prompts A–E para o Claude Code e receitas FFmpeg.
+Os projetos ficam no banco do artefato, coleção `projetos` — o Claude lê e
+edita por lá. Para republicar, passe a URL acima como `url`.
+
 ### Nomes de pasta
 
 ```bash
