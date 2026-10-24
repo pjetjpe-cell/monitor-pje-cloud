@@ -21,7 +21,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-dipallacio-navy-800/10 bg-dipallacio-paper/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-4">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 whitespace-nowrap px-4 py-4">
         <Link href="/" className="flex items-center gap-2">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-dipallacio-navy-950 font-serif text-lg text-dipallacio-mint-400 ring-1 ring-dipallacio-mint-400/40">
             D
