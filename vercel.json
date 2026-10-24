@@ -3,10 +3,17 @@
     {
       "path": "/api/cron/monitorar",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/indices",
+      "schedule": "0 12 11,16 * *"
     }
   ],
   "functions": {
     "app/api/cron/monitorar/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/cron/indices/route.ts": {
       "maxDuration": 60
     }
   }

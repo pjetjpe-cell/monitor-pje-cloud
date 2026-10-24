@@ -3,8 +3,8 @@ import { handleUpload, type HandleUploadBody } from '@vercel/blob/client'
 import { limitarTaxa, identificarCliente } from '@/lib/rateLimit'
 
 // Upload direto do cliente para o Blob (contorna o limite de payload das
-// funções serverless da Vercel) — usado apenas para o contrato em PDF
-// opcional do formulário de distrato. Exige a variável BLOB_READ_WRITE_TOKEN
+// funções serverless da Vercel) — usado para o contrato em PDF e para a foto/
+// print da cota (JPG, PNG ou WebP) enviados nos formulários. Exige a variável BLOB_READ_WRITE_TOKEN
 // (criada automaticamente ao habilitar Vercel Blob Storage no projeto).
 export async function POST(request: Request): Promise<NextResponse> {
   const cliente = identificarCliente(request)
@@ -19,7 +19,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       body,
       request,
       onBeforeGenerateToken: async () => ({
-        allowedContentTypes: ['application/pdf'],
+        allowedContentTypes: ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'],
         maximumSizeInBytes: 10 * 1024 * 1024,
         addRandomSuffix: true,
       }),

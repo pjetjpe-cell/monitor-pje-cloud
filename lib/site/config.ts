@@ -19,9 +19,26 @@ export const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIC
 export const INCORPORADORAS_ALVO = [
   'GAV Resorts',
   'Porto 2 Life',
+  'Gran Valley',
   'Porto Alto',
   'Areya Barra',
   'Jeriquiá',
   'Oikos Maragogi',
   'Pitangui Beach Resort',
 ]
+
+export const SITE_URL = (
+  process.env.NEXTAUTH_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '') ||
+  'http://localhost:3000'
+).replace(/\/$/, '')
+
+/** Link de WhatsApp do escritório com mensagem pré-preenchida. */
+export function whatsappEscritorio(texto: string): string {
+  return `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(texto)}`
+}
+
+/** Link de WhatsApp para falar com um cliente (número já normalizado: 55 + DDD + número). */
+export function whatsappParaCliente(numero: string, texto: string): string {
+  return `https://wa.me/${numero.replace(/\D/g, '')}?text=${encodeURIComponent(texto)}`
+}

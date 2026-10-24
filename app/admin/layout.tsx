@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 const links = [
   { href: '/admin', label: 'Visão geral' },
   { href: '/admin/leads', label: 'Leads' },
+  { href: '/admin/pedidos', label: 'Pedidos de relatório' },
   { href: '/admin/anuncios', label: 'Moderação de Anúncios' },
   { href: '/admin/empreendimentos', label: 'Empreendimentos' },
   { href: '/admin/indices', label: 'Índices (INCC/IPCA)' },

@@ -115,6 +115,22 @@ estimados até o trânsito em julgado, taxa SELIC mensal e taxa de juros simples
 
 ---
 
+## Calculadora pública e relatório detalhado (R$ 9,90)
+
+* `/calculadora` — qualquer pessoa informa empreendimento, data da compra e valores pagos e vê a **faixa estimada** (grátis, sem login).
+  O cálculo é determinístico (`lib/calculadora/publica.ts`), corrige pelo **IPCA do IBGE** e é recalculado no servidor.
+* **Índices oficiais:** a calculadora pública só abre depois de uma importação oficial. Em `/admin/indices`, clique em
+  **"Importar IPCA do IBGE"** (também roda sozinho nos dias 11 e 16 via `/api/cron/indices`, que exige `CRON_SECRET`).
+* **Relatório em PDF:** o cliente informa nome, e-mail, WhatsApp e (opcional) número da cota/anexo; paga e baixa o PDF
+  (memória de cálculo, cenários, premissas). O PDF só é emitido com o pedido `pago` (`/api/pedidos/[token]/pdf`).
+* **Pagamento — desligado por padrão.** Sem `PIX_*` nem `MERCADOPAGO_ACCESS_TOKEN`, o site coleta uma lista de espera
+  (lead com a faixa e o número da cota). Com `PIX_CHAVE` + `PIX_RECEBEDOR_NOME` + `PIX_CIDADE` o Pix é manual
+  (você confirma em `/admin/pedidos`); com `MERCADOPAGO_ACCESS_TOKEN` a confirmação é automática via webhook.
+* **Fotos:** coloque arquivos em `public/fotos/` (veja `public/fotos/LEIA-ME.md`); sem eles, aparece uma arte ilustrativa.
+* **Testes:** `npm test` (unitários) e, com o site rodando, `node e2e/calculadora-sem-pagamento.js` / `e2e/pedido-pago.js`
+  (este último exige as variáveis `PIX_*` no servidor).
+* **SQL para o Neon:** `prisma/sql/neon-pedido-relatorio.sql` (incremental) e `prisma/sql/preparar-producao.template.sql`.
+
 ## Estrutura do projeto (Di Pallacio Enterprise)
 
 ```

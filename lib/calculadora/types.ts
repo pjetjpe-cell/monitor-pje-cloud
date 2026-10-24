@@ -12,7 +12,7 @@ export interface Pagamento {
 }
 
 export interface ParametrosCorrecao {
-  /** null = empreendimento sem habite-se registrado ainda: todos os pagamentos usam o índice pré-habite-se até a data de referência. */
+  /** null = sem habite-se informado: todos os pagamentos são corrigidos direto pelo índice pós-habite-se (IPCA). */
   dataHabiteSe: Date | null
   indicePreHabiteSe: TipoIndice
   indicePosHabiteSe: TipoIndice
