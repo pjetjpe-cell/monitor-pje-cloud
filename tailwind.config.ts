@@ -28,8 +28,14 @@ const config: Config = {
             500: '#1a7373',
           },
           cream: '#f7f4ec',
+          paper: '#fbf9f4',
+          mint: { 300: '#8ae9cc', 400: '#4fdcb3', 500: '#2bc79a', 600: '#169b76' },
           gold: '#b8863e',
         },
+      },
+      boxShadow: {
+        luxo: '0 30px 80px -30px rgba(8,24,46,0.45)',
+        suave: '0 10px 40px -18px rgba(8,24,46,0.28)',
       },
       fontFamily: {
         serif: ['var(--font-dipallacio-serif)', 'Georgia', 'serif'],

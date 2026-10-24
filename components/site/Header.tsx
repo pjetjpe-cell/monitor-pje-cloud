@@ -6,6 +6,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { NOME_ESCRITORIO_CURTO } from '@/lib/site/config'
 
 const navLinks = [
+  { href: '/calculadora', label: 'Calculadora' },
   { href: '/distrato', label: 'Distrato' },
   { href: '/venda-de-cotas', label: 'Venda de Cotas' },
   { href: '/trocas', label: 'Trocas' },
@@ -19,10 +20,10 @@ export default function Header() {
   const [menuAberto, setMenuAberto] = useState(false)
 
   return (
-    <header className="sticky top-0 z-30 border-b border-dipallacio-navy-800/10 bg-dipallacio-cream/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+    <header className="sticky top-0 z-30 border-b border-dipallacio-navy-800/10 bg-dipallacio-paper/90 backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 whitespace-nowrap px-4 py-4">
         <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-dipallacio-navy-900 font-serif text-lg text-dipallacio-cream">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-dipallacio-navy-950 font-serif text-lg text-dipallacio-mint-400 ring-1 ring-dipallacio-mint-400/40">
             D
           </span>
           <span className="font-serif text-lg font-semibold text-dipallacio-navy-900">
@@ -30,7 +31,7 @@ export default function Header() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-6 lg:flex">
+        <nav className="hidden items-center gap-5 xl:flex">
           {navLinks.map(link => (
             <Link
               key={link.href}
@@ -42,7 +43,13 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-3 xl:flex">
+          <Link
+            href="/calculadora"
+            className="rounded-full bg-dipallacio-mint-400 px-4 py-2 text-sm font-semibold text-dipallacio-navy-950 transition hover:bg-dipallacio-mint-300"
+          >
+            Calcular grátis
+          </Link>
           {session ? (
             <>
               <Link
@@ -85,7 +92,7 @@ export default function Header() {
         </div>
 
         <button
-          className="text-dipallacio-navy-900 lg:hidden"
+          className="text-dipallacio-navy-900 xl:hidden"
           onClick={() => setMenuAberto(v => !v)}
           aria-label="Abrir menu"
           aria-expanded={menuAberto}
@@ -97,7 +104,7 @@ export default function Header() {
       </div>
 
       {menuAberto && (
-        <nav className="space-y-3 border-t border-dipallacio-navy-800/10 bg-dipallacio-cream px-4 py-4 lg:hidden">
+        <nav className="space-y-3 border-t border-dipallacio-navy-800/10 bg-dipallacio-cream px-4 py-4 xl:hidden">
           {navLinks.map(link => (
             <Link
               key={link.href}
@@ -109,6 +116,13 @@ export default function Header() {
             </Link>
           ))}
           <div className="space-y-3 border-t border-dipallacio-navy-800/10 pt-3">
+            <Link
+              href="/calculadora"
+              className="block rounded-full bg-dipallacio-mint-400 px-4 py-2 text-center text-sm font-semibold text-dipallacio-navy-950"
+              onClick={() => setMenuAberto(false)}
+            >
+              Calcular grátis
+            </Link>
             {session ? (
               <>
                 <Link href="/area-do-cliente" className="block text-sm font-medium text-dipallacio-navy-800">

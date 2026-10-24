@@ -1,11 +1,17 @@
 import { prisma } from '@/lib/prisma/client'
 import IndicesManager from '@/components/admin/IndicesManager'
+import ImportarIpcaButton from '@/components/admin/ImportarIpcaButton'
+import { dataHoraBr } from '@/lib/relatorio/formato'
+
+export const dynamic = 'force-dynamic'
 
 export default async function AdminIndicesPage() {
   const indices = await prisma.indiceEconomico.findMany({
     orderBy: [{ indice: 'asc' }, { competencia: 'desc' }],
     take: 48,
   })
+
+  const config = await prisma.calculadoraConfig.findUnique({ where: { id: 'default' } })
 
   return (
     <div>
@@ -14,6 +20,9 @@ export default async function AdminIndicesPage() {
         Série mensal usada pela calculadora de distrato. Atualize sempre que o IBGE/FGV publicar novos
         números-índice.
       </p>
+      <div className="mt-6">
+        <ImportarIpcaButton ultimaAtualizacao={config?.ipcaAtualizadoEm ? dataHoraBr(config.ipcaAtualizadoEm) : null} />
+      </div>
       <div className="mt-6">
         <IndicesManager iniciais={JSON.parse(JSON.stringify(indices))} />
       </div>
