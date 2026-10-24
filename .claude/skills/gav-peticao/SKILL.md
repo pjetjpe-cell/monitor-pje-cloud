@@ -31,9 +31,9 @@ usa:
 
 | Variante | Quando |
 |---|---|
-| **Advogado constituído** | padrão — cliente paga custas |
+| **Advogado constituído** | cliente paga custas |
 | **Justiça gratuita** | cliente hipossuficiente; exige `06. CARTEIRA DE TRABALHO` e declaração de hipossuficiência na pasta |
-| **Só parcelamento** | pedido restrito à suspensão/revisão das parcelas, sem rescisão total |
+| **Só parcelamento** | **padrão** — pedido restrito à suspensão/revisão das parcelas, sem rescisão total. ⚡ Não há template verificado nas referências: monte pelo chat, não pelo artefato |
 
 Não escolha por dedução. "Tem carteira de trabalho na pasta" não significa que
 o pedido é de gratuidade. E a terceira variante muda o **pedido**, não só a
