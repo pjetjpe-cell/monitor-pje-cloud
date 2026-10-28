@@ -420,7 +420,7 @@ const TIPOS = {
   avatar:   { rotulo: 'Avatar / influenciador de IA', ferramenta: 'ChatGPT ou Gemini (character sheet) + <b>Google Flow</b> (vídeo base ≤ 10 s → replace) + CapCut.', prompt: 'D' },
   estilo:   { rotulo: 'Copiar estilo de referência', ferramenta: '<b>/watch</b> na referência e criação de uma skill <b>estilo-nome</b>, testada num reel de 15 s.', prompt: 'C' },
 };
-const ENQ = { titulo: 'Título na tela', camera: 'Câmera cheia', dividida: 'Tela dividida', print: 'Print', broll: 'B-roll', pip: 'PiP (rosto no canto)' };
+const ENQ = { titulo: 'Título na tela', pergunta: 'Pergunta', numero: 'Número em destaque', clausula: 'Cláusula (documento)', duplo: 'Comparação de dois valores', linha: 'Linha do tempo', lista: 'Lista de opções', assinatura: 'Assinatura da marca', camera: 'Câmera cheia', dividida: 'Tela dividida', print: 'Print', broll: 'B-roll', pip: 'PiP (rosto no canto)' };
 const PAPEIS = { gancho: 'Gancho', conteudo: 'Conteúdo', cta: 'CTA' };
 const ETAPAS = [['transcrever', 'Transcrever'], ['cortar', 'Cortar tempo morto'], ['frames', 'Extrair frames'], ['plano', 'Storyboard aprovado'], ['render', 'Render + revisão']];
 const FONTES = ['Playfair Display', 'Work Sans', 'Big Shoulders Display', 'IBM Plex Sans'];
@@ -634,6 +634,11 @@ function renderCenas() {
           <label>Duração (s)<input id="c-${c.id}-dur" data-c="duracao" type="number" min="0.5" max="120" step="0.5"></label>
         </div>
         <label>Texto na tela<input id="c-${c.id}-tit" data-c="titulo" placeholder="até 7 palavras"></label>
+        <div class="linha">
+          <label>Destaque (número, cláusula)<input id="c-${c.id}-dest" data-c="destaque" placeholder="10,62% · Cláusula 8.1"></label>
+          <label>Fonte (rodapé)<input id="c-${c.id}-fonte" data-c="fonte" placeholder="Contrato, cláusula 5.8"></label>
+        </div>
+        <label>Itens (um por linha; “valor | texto”)<textarea id="c-${c.id}-itens" data-c="itens" rows="2" placeholder="09/10 | Assembleia aprova o reajuste"></textarea></label>
         <label>Fala / legenda<textarea id="c-${c.id}-fala" data-c="fala" rows="2" placeholder="O que é dito nesta cena. Vira a legenda animada."></textarea></label>
         <label>O que aparece (nota para o Claude)<input id="c-${c.id}-vis" data-c="visual" placeholder="print, B-roll, gesto, logo…"></label>
         <div class="acoes">
@@ -840,8 +845,12 @@ function chip(txt, x, y, maxW, m, k, alpha) {
 }
 function legenda(c, lt, d, W, H, m, k, y) {
   const ws = String(c.fala || '').split(/\s+/).filter(Boolean); if (!ws.length) return;
-  const ini = 0.15, fim = Math.max(ini + 0.1, d - 0.25), per = (fim - ini) / ws.length;
-  const idx = Math.floor((lt - ini) / per); if (idx < 0) return;
+  const ini = c.tFala ? c.tFala[0] : 0.15, fim = Math.max(ini + 0.1, c.tFala ? Math.min(c.tFala[1], d - 0.05) : d - 0.25);
+  if (lt < ini) return;
+  // Cada palavra dura proporcionalmente ao seu tamanho, o que acompanha melhor a narração
+  const pesos = ws.map(w => w.length + 2), soma = pesos.reduce((a, b) => a + b, 0);
+  let idx = ws.length - 1, iniPal = fim, per = 0.2;
+  for (let i = 0, acc = ini; i < ws.length; i++) { const dw = (fim - ini) * pesos[i] / soma; if (lt < acc + dw) { idx = i; iniPal = acc; per = dw; break; } acc += dw; }
   const k3 = Math.min(idx, ws.length - 1); const g = Math.floor(k3 / 3); const grupo = ws.slice(g * 3, g * 3 + 3);
   let tam = 66 * k; cx.font = `800 ${tam}px "${m.fonteTexto}", sans-serif`;
   const esp = () => cx.measureText(' ').width;
@@ -850,12 +859,28 @@ function legenda(c, lt, d, W, H, m, k, y) {
   let x = (W - largura) / 2;
   cx.save(); cx.textBaseline = 'middle'; cx.textAlign = 'left'; cx.lineJoin = 'round'; cx.lineWidth = tam * 0.16; cx.strokeStyle = 'rgba(0,0,0,0.78)';
   grupo.forEach((w, j) => {
-    const atual = g * 3 + j === k3 && idx < ws.length; const pop = atual ? 1 + 0.06 * (1 - easeOut(((lt - ini) % per) / Math.min(per, 0.2))) : 1;
+    const atual = g * 3 + j === k3 && idx < ws.length; const pop = atual ? 1 + 0.06 * (1 - easeOut((lt - iniPal) / Math.min(per, 0.2))) : 1;
     cx.save(); const wd = cx.measureText(w).width; cx.translate(x + wd / 2, y); cx.scale(pop, pop);
     cx.strokeText(w, -wd / 2, 0); cx.fillStyle = atual ? m.secundaria : '#ffffff'; cx.fillText(w, -wd / 2, 0); cx.restore();
     x += wd + esp();
   });
   cx.restore();
+}
+function linhasItens(c) { return String(c.itens || '').split('\n').map(x => x.trim()).filter(Boolean).map(x => { const [a, ...b] = x.split('|'); return { a: a.trim(), b: b.join('|').trim() }; }); }
+function kicker(txt, x, y, m, k, a) {
+  if (!txt) return; cx.save(); cx.globalAlpha = a; cx.fillStyle = m.secundaria; cx.font = `700 ${30 * k}px "${m.fonteTexto}", sans-serif`;
+  if ('letterSpacing' in cx) cx.letterSpacing = `${6 * k}px`; cx.textBaseline = 'top'; cx.textAlign = 'left'; cx.fillText(String(txt).toUpperCase(), x, y); cx.restore();
+}
+function paragrafo(txt, x, y, maxW, m, k, tam, alpha, peso, maxLinhas) {
+  if (!txt || alpha <= 0) return y; cx.save(); cx.globalAlpha *= alpha; cx.fillStyle = m.texto; cx.font = `${peso} ${tam * k}px "${m.fonteTexto}", sans-serif`;
+  cx.textBaseline = 'top'; cx.textAlign = 'left'; const ls = quebrar(txt, maxW).slice(0, maxLinhas || 6); const lh = tam * k * 1.3;
+  ls.forEach((l, i) => cx.fillText(l, x, y + i * lh)); cx.restore(); return y + ls.length * lh;
+}
+// "10,62%" conta de 0 até o valor; textos que não começam com número voltam null
+function contador(txt, p) {
+  const mm = /^([+\-–\s]*)(\d+(?:[.,]\d+)?)(.*)$/.exec(txt || ''); if (!mm) return null;
+  const dec = (mm[2].split(/[.,]/)[1] || '').length, sep = mm[2].includes(',') ? ',' : '.';
+  return mm[1] + (parseFloat(mm[2].replace(',', '.')) * p).toFixed(dec).replace('.', sep) + mm[3];
 }
 function desenhar(t) {
   const p = ativo(); if (!p) return;
@@ -863,6 +888,14 @@ function desenhar(t) {
   const m = p.marca || {}; const k = Math.min(W, H) / 1080; const vert = H > W; const pad = W * (vert ? 0.08 : 0.06);
   cx.setTransform(1, 0, 0, 1, 0, 0); cx.globalAlpha = 1;
   cx.fillStyle = m.primaria || '#000'; cx.fillRect(0, 0, W, H);
+  const estilo = p.estilo || {};
+  if (estilo.textura !== false) {
+    const g = cx.createRadialGradient(W * 0.92, H * 0.06, 0, W * 0.92, H * 0.06, Math.max(W, H) * 0.7);
+    g.addColorStop(0, rgba(m.secundaria, 0.13)); g.addColorStop(1, rgba(m.secundaria, 0)); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+    // Pauta de livro-razão subindo devagar
+    const passo = 64 * k, off = (t * 8 * k) % passo; cx.fillStyle = rgba(m.texto, 0.035);
+    for (let y = -off; y < H; y += passo) cx.fillRect(0, y, W, 1.5 * k);
+  }
   const s = cenaEm(p, t);
   if (!s) { cx.fillStyle = rgba(m.texto, 0.5); cx.font = `600 ${40 * k}px "IBM Plex Sans", sans-serif`; cx.textAlign = 'center'; cx.fillText('Adicione uma cena', W / 2, H / 2); return; }
   const { c, lt, d } = s; const ent = easeOut(lt / 0.45); const prog = d ? lt / d : 0; const subir = (1 - ent) * 50 * k;
@@ -909,6 +942,168 @@ function desenhar(t) {
       else titulo(c.titulo, pad, H * 0.24 + subir, W * 0.3, m, k, 72, 'left', ent, 5);
       break;
     }
+
+    case 'pergunta': {
+      cx.save(); cx.globalAlpha = 0.09 + 0.03 * Math.sin(lt * 2); cx.fillStyle = m.secundaria; cx.font = `700 ${(vert ? 1100 : 900) * k}px "${m.fonteTitulo}", serif`;
+      cx.textAlign = 'right'; cx.textBaseline = 'middle'; cx.fillText('?', W * 1.06 - 30 * k * prog, H * (vert ? 0.4 : 0.48)); cx.restore();
+      kicker(c.destaque, pad, H * (vert ? 0.25 : 0.2), m, k, ent);
+      const yf = titulo(c.titulo, pad, H * (vert ? 0.29 : 0.27) + subir, W - pad * 2 - (vert ? 0 : W * 0.25), m, k, vert ? 100 : 108, 'left', ent, 5);
+      cx.fillStyle = m.secundaria; cx.fillRect(pad, yf + 30 * k, 150 * k * easeOut((lt - 0.2) / 0.5), 10 * k);
+      break;
+    }
+    case 'numero': {
+      const it = linhasItens(c).filter(i => i.b);
+      if (it.length >= 2 || (it.length && !c.destaque)) {
+        kicker(c.titulo, pad, H * (vert ? 0.2 : 0.15), m, k, ent);
+        let y = H * (vert ? 0.26 : 0.24);
+        it.forEach((i, j) => {
+          const a = easeOut((lt - 0.3 - j * 0.9) / 0.5), pv = easeOut((lt - 0.3 - j * 0.9) / 1.1), dy = y + (1 - a) * 30 * k;
+          if (a > 0) {
+            cx.save(); cx.globalAlpha = a;
+            cx.fillStyle = rgba(m.texto, 0.06); rrect(pad, dy, W - 2 * pad, 240 * k, 18 * k); cx.fill();
+            cx.fillStyle = m.secundaria; cx.fillRect(pad, dy + 35 * k, 6 * k, 170 * k);
+            cx.font = `700 ${116 * k}px "${m.fonteTitulo}", serif`; cx.textBaseline = 'top'; cx.textAlign = 'left';
+            const vw = cx.measureText(i.a).width; cx.fillText(contador(i.a, pv) ?? i.a, pad + 40 * k, dy + 52 * k);
+            paragrafo(i.b, pad + 40 * k + vw + 40 * k, dy + 48 * k, W - 2 * pad - vw - 110 * k, m, k, 36, 1, 500, 4);
+            cx.restore();
+          }
+          y += 280 * k;
+        });
+      } else {
+        kicker(c.titulo, pad, H * (vert ? 0.24 : 0.2), m, k, ent);
+        const pv = easeOut((lt - 0.2) / 1.2); const v = c.destaque || '';
+        let tam = vert ? 230 : 250; cx.font = `700 ${tam * k}px "${m.fonteTitulo}", serif`;
+        while (cx.measureText(v).width > W - 2 * pad && tam > 60) { tam -= 10; cx.font = `700 ${tam * k}px "${m.fonteTitulo}", serif`; }
+        const y = H * (vert ? 0.285 : 0.27);
+        cx.save(); cx.globalAlpha = ent; cx.fillStyle = m.secundaria; cx.textBaseline = 'top'; cx.textAlign = 'left';
+        const cont = contador(v, pv);
+        if (cont != null) cx.fillText(cont, pad, y);
+        else { const w = cx.measureText(v).width; cx.beginPath(); cx.rect(pad - 10 * k, y - 30 * k, (w + 20 * k) * pv, tam * k * 1.5); cx.clip(); cx.fillText(v, pad, y); }
+        cx.restore();
+        const yt = y + tam * k * 1.12;
+        cx.fillStyle = m.secundaria; cx.fillRect(pad, yt, (W - 2 * pad) * easeOut((lt - 0.9) / 0.6), 4 * k);
+        const desc = it.length ? it[0].a + ' ' + it[0].b : String(c.itens || '');
+        paragrafo(desc, pad, yt + 40 * k, W - 2 * pad, m, k, 46, easeOut((lt - 0.7) / 0.5), 500, 4);
+      }
+      break;
+    }
+    case 'clausula': {
+      // Altura do cartão acompanha o tamanho do trecho
+      const r = vert ? { x: pad * 0.7, y: 0, w: W - pad * 1.4, h: 0 } : { x: W * 0.3, y: 0, w: W * 0.62, h: 0 };
+      const tq = vert ? 50 : 46; cx.font = `500 ${tq * k}px "${m.fonteTexto}", sans-serif`;
+      const ls = quebrar(String(c.itens || '').replace(/\s*\n\s*/g, ' '), r.w - 112 * k); const lh = tq * k * 1.5;
+      r.h = 270 * k + ls.length * lh + 70 * k; r.y = Math.max(H * 0.12, (vert ? H * 0.43 : H * 0.45) - r.h / 2);
+      const z = 0.95 + 0.05 * ent;
+      cx.save(); cx.globalAlpha = ent; cx.translate(r.x + r.w / 2, r.y + r.h / 2); cx.rotate((1 - ent) * -0.03); cx.scale(z, z); cx.translate(-(r.x + r.w / 2), -(r.y + r.h / 2));
+      cx.shadowColor = 'rgba(0,0,0,0.5)'; cx.shadowBlur = 60 * k; cx.shadowOffsetY = 24 * k;
+      cx.fillStyle = '#fbf8f1'; rrect(r.x, r.y, r.w, r.h, 10 * k); cx.fill(); cx.shadowColor = 'transparent';
+      // dobra no canto
+      cx.fillStyle = '#e6dfcf'; cx.beginPath(); cx.moveTo(r.x + r.w - 70 * k, r.y); cx.lineTo(r.x + r.w, r.y + 70 * k); cx.lineTo(r.x + r.w - 70 * k, r.y + 70 * k); cx.closePath(); cx.fill();
+      const ix = r.x + 56 * k, iw = r.w - 112 * k;
+      cx.fillStyle = '#7a6440'; cx.font = `700 ${24 * k}px "${m.fonteTexto}", sans-serif`; cx.textBaseline = 'top'; cx.textAlign = 'left';
+      if ('letterSpacing' in cx) cx.letterSpacing = `${5 * k}px`;
+      cx.fillText(String(c.titulo || 'Documento').toUpperCase(), ix, r.y + 56 * k, iw - 60 * k);
+      if ('letterSpacing' in cx) cx.letterSpacing = '0px';
+      cx.fillStyle = 'rgba(122,100,64,0.35)'; cx.fillRect(ix, r.y + 100 * k, iw, 2 * k);
+      cx.fillStyle = m.primaria; cx.font = `700 ${84 * k}px "${m.fonteTitulo}", serif`; cx.fillText(c.destaque || '', ix, r.y + 128 * k, iw);
+      // trecho com marca-texto passando
+      cx.font = `500 ${tq * k}px "${m.fonteTexto}", sans-serif`; const y0 = r.y + 270 * k;
+      const totalC = ls.reduce((a, l) => a + l.length, 0) || 1; let restante = easeOut((lt - 0.8) / 1.8) * totalC;
+      ls.forEach((l, i) => {
+        const w = cx.measureText(l).width, frac = clamp(restante / l.length); restante -= l.length;
+        if (frac > 0) { cx.fillStyle = rgba(m.secundaria, 0.42); cx.fillRect(ix - 6 * k, y0 + i * lh - 6 * k, (w + 12 * k) * frac, tq * k * 1.25); }
+        cx.fillStyle = '#1b2230'; cx.fillText(l, ix, y0 + i * lh);
+      });
+      cx.restore();
+      break;
+    }
+    case 'duplo': {
+      const it = linhasItens(c).slice(0, 2);
+      titulo(c.titulo, pad, H * (vert ? 0.12 : 0.1) + subir, W - 2 * pad, m, k, vert ? 84 : 80, 'left', ent, 2);
+      const base = H * (vert ? 0.66 : 0.76), maxH = H * (vert ? 0.27 : 0.42);
+      const cols = vert ? [W * 0.27, W * 0.73] : [W * 0.36, W * 0.64], cw = vert ? W * 0.28 : W * 0.16;
+      cx.fillStyle = rgba(m.texto, 0.4); cx.fillRect(pad, base, (W - 2 * pad) * ent, 3 * k);
+      it.forEach((i, j) => {
+        let g;
+        if (j === 0) g = easeOut((lt - 0.5) / 1.0);
+        else { const s2 = clamp((lt - 1.3) / 2.0) * 12, n = Math.floor(s2); g = Math.min(1, (n + easeOut(s2 - n)) / 12); } // sobe mês a mês
+        const h = maxH * (j === 0 ? 0.72 : 1) * g, x = cols[j] - cw / 2;
+        if (h > 1) { cx.fillStyle = j === 0 ? rgba(m.texto, 0.88) : m.secundaria; rrect(x, base - h, cw, h, 8 * k); cx.fill(); }
+        if (j === 1 && h > 1) { cx.fillStyle = rgba(m.primaria, 0.25); for (let q = 1; q < 12; q++) { const yy = base - maxH * q / 12; if (yy > base - h) cx.fillRect(x, yy, cw, 2 * k); } }
+        const a = easeOut((lt - (j === 0 ? 0.5 : 1.3)) / 0.4);
+        cx.save(); cx.globalAlpha = a; cx.textAlign = 'center';
+        cx.fillStyle = j === 0 ? m.texto : m.secundaria; cx.font = `700 ${(vert ? 62 : 56) * k}px "${m.fonteTitulo}", serif`; cx.textBaseline = 'bottom';
+        cx.fillText(i.b, cols[j], base - h - 22 * k, W / 2 - 30 * k);
+        cx.fillStyle = m.texto; cx.font = `700 ${30 * k}px "${m.fonteTexto}", sans-serif`; cx.textBaseline = 'top';
+        if ('letterSpacing' in cx) cx.letterSpacing = `${4 * k}px`;
+        cx.fillText(String(i.a).toUpperCase(), cols[j], base + 26 * k, W / 2 - 30 * k); cx.restore();
+      });
+      if (it.length === 2) { const a = easeOut((lt - 1.1) / 0.4); cx.save(); cx.globalAlpha = a; cx.fillStyle = m.secundaria; cx.font = `700 ${110 * k}px "${m.fonteTitulo}", serif`; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('+', W / 2, base - maxH * 0.45); cx.restore(); }
+      break;
+    }
+    case 'linha': {
+      const it = linhasItens(c); const n = it.length;
+      titulo(c.titulo, pad, H * (vert ? 0.12 : 0.1) + subir, W - 2 * pad, m, k, vert ? 76 : 72, 'left', ent, 2);
+      const x0 = pad + 20 * k, y0 = H * (vert ? 0.33 : 0.36), y1 = H * (vert ? 0.62 : 0.7);
+      const ys = it.map((_, j) => (n <= 1 ? y0 : y0 + (y1 - y0) * j / (n - 1)));
+      cx.fillStyle = rgba(m.texto, 0.35); cx.fillRect(x0 - 2 * k, y0, 4 * k, (ys[n - 1] - y0 || 0) * easeOut((lt - 0.3) / (0.6 + 1.2 * Math.max(0, n - 1))));
+      it.forEach((i, j) => {
+        const a = easeOut((lt - 0.3 - j * 1.2) / 0.5); if (a <= 0) return;
+        cx.save(); cx.globalAlpha = a;
+        cx.fillStyle = m.primaria; cx.beginPath(); cx.arc(x0, ys[j], 22 * k, 0, Math.PI * 2); cx.fill();
+        cx.strokeStyle = m.secundaria; cx.lineWidth = 5 * k; cx.stroke(); cx.fillStyle = m.secundaria; cx.beginPath(); cx.arc(x0, ys[j], 10 * k * a, 0, Math.PI * 2); cx.fill();
+        cx.fillStyle = m.secundaria; cx.font = `700 ${72 * k}px "${m.fonteTitulo}", serif`; cx.textBaseline = 'middle'; cx.textAlign = 'left';
+        cx.fillText(i.a, x0 + 56 * k + (1 - a) * 30 * k, ys[j]);
+        paragrafo(i.b, x0 + 56 * k, ys[j] + 50 * k, W - x0 - 56 * k - pad, m, k, 40, 1, 500, 3);
+        cx.restore();
+      });
+      if (c.destaque && n >= 2) {
+        const a = easeOut((lt - 1.9) / 0.5);
+        if (a > 0) {
+          const ym = (ys[0] + ys[1]) / 2 + 40 * k; cx.save(); cx.globalAlpha = a; cx.font = `700 ${34 * k}px "${m.fonteTexto}", sans-serif`;
+          const tw = cx.measureText(c.destaque).width + 48 * k; const xx = x0 + 56 * k;
+          cx.fillStyle = rgba(m.secundaria, 0.16); rrect(xx, ym - 34 * k, tw, 68 * k, 34 * k); cx.fill();
+          cx.strokeStyle = m.secundaria; cx.lineWidth = 3 * k; cx.stroke();
+          cx.fillStyle = m.secundaria; cx.textBaseline = 'middle'; cx.textAlign = 'left'; cx.fillText(c.destaque, xx + 24 * k, ym + 2 * k); cx.restore();
+        }
+      }
+      break;
+    }
+    case 'lista': {
+      const yt = titulo(c.titulo, pad, H * (vert ? 0.14 : 0.12) + subir, W - 2 * pad, m, k, vert ? 80 : 76, 'left', ent, 3);
+      let y = Math.max(yt + 80 * k, H * (vert ? 0.3 : 0.32));
+      linhasItens(c).forEach((i, j) => {
+        const txt = i.b ? `${i.a} — ${i.b}` : i.a;
+        cx.font = `700 ${50 * k}px "${m.fonteTexto}", sans-serif`; const ls = quebrar(txt, W - 2 * pad - 100 * k);
+        const a = easeOut((lt - 0.6 - j * 0.9) / 0.45);
+        if (a > 0) {
+          const off = (1 - a) * 40 * k, ck = easeOut((lt - 0.95 - j * 0.9) / 0.35);
+          cx.save(); cx.globalAlpha = a; cx.strokeStyle = m.secundaria; cx.lineWidth = 5 * k; cx.lineJoin = 'round'; cx.lineCap = 'round';
+          cx.strokeRect(pad + off, y + 2 * k, 56 * k, 56 * k);
+          if (ck > 0) { cx.beginPath(); cx.moveTo(pad + off + 12 * k, y + 32 * k); cx.lineTo(pad + off + 25 * k, y + 45 * k); if (ck > 0.4) cx.lineTo(pad + off + 25 * k + (ck - 0.4) / 0.6 * 22 * k, y + 45 * k - (ck - 0.4) / 0.6 * 30 * k); cx.stroke(); }
+          cx.fillStyle = m.texto; cx.textBaseline = 'top'; cx.textAlign = 'left'; ls.forEach((l, q) => cx.fillText(l, pad + 96 * k + off, y + q * 62 * k));
+          cx.restore();
+        }
+        y += ls.length * 62 * k + 48 * k;
+      });
+      break;
+    }
+    case 'assinatura': {
+      const a = easeOut((lt - 0.1) / 0.6), cxm = W / 2, cy0 = H * (vert ? 0.24 : 0.26), R = 110 * k;
+      cx.save(); cx.globalAlpha = a; cx.strokeStyle = m.secundaria; cx.lineWidth = 3 * k;
+      cx.beginPath(); cx.arc(cxm, cy0, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * easeOut((lt - 0.1) / 1.1)); cx.stroke();
+      const ini = String(m.nome || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+      cx.fillStyle = m.secundaria; cx.font = `700 ${92 * k}px "${m.fonteTitulo}", serif`; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(ini, cxm, cy0 + 6 * k);
+      let tam = 120; cx.font = `700 ${tam * k}px "${m.fonteTitulo}", serif`;
+      while (cx.measureText(m.nome || '').width > W - 2 * pad && tam > 40) { tam -= 6; cx.font = `700 ${tam * k}px "${m.fonteTitulo}", serif`; }
+      cx.fillStyle = m.texto; cx.textBaseline = 'top'; const yw = cy0 + R + 60 * k + (1 - a) * 30 * k; cx.fillText(m.nome || '', cxm, yw);
+      const ys = yw + tam * k * 1.15;
+      if (c.destaque) { cx.fillStyle = m.secundaria; cx.font = `700 ${32 * k}px "${m.fonteTexto}", sans-serif`; if ('letterSpacing' in cx) cx.letterSpacing = `${14 * k}px`; cx.fillText(c.destaque.toUpperCase(), cxm + 7 * k, ys); if ('letterSpacing' in cx) cx.letterSpacing = '0px'; }
+      cx.fillStyle = m.secundaria; const rw = 140 * k * easeOut((lt - 0.6) / 0.5); cx.fillRect(cxm - rw / 2, ys + 70 * k, rw, 3 * k);
+      cx.restore();
+      if (c.titulo) { cx.save(); cx.globalAlpha = easeOut((lt - 0.8) / 0.5); cx.fillStyle = m.texto; cx.font = `500 ${40 * k}px "${m.fonteTexto}", sans-serif`; cx.textAlign = 'center'; cx.textBaseline = 'top'; quebrar(c.titulo, W - 2 * pad).forEach((l, q) => cx.fillText(l, cxm, ys + 104 * k + q * 54 * k)); cx.restore(); }
+      break;
+    }
     default: {
       const y0 = vert ? H * 0.3 : H * 0.26;
       const yf = titulo(c.titulo, pad, y0 + subir, W - pad * 2 - (vert ? 0 : W * 0.2), m, k, vert ? 104 : 112, 'left', ent, 5);
@@ -926,8 +1121,20 @@ function desenhar(t) {
     if (m.aviso) { cx.save(); cx.globalAlpha = 0.75 * a; cx.fillStyle = m.texto; cx.font = `500 ${24 * k}px "${m.fonteTexto}", sans-serif`; cx.textAlign = 'center'; cx.textBaseline = 'alphabetic'; cx.fillText(m.aviso, W / 2, H - 44 * k, W - pad * 2); cx.restore(); }
   }
   legenda(c, lt, d, W, H, m, k, c.papel === 'cta' && vert ? H * 0.8 : yLeg);
+  if (c.fonte) {
+    cx.save(); cx.globalAlpha = 0.75 * easeOut((lt - 0.6) / 0.5); const yf = vert ? H * 0.905 : H * 0.955;
+    cx.fillStyle = m.secundaria; cx.fillRect(pad, yf - 17 * k, 10 * k, 10 * k);
+    cx.fillStyle = m.texto; cx.font = `500 ${26 * k}px "${m.fonteTexto}", sans-serif`; cx.textAlign = 'left'; cx.textBaseline = 'alphabetic';
+    cx.fillText('Fonte: ' + c.fonte, pad + 24 * k, yf, W - 2 * pad - 24 * k); cx.restore();
+  }
+  // Transição: faixa na cor de destaque varrendo a tela no começo de cada cena
+  if (s.i > 0 && estilo.transicao !== false && lt < 0.34) {
+    const q = easeOut(lt / 0.34), bw = W * 0.16, x = -bw - H * 0.2 + q * (W + bw + H * 0.4);
+    cx.save(); cx.fillStyle = m.secundaria; cx.beginPath(); cx.moveTo(x, 0); cx.lineTo(x + bw, 0); cx.lineTo(x + bw - H * 0.2, H); cx.lineTo(x - H * 0.2, H); cx.closePath(); cx.fill(); cx.restore();
+  }
+  if (estilo.progresso !== false) { const T = total(p) || 1; cx.fillStyle = rgba(m.texto, 0.12); cx.fillRect(0, 0, W, 7 * k); cx.fillStyle = m.secundaria; cx.fillRect(0, 0, W * clamp(t / T), 7 * k); }
   // Marca d'água da marca no topo
-  if (m.nome) {
+  if (m.nome && c.enquadramento !== 'assinatura') {
     cx.save(); cx.fillStyle = rgba(m.texto, 0.85); cx.font = `700 ${24 * k}px "${m.fonteTexto}", sans-serif`; cx.textBaseline = 'top'; cx.textAlign = 'left';
     if ('letterSpacing' in cx) cx.letterSpacing = `${5 * k}px`;
     const ym = vert ? H * 0.05 : H * 0.045; cx.fillStyle = m.secundaria; cx.fillRect(pad, ym + 8 * k, 26 * k, 4 * k);
@@ -938,7 +1145,7 @@ function desenharParado() { if (!tocando && ativo()) { desenhar(Math.min(tAtual,
 const fontesCarregadas = new Set();
 function carregarFontes() {
   const p = ativo(); if (!p || !document.fonts) return Promise.resolve();
-  const lista = [`700 40px "${p.marca.fonteTitulo}"`, `800 40px "${p.marca.fonteTexto}"`, `700 40px "${p.marca.fonteTexto}"`, `600 20px "IBM Plex Mono"`].filter(f => !fontesCarregadas.has(f));
+  const lista = [`700 40px "${p.marca.fonteTitulo}"`, `800 40px "${p.marca.fonteTexto}"`, `700 40px "${p.marca.fonteTexto}"`, `500 40px "${p.marca.fonteTexto}"`, `600 20px "IBM Plex Mono"`].filter(f => !fontesCarregadas.has(f));
   return Promise.all(lista.map(f => document.fonts.load(f).then(() => fontesCarregadas.add(f)).catch(() => {}))).then(() => {});
 }
 
@@ -1034,6 +1241,7 @@ function roteiroTexto(p) {
   let a = 0;
   return p.cenas.map((c, i) => { const ini = a; a += Number(c.duracao) || 0;
     return `${i + 1}. [${tcCurto(ini)}–${tcCurto(a)}] ${PAPEIS[c.papel]} · ${ENQ[c.enquadramento]} — ${c.titulo || '(sem texto na tela)'}` +
+      (c.destaque ? `\n   Destaque: ${c.destaque}` : '') + (c.itens ? `\n   Itens: ${String(c.itens).replace(/\n/g, ' / ')}` : '') + (c.fonte ? `\n   Fonte na tela: ${c.fonte}` : '') +
       (c.fala ? `\n   Fala: "${c.fala}"` : '') + (c.visual ? `\n   Visual: ${c.visual}` : '') + (c.midia ? `\n   Imagem anexada: ${c.midia.nome || 'sim'}` : ''); }).join('\n');
 }
 function montarPrompt(p, v) {
@@ -1147,12 +1355,13 @@ $('#btn-gerar').addEventListener('click', async () => {
   const p = ativo(); if (!S.sample || !p) return; fecharIA();
   $('#ia').hidden = false; $('#ia-titulo').textContent = 'Roteiro sugerido pelo Claude'; $('#ia-corpo').textContent = 'Escrevendo o roteiro…';
   abortIA = new AbortController(); const sinal = abortIA.signal;
-  const pedido = `Você é diretor de vídeos curtos para redes sociais em português do Brasil. Escreva um storyboard para o briefing abaixo.\n\n${briefingTexto(p)}\n\n${REGRAS_IA}\n\nA soma das durações deve ficar perto de ${p.alvo} segundos. Enquadramentos possíveis: titulo (só texto na tela), camera (rosto em câmera cheia), dividida (metade imagem, metade texto), print (captura de tela em destaque), broll (imagem de apoio em tela cheia), pip (tela com rosto no canto). Para vídeo sem rosto, não use camera nem pip.\n\nResponda SOMENTE com JSON neste formato:\n{"cenas":[{"papel":"gancho|conteudo|cta","enquadramento":"titulo|camera|dividida|print|broll|pip","duracao":4,"titulo":"texto na tela","fala":"narração desta cena","visual":"o que aparece"}]}`;
+  const pedido = `Você é diretor de vídeos curtos para redes sociais em português do Brasil. Escreva um storyboard para o briefing abaixo.\n\n${briefingTexto(p)}\n\n${REGRAS_IA}\n\nA soma das durações deve ficar perto de ${p.alvo} segundos. Enquadramentos possíveis: titulo (só texto na tela), pergunta (pergunta grande), numero (número gigante em "destaque" com explicação em "itens"; ou vários "valor | texto" em "itens"), clausula (cartão de documento: "titulo" = nome do documento, "destaque" = número da cláusula, "itens" = trecho), duplo (dois valores lado a lado em "itens": "rótulo | valor"), linha (datas em "itens": "data | fato"; "destaque" = intervalo), lista (opções em "itens", uma por linha), assinatura (marca no final), camera (rosto em câmera cheia), dividida (metade imagem, metade texto), print (captura de tela em destaque), broll (imagem de apoio em tela cheia), pip (tela com rosto no canto). Para vídeo sem rosto, não use camera nem pip.\n\nResponda SOMENTE com JSON neste formato:\n{"cenas":[{"papel":"gancho|conteudo|cta","enquadramento":"titulo|pergunta|numero|clausula|duplo|linha|lista|assinatura|camera|dividida|print|broll|pip","duracao":4,"titulo":"texto na tela","destaque":"","itens":"","fonte":"documento citado, se houver","fala":"narração desta cena","visual":"o que aparece"}]}`;
   try {
     const r = await S.sample.json(pedido, { signal: sinal, modelTier: 'default' });
     const cenas = (r && Array.isArray(r.cenas) ? r.cenas : []).filter(c => c && typeof c === 'object').slice(0, 30).map(c => cena(
       PAPEIS[c.papel] ? c.papel : 'conteudo', ENQ[c.enquadramento] ? c.enquadramento : 'titulo', clamp(Number(c.duracao) || 4, 0.5, 120),
-      String(c.titulo || '').slice(0, 120), String(c.fala || '').slice(0, 600), String(c.visual || '').slice(0, 200)));
+      String(c.titulo || '').slice(0, 120), String(c.fala || '').slice(0, 600), String(c.visual || '').slice(0, 200))).map((x, i) => Object.assign(x, {
+      destaque: String(r.cenas[i].destaque || '').slice(0, 60), itens: String(r.cenas[i].itens || '').slice(0, 400), fonte: String(r.cenas[i].fonte || '').slice(0, 120) }));
     if (!cenas.length) throw { message: 'A resposta veio sem cenas.' };
     propostaIA = cenas; const box = $('#ia-corpo'); box.innerHTML = '';
     const ol = document.createElement('ol'); let a = 0;
@@ -1173,6 +1382,9 @@ $('#btn-revisar').addEventListener('click', async () => {
   try { await S.sample(pedido, { signal: sinal, modelTier: 'default', onText: u => { $('#ia-corpo').textContent = u.text; } }); }
   catch (e) { if (sinal.aborted) return; $('#ia-corpo').textContent = e && e.code === 'rate_limited' ? 'Muitos pedidos seguidos. Espere um minuto e tente de novo.' : 'Não consegui revisar agora: ' + (e && e.message || 'tente de novo'); }
 });
+
+// Gancho para renderizar quadro a quadro fora do navegador (Playwright + FFmpeg)
+window.estudioRender = { desenhar: t => desenhar(t), total: () => total(ativo()), fontes: () => carregarFontes(), canvas: cv };
 
 // ---------- início ----------
 renderModelos();
