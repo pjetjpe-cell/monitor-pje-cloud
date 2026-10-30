@@ -69,15 +69,64 @@ function encerrar(mensagem) {
 
 // --------------------------------------------------------------------------
 
+// A caixa de busca muda entre versões do WhatsApp Web (contenteditable antigo,
+// <input> com "Pesquisar ou começar uma nova conversa" no layout de 2026).
+const SELETORES_BUSCA = [
+  'input[aria-label*="esquisar" i]',
+  'input[placeholder*="esquisar" i]',
+  'div[contenteditable="true"][aria-label*="esquisar" i]',
+  'div[contenteditable="true"][data-tab="3"]',
+  'div[contenteditable="true"][title*="esquisar" i]',
+  '#side div[contenteditable="true"]',
+  '#side input[type="text"]',
+  'div[role="textbox"][data-tab="3"]',
+  'input[aria-label*="earch" i]',
+  'div[contenteditable="true"][aria-label*="earch" i]',
+];
+
+async function acharBusca(pagina) {
+  for (const seletor of SELETORES_BUSCA) {
+    const alvo = pagina.locator(seletor).first();
+    if (await alvo.count() && await alvo.isVisible().catch(() => false)) return alvo;
+  }
+  return null;
+}
+
+async function telaDoQrCode(pagina) {
+  const qr = pagina.locator('canvas[aria-label*="QR" i], canvas[aria-label*="scan" i], [data-ref] canvas').first();
+  if (await qr.count()) return true;
+  const texto = await pagina.locator('body').innerText().catch(() => '');
+  return /escaneie|scan the qr|use o whatsapp no seu|link with phone|conectar com n[uú]mero/i.test(texto);
+}
+
 async function acharPaginaWhatsApp(navegador) {
   const contextos = navegador.contexts();
   if (contextos.length === 0) {
     encerrar('o Chrome respondeu mas não tem nenhuma aba aberta.');
   }
+  const abas = [];
   for (const contexto of contextos) {
     for (const pagina of contexto.pages()) {
-      if (pagina.url().includes('web.whatsapp.com')) return { pagina, contexto };
+      if (pagina.url().includes('web.whatsapp.com')) abas.push({ pagina, contexto });
     }
+  }
+  if (abas.length) {
+    // Espera até 30 s a aba carregar; escolhe a que está logada (tem busca).
+    let qr = false;
+    for (let t = 0; t < 15; t++) {
+      for (const aba of abas) {
+        if (await acharBusca(aba.pagina)) return aba;
+        if (await telaDoQrCode(aba.pagina)) qr = true;
+      }
+      if (qr) break;
+      await abas[0].pagina.waitForTimeout(2000);
+    }
+    if (qr) {
+      encerrar('o WhatsApp desta janela do Chrome NÃO está conectado: aparece o QR code. ' +
+        'Leia o QR code com o celular nessa janela (a sem favoritos), espere as conversas e rode de novo.');
+    }
+    encerrar('a aba do WhatsApp abriu, mas não achei a caixa de busca em 30 s. ' +
+      'Confira se as conversas aparecem nessa janela e rode de novo; persistindo, o WhatsApp Web mudou o layout.');
   }
   encerrar(
     'nenhuma aba em web.whatsapp.com. Abra o WhatsApp Web nessa janela do Chrome ' +
@@ -86,18 +135,7 @@ async function acharPaginaWhatsApp(navegador) {
 }
 
 async function abrirConversa(pagina, contato) {
-  // A caixa de busca muda de rótulo entre versões; tenta as formas conhecidas.
-  const seletoresBusca = [
-    'div[contenteditable="true"][data-tab="3"]',
-    'div[contenteditable="true"][title*="esquisar" i]',
-    '#side div[contenteditable="true"]',
-    'div[role="textbox"][data-tab="3"]',
-  ];
-  let busca = null;
-  for (const seletor of seletoresBusca) {
-    const alvo = pagina.locator(seletor).first();
-    if (await alvo.count() && await alvo.isVisible().catch(() => false)) { busca = alvo; break; }
-  }
+  const busca = await acharBusca(pagina);
   if (!busca) {
     encerrar('não achei a caixa de busca do WhatsApp. A tela está carregada e destravada?');
   }
@@ -108,7 +146,11 @@ async function abrirConversa(pagina, contato) {
   await pagina.keyboard.type(contato, { delay: 40 });
   await pagina.waitForTimeout(1400);
 
-  const resultado = pagina.locator('#pane-side [role="listitem"]').first();
+  // Prefere o item cujo título é exatamente o nome pedido; senão, o primeiro da lista.
+  const exato = pagina.locator(`span[title="${contato.replace(/"/g, '\\"')}"]`).first();
+  const resultado = (await exato.count()) ? exato : pagina.locator(
+    '#pane-side [role="listitem"], #pane-side [role="row"], [aria-label*="conversas" i] [role="listitem"], [aria-label*="conversas" i] [role="row"]'
+  ).first();
   if (!(await resultado.count())) {
     encerrar(`nenhuma conversa encontrada para "${contato}". Confira o nome exato na sua lista.`);
   }
@@ -117,7 +159,8 @@ async function abrirConversa(pagina, contato) {
 
   // Confirma que abriu a conversa CERTA. Baixar documento do cliente errado e
   // arquivá-lo na pasta de outro é exatamente o erro que não pode acontecer.
-  const cabecalho = pagina.locator('header').first();
+  const cabMain = pagina.locator('#main header').first();
+  const cabecalho = (await cabMain.count()) ? cabMain : pagina.locator('header').last();
   const titulo = (await cabecalho.innerText().catch(() => '')).split('\n')[0] || '';
   const pedido = normalizar(contato);
   const aberto = normalizar(titulo);
