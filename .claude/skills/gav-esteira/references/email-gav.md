@@ -8,6 +8,13 @@
 
 Remetente: `dipallacio@gmail.com`. Assinatura conforme quem subscreve.
 
+**Casal / co-titular:** os dois entram na notificação ("procuradora do Sr. X,
+inscrito no CPF ..., e da Sra. Y, inscrita no CPF ..."), texto no plural
+("Os Notificantes"). Os dois precisam constar da procuração.
+
+**Procuração antes do envio.** A notificação fala "na qualidade de procuradora".
+Sem procuração assinada do cliente, deixe só o rascunho e avise.
+
 ## Regra: sem anexar a petição
 
 A notificação é extrajudicial e antecede o processo. Anexar a inicial entrega a
@@ -158,8 +165,14 @@ empreendimento pelo nome da pasta, não reaproveite o dado do cliente anterior.
 2. `mcp__Gmail__create_draft` — **rascunho primeiro**.
 3. Mostre ao usuário: destinatário, assunto e corpo.
 4. Só com o "pode enviar", chame `mcp__Gmail__send_message` com o `draftId`.
-5. Salve o PDF do e-mail enviado como `08 - NOTIFICAÇÃO EXTRAJUDICIAL - {NOME}.pdf`
-   na pasta interna.
+5. Salve o PDF **do e-mail efetivamente enviado** como
+   `08 - NOTIFICAÇÃO EXTRAJUDICIAL - {NOME}.pdf` na pasta interna. O documento
+   que vale é a impressão do próprio Gmail, não uma reconstrução:
+   Gmail → **Enviados** → abrir a mensagem → ícone **Imprimir tudo** → destino
+   **Salvar como PDF** → salvar com o nome acima → subir na pasta interna.
+   O agente na web não clica no Gmail: esse passo é do usuário (ou via Desktop
+   Commander, quando o computador estiver conectado). Diga isso ao usuário e
+   deixe a etapa `pendente` até o PDF aparecer na pasta.
 6. Registre a etapa com o `threadId` como evidência.
 
 E-mail para a parte contrária não se desfaz. O rascunho é a última chance de

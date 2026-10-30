@@ -75,6 +75,23 @@ NN. [EMPREENDIMENTO -] NOME - XX COTAS - PP% - R$ VALOR - Nº PROCESSO/   ← ex
 
 A subpasta interna já existe com outro nome? Renomeie. Não crie uma segunda.
 
+**O nome reflete só as cotas do distrato.** Cliente pode desistir de parte das
+cotas no caminho (Rodolfo, 105: pasta criada com "02 COTAS", distrato de uma só).
+Quem manda são os documentos que estão na pasta do cliente: conte contrato e
+extrato que estão **lá**, não o que o nome antigo diz. Contrato de cota que saiu
+do distrato não entra, mesmo achado em outra pasta. Registre a mudança na
+**descrição da pasta** (`update_file` → `description`), para ninguém religar a
+cota depois.
+
+**Situação da cota não vai no nome.** "QUITADA" no nome é engolido pelo
+`gav.nomes` como parte do nome do cliente. Ponha na descrição da pasta; cota
+quitada também muda o destinatário da notificação (etapa 7).
+
+**Dados do contrato sem baixar o PDF.** `read_file_content` de um contrato de
+4 MB devolve o texto (vai para arquivo quando é grande). Extraia com Python:
+`Cota nº.:`, `UNIDADE AUTÔNOMA nº`, `IPOJUCA - PE, <data>` (celebração),
+`(i.1) R$` (preço), `Identidade:` (RG). Dá tudo o que a notificação pede.
+
 ## Etapa 3 — Pasta NÃO USAR
 
 Já existe em variantes (`Não usar ` com espaço no fim, `NAO USAR`, `não-usar`).
@@ -84,6 +101,14 @@ Já existe em variantes (`Não usar ` com espaço no fim, `NAO USAR`, `não-usar
 da etapa 2 e aplique com o "pode" do usuário. Reaproveite sempre a pasta que
 existe — nunca crie uma segunda, que espalharia os originais em dois lugares.
 Só crie do zero se não houver nenhuma.
+
+**Permissão do Drive.** O conector pode estar logado numa conta diferente da
+dona dos arquivos (ex.: conector `pjetjpe@gmail.com`, arquivos de
+`dipallacio@gmail.com`). Aí ele cria pasta, copia e renomeia, mas **mover**
+devolve `The caller does not have permission`. Não contorne copiando o original
+(duplica e confunde): crie as pastas, copie para a interna o que precisa de nome
+novo, e diga ao usuário exatamente quais arquivos arrastar para `NÃO USAR` — ou
+que reconecte o Drive com a conta dona.
 
 Para lá vão, **por cópia antes de qualquer edição**: a procuração assinada
 original (`Procuracao_Interativa_*_assinado.pdf`), extratos crus (`extrato-N.pdf`)

@@ -71,3 +71,20 @@ fim o que ficou faltando**. Não marque `ok` para não travar a esteira.
 O `dossie.json` guarda o estado. `python3 -m gav.esteira status --dossie <arquivo>`
 mostra o que já ficou pronto. Retome da primeira pendente — não recomece do zero
 nem refaça etapa concluída.
+
+## Cliente assinou a procuração interativa mas não conseguiu baixar o PDF
+
+Acontece com cliente idoso ou sem Gov.br: assina na tela e manda só o print da
+parte final (Rodolfo, 105). **Não monte** página de uma versão com print de
+outra, e **não transplante** a assinatura para outra procuração:
+
+- versões diferentes têm blocos em lugares diferentes — no caso do Rodolfo, a
+  montagem "página 1 + print" saía **sem PODERES CONFERIDOS**;
+- assinatura colada em documento que o cliente não assinou é falsificação, mesmo
+  com a concordância dele, e derruba a representação se a ré impugnar.
+
+Reenvie a procuração interativa (gerador `claude/gerar_procuracao_dipallacio.py`)
+e guie o cliente, de preferência por vídeo-chamada, no único toque que faltou:
+**"Assinar e baixar PDF"**. No Android abre o compartilhar e ele devolve o PDF
+pelo WhatsApp. Guarde o print em `NÃO USAR` como comprovante da intenção.
+
