@@ -1,0 +1,375 @@
+<style>
+/* Mesa dupla: a pauta e a ficha em cima, comuns; embaixo, duas metades — arco-íris para o Antigravity no PC, terracota para o Claude na nuvem. */
+:root { --cl: #b8532f; --cl-ink: #ffffff; --cl-grad: linear-gradient(100deg, #c2410c, #b8532f, #9a3412) }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --cl: #e8906c; --cl-ink: #1b0f0a; --cl-grad: linear-gradient(100deg, #f0a07e, #e8906c, #d9774f) } }
+:root[data-theme="dark"] { --cl: #e8906c; --cl-ink: #1b0f0a; --cl-grad: linear-gradient(100deg, #f0a07e, #e8906c, #d9774f) }
+
+header::after { background: linear-gradient(90deg, #4285f4, #8b5cf6, #ec4899, #f97316 48%, var(--cl) 52%, var(--cl)) }
+h1 .amp { -webkit-text-fill-color: var(--muted); color: var(--muted); font-weight: 500 }
+.metades { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start }
+.metade { border: 1px solid transparent; border-top-width: 6px; border-radius: 12px; padding: 18px; display: grid; gap: 14px; min-width: 0 }
+.metade.agy { background: linear-gradient(var(--surface), var(--surface)) padding-box, var(--arco) border-box }
+.metade.cl { background: linear-gradient(var(--surface), var(--surface)) padding-box, var(--cl-grad) border-box }
+.metade h2 { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap }
+.metade .onde { font: 500 12px var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted) }
+.metade.cl .eyebrow { color: var(--cl) }
+.metade.agy .eyebrow { background: var(--arco-texto); -webkit-background-clip: text; background-clip: text; color: transparent }
+.btn.cl { background: var(--cl-grad); color: var(--cl-ink); border-color: transparent; box-shadow: 0 4px 14px color-mix(in srgb, var(--cl) 30%, transparent) }
+.btn.cl.confirmar { outline: 2px solid var(--cl); outline-offset: 2px }
+.sessoes { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden }
+.sessoes li { padding: 10px 12px; border-top: 1px solid var(--line); display: grid; gap: 3px; min-width: 0 }
+.sessoes li:first-child { border-top: 0 }
+.sessoes .t { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; min-width: 0 }
+.sessoes a { color: var(--ink); font-weight: 600; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0 }
+.sessoes a:hover { color: var(--cl); text-decoration: underline }
+.sessoes .r { font-size: 13px; color: var(--muted); overflow-wrap: anywhere }
+.sessoes .vazio { color: var(--muted); font-size: 13px }
+.st { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px; border: 1px solid currentColor; white-space: nowrap; flex: none }
+.st.trab { color: var(--h1) } .st.bloq { color: var(--warn) } .st.ok { color: var(--ok) } .st.falha { color: var(--h9) } .st.outro { color: var(--muted) }
+.mini { font-size: 12px; color: var(--muted) }
+.linha { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap }
+.btn.peq { padding: 6px 10px; font-size: 13px }
+details.guia-mini summary { cursor: pointer; font-weight: 600; font-size: 14px }
+details.guia-mini ol { margin: 10px 0 0; padding-left: 20px; display: grid; gap: 8px; font-size: 14px }
+/* Pauta em grade compacta no alto, para as duas metades subirem na tela. */
+.mesa { grid-template-columns: minmax(0, 1fr) }
+.pauta { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0 }
+.task { border-top: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 10px 14px }
+.task .rs { font-size: 12.5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
+@media (max-width: 900px) { .metades { grid-template-columns: minmax(0, 1fr) } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Di PALLACIO · esteira GAV</div>
+      <h1>Antigravity <span class="amp">&amp;</span> Claude</h1>
+      <p class="sub">Uma tarefa, dois executores. À esquerda o Antigravity trabalha no computador do escritório; à direita o Claude abre uma sessão na nuvem com as skills da esteira.</p>
+    </div>
+  </header>
+
+  <section class="mesa">
+    <div class="pauta" role="radiogroup" aria-label="Tarefa" id="pauta"></div>
+    <form class="ficha" id="ficha" novalidate>
+      <div>
+        <div class="eyebrow" id="ficha-etapa"></div>
+        <h2 id="ficha-titulo"></h2>
+        <p class="aviso" id="ficha-resumo"></p>
+      </div>
+      <div class="campos" id="campos"></div>
+      <p class="aviso" id="falta" hidden></p>
+    </form>
+  </section>
+
+  <section class="metades">
+    <!-- ANTIGRAVITY -->
+    <div class="metade agy" aria-labelledby="agy-t">
+      <div>
+        <div class="eyebrow">Executor 1</div>
+        <h2 id="agy-t">Antigravity <span class="onde">no PC do escritório</span></h2>
+      </div>
+      <div class="linha">
+        <div class="seg" role="group" aria-label="Onde o Antigravity trabalha">
+          <button type="button" id="modo-cli" aria-pressed="true">Terminal (agy)</button>
+          <button type="button" id="modo-ide" aria-pressed="false">Antigravity IDE</button>
+        </div>
+        <span class="chip warn" id="chip-token">Falta o token</span>
+      </div>
+      <div class="field">
+        <label for="token">Token deste PC</label>
+        <div class="row">
+          <input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="aparece na janela do vigia">
+          <button type="button" class="btn peq" id="ver-token">Ver</button>
+        </div>
+      </div>
+      <div class="field">
+        <span class="lbl">Texto que o Antigravity recebe</span>
+        <pre class="preview" id="preview-agy" aria-live="polite"></pre>
+      </div>
+      <div class="acoes">
+        <button type="button" class="btn pri" id="enviar-agy">Enviar ao Antigravity</button>
+        <button type="button" class="btn" id="copiar-cmd">Copiar comando do PowerShell</button>
+      </div>
+      <div id="retorno-agy" hidden></div>
+      <details class="guia-mini">
+        <summary>Acordar o Antigravity</summary>
+        <ol>
+          <li>Primeira vez: no PowerShell do PC, cole <span class="cmd"><code id="cmd-instalar">irm __INSTALADOR__ | iex</code><button type="button" class="btn peq" data-copiar="cmd-instalar">Copiar</button></span></li>
+          <li>Digite <code>agy</code> uma vez e entre com a conta Google.</li>
+          <li>Todo dia: clique duas vezes em <b>GAV Antigravity</b> na Área de Trabalho e deixe a janela aberta.</li>
+          <li>Cole o token acima (uma vez) e clique <b>Enviar ao Antigravity</b>.</li>
+        </ol>
+      </details>
+    </div>
+
+    <!-- CLAUDE -->
+    <div class="metade cl" aria-labelledby="cl-t">
+      <div>
+        <div class="eyebrow">Executor 2</div>
+        <h2 id="cl-t">Claude <span class="onde">na nuvem</span></h2>
+      </div>
+      <div class="field">
+        <span class="lbl">Texto que o Claude recebe</span>
+        <pre class="preview" id="preview-cl" aria-live="polite"></pre>
+      </div>
+      <div class="acoes">
+        <button type="button" class="btn cl" id="abrir-sessao">Abrir sessão nova do Claude</button>
+        <button type="button" class="btn" id="copiar-cl">Copiar para colar no chat</button>
+      </div>
+      <p class="mini" id="aviso-sessao">A sessão nova abre no repositório da esteira, com as skills e os agentes GAV. Ela chega ao PC pelo Desktop Commander e pede o seu “pode” antes de enviar, compartilhar ou apagar.</p>
+      <div id="retorno-cl" hidden></div>
+      <div class="field">
+        <div class="linha">
+          <span class="lbl">Sessões recentes do Claude</span>
+          <button type="button" class="btn peq" id="atualizar-sessoes">Atualizar</button>
+        </div>
+        <ul class="sessoes" id="sessoes"><li class="vazio">Carregando as sessões…</li></ul>
+        <span class="mini" id="sessoes-hora"></span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const CATALOGO = /*CATALOGO*/null;
+/*NUCLEO*/
+
+const SERVIDOR = 'Claude Code Remote';
+const AMBIENTE = 'env_01CGvhQbBpahm6pvohCyVnDM';
+const REPO = 'https://github.com/pjetjpe-cell/monitor-pje-cloud';
+const RAMO = 'claude/cool-faraday-8s4iv9';
+
+const $ = (id) => document.getElementById(id);
+const guarda = {
+  ler(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  gravar(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+const estado = { tarefa: guarda.ler('gav-agy-tarefa', 'missao'), modo: guarda.ler('gav-agy-modo', 'cli'), campos: guarda.ler('gav-agy-campos', {}) };
+const EXEMPLOS = { cliente: 'ex.: 110. VALTEMIR URCINO', numero: 'ex.: 110', pasta: 'ex.: C:\\Users\\gigica\\Downloads\\CLIENTE 110',
+  advogado: 'ex.: Gilzielle Veloso Pontes', obs: 'Opcional. Ex.: só o contrato da cota 49.' };
+const tarefaAtual = () => CATALOGO.tarefas.find((t) => t.id === estado.tarefa) || CATALOGO.tarefas[0];
+const corDa = (t) => `var(--h${CATALOGO.tarefas.indexOf(t) % 9 + 1})`;
+
+function desenharPauta() {
+  const p = $('pauta'); p.textContent = '';
+  CATALOGO.tarefas.forEach((t) => {
+    const l = document.createElement('label');
+    l.className = 'task' + (t.id === estado.tarefa ? ' sel' : '');
+    l.style.setProperty('--c', corDa(t));
+    l.innerHTML = `<input type="radio" name="tarefa" value="${t.id}" ${t.id === estado.tarefa ? 'checked' : ''}><span class="et"></span><span class="nm"></span><span class="rs"></span>`;
+    l.querySelector('.et').textContent = /^\d+$/.test(t.etapa) ? `Etapa ${t.etapa}` : t.etapa;
+    l.querySelector('.nm').textContent = t.rotulo;
+    l.querySelector('.rs').textContent = t.resumo;
+    l.querySelector('input').addEventListener('change', () => { estado.tarefa = t.id; guarda.gravar('gav-agy-tarefa', t.id); desarmar(); desenharPauta(); desenharFicha(); });
+    p.appendChild(l);
+  });
+}
+
+function desenharFicha() {
+  const t = tarefaAtual();
+  $('ficha').style.setProperty('--c', corDa(t));
+  $('ficha-etapa').textContent = /^\d+$/.test(t.etapa) ? `Etapa ${t.etapa} da esteira` : t.etapa;
+  $('ficha-titulo').textContent = t.rotulo;
+  $('ficha-resumo').textContent = t.resumo;
+  $('retorno-agy').hidden = true; $('retorno-cl').hidden = true;
+  const box = $('campos'); box.textContent = '';
+  if (t.obrigatorios.includes('tipo') && !estado.campos.tipo) estado.campos.tipo = CATALOGO.tipos_peticao[0];
+  for (const nome of [...t.obrigatorios, ...t.opcionais]) {
+    const f = document.createElement('div');
+    f.className = 'field' + (nome === 'obs' || nome === 'pasta' ? ' full' : '');
+    const id = `campo-${nome}`;
+    f.innerHTML = `<label for="${id}">${CATALOGO.campos[nome]}${t.obrigatorios.includes(nome) ? ' <span class="req">*</span>' : ''}</label>`;
+    let el;
+    if (nome === 'tipo') {
+      el = document.createElement('select');
+      for (const op of CATALOGO.tipos_peticao) { const o = document.createElement('option'); o.textContent = op; el.appendChild(o); }
+      el.value = estado.campos.tipo;
+    } else {
+      el = document.createElement(nome === 'obs' ? 'textarea' : 'input');
+      if (el.tagName === 'INPUT') el.type = 'text';
+      el.placeholder = EXEMPLOS[nome] || '';
+      el.value = estado.campos[nome] || '';
+    }
+    el.id = id; el.spellcheck = false;
+    const mudar = () => { estado.campos[nome] = el.value; guarda.gravar('gav-agy-campos', estado.campos); desarmar(); atualizar(); };
+    el.addEventListener('input', mudar); el.addEventListener('change', mudar);
+    f.appendChild(el); box.appendChild(f);
+  }
+  atualizar();
+}
+
+function pedidos() {
+  try {
+    return { ok: true, agy: montarPedido(CATALOGO, estado.tarefa, estado.campos), cl: montarPedidoClaude(CATALOGO, estado.tarefa, estado.campos) };
+  } catch (e) { return { ok: false, erro: e.message }; }
+}
+
+function atualizar() {
+  const p = pedidos();
+  for (const [id, chave] of [['preview-agy', 'agy'], ['preview-cl', 'cl']]) {
+    const pre = $(id); pre.classList.toggle('erro', !p.ok);
+    pre.textContent = p.ok ? p[chave].prompt : `Falta informação: ${p.erro.replace(/^preencha: /, '')}.`;
+  }
+  const token = $('token').value.trim();
+  $('enviar-agy').disabled = !p.ok || !token;
+  $('copiar-cmd').disabled = !p.ok;
+  $('copiar-cl').disabled = !p.ok;
+  $('abrir-sessao').disabled = !p.ok || mcpEstado === 'indisponivel';
+  const chip = $('chip-token');
+  chip.textContent = token ? 'Token salvo' : 'Falta o token';
+  chip.className = 'chip ' + (token ? 'ok' : 'warn');
+  for (const m of ['cli', 'ide']) $(`modo-${m}`).setAttribute('aria-pressed', String(estado.modo === m));
+}
+
+// ---------- área de transferência ----------
+function retorno(alvo, msg, tipo = 'ok', manual = null, link = null) {
+  const r = $(alvo); r.hidden = false; r.textContent = '';
+  const d = document.createElement('div'); d.className = 'toast' + (tipo === 'warn' ? ' warn' : ''); d.textContent = msg;
+  if (link) { const a = document.createElement('a'); a.href = link; a.target = '_blank'; a.rel = 'noopener'; a.textContent = ' Abrir a sessão →'; d.appendChild(a); }
+  r.appendChild(d);
+  if (manual) { const ta = document.createElement('textarea'); ta.className = 'manual'; ta.readOnly = true; ta.value = manual; r.appendChild(ta); ta.focus(); ta.select(); }
+}
+async function copiar(alvo, texto, okMsg) {
+  try { await navigator.clipboard.writeText(texto); retorno(alvo, okMsg); return true; }
+  catch { retorno(alvo, 'O navegador não deixou copiar sozinho. O texto está selecionado abaixo: aperte Ctrl+C.', 'warn', texto); return false; }
+}
+
+// ---------- Antigravity ----------
+function b64url(texto) {
+  let s = ''; for (const b of new TextEncoder().encode(texto)) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+async function assinarPedido(token, corpo) {
+  const b64 = b64url(JSON.stringify(corpo));
+  const chave = await crypto.subtle.importKey('raw', new TextEncoder().encode(token), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig = new Uint8Array(await crypto.subtle.sign('HMAC', chave, new TextEncoder().encode(b64)));
+  return `GAV-AGY1.${b64}.${[...sig].map((b) => b.toString(16).padStart(2, '0')).join('')}`;
+}
+const aspasPS = (v) => `'${String(v).replace(/'/g, "''")}'`;
+function comandoPS(p) {
+  const partes = [`node "$env:USERPROFILE\\gav\\monitor-pje-cloud\\ferramentas\\antigravity\\ponte.mjs" executar --tarefa ${p.tarefa}`];
+  for (const [k, v] of Object.entries(p.campos)) partes.push(`--${k} ${aspasPS(v)}`);
+  if (estado.modo === 'ide') partes.push('--modo ide');
+  return partes.join(' ');
+}
+$('enviar-agy').addEventListener('click', async () => {
+  const p = pedidos(); const token = $('token').value.trim();
+  if (!p.ok || !token) return;
+  if (!globalThis.crypto?.subtle) { retorno('retorno-agy', 'Este navegador não assina pedidos. Use “Copiar comando do PowerShell”.', 'warn'); return; }
+  const nonce = [...crypto.getRandomValues(new Uint8Array(9))].map((b) => b.toString(16).padStart(2, '0')).join('');
+  const texto = await assinarPedido(token, { v: 1, tarefa: p.agy.tarefa, campos: p.agy.campos, modo: estado.modo, ts: Date.now(), nonce });
+  copiar('retorno-agy', texto, `Pedido “${p.agy.rotulo}” copiado. Com o vigia aberto, a janela do Antigravity abre em até 2 segundos.`);
+});
+$('copiar-cmd').addEventListener('click', () => { const p = pedidos(); if (p.ok) copiar('retorno-agy', comandoPS(p.agy), 'Comando copiado. Cole no PowerShell do PC (funciona sem o vigia).'); });
+for (const m of ['cli', 'ide']) $(`modo-${m}`).addEventListener('click', () => { estado.modo = m; guarda.gravar('gav-agy-modo', m); atualizar(); });
+$('token').value = guarda.ler('gav-agy-token', '');
+$('token').addEventListener('input', () => { guarda.gravar('gav-agy-token', $('token').value.trim()); atualizar(); });
+$('ver-token').addEventListener('click', () => { const t = $('token'); t.type = t.type === 'password' ? 'text' : 'password'; });
+for (const b of document.querySelectorAll('[data-copiar]')) b.addEventListener('click', () => copiar('retorno-agy', $(b.dataset.copiar).textContent, 'Copiado. Cole no PowerShell.'));
+
+// ---------- Claude ----------
+let mcp = null, mcpEstado = 'carregando', armado = false, desligarWatch = null;
+$('copiar-cl').addEventListener('click', () => { const p = pedidos(); if (p.ok) copiar('retorno-cl', p.cl.prompt, 'Copiado. Cole na conversa do Claude Code (este chat ou outro).'); });
+
+function desarmar() { armado = false; const b = $('abrir-sessao'); b.classList.remove('confirmar'); b.textContent = 'Abrir sessão nova do Claude'; }
+function msgErro(e, escrita) {
+  switch (e?.code) {
+    case 'server_not_connected': return 'O conector Claude Code Remote não está ligado para você. Ligue em claude.ai → Configurações → Conectores.';
+    case 'needs_reauth': return 'O conector Claude Code Remote precisa ser reconectado em claude.ai → Configurações → Conectores.';
+    case 'not_in_manifest': return 'Este painel não tem permissão para usar o Claude Code. Libere no menu Permissões do artefato.';
+    case 'approval_required': return 'Precisa da sua aprovação: clique de novo e permita quando o claude.ai perguntar.';
+    case 'blocked_by_policy': return 'A política da organização bloqueia esta ação para você.';
+    case 'selection_required': return 'Há mais de um conector com esse nome: escolha um quando o claude.ai perguntar.';
+    case 'tool_error': return `O Claude Code recusou: ${e.message}`;
+    case 'server_unavailable': case 'upstream_error':
+      return escrita ? 'Sem resposta clara do Claude Code. A sessão pode ter sido criada: confira em Sessões recentes antes de tentar de novo.'
+                     : 'O Claude Code não respondeu agora. Tente Atualizar daqui a pouco.';
+    default: return `Não deu certo (${e?.code || 'erro'}): ${e?.message || ''}`;
+  }
+}
+
+function idSessao(payload) {
+  const o = typeof payload === 'object' && payload ? payload : {};
+  const direto = o.ccr?.id || o.id || o.session_id || o.session?.id || o.ccr?.session?.id;
+  if (direto) return direto;
+  const m = JSON.stringify(payload ?? '').match(/session_[A-Za-z0-9]+/);
+  return m ? m[0] : null;
+}
+
+$('abrir-sessao').addEventListener('click', async () => {
+  const p = pedidos(); if (!p.ok || !mcp) return;
+  const b = $('abrir-sessao');
+  if (!armado) { armado = true; b.classList.add('confirmar'); b.textContent = 'Confirmar: abrir a sessão agora'; return; }
+  desarmar(); b.disabled = true; b.textContent = 'Abrindo…';
+  const alvo = p.cl.campos.cliente || p.cl.campos.pasta || p.cl.campos.advogado || '';
+  try {
+    const r = await mcp.callTool(SERVIDOR, 'create_session', {
+      prompt: p.cl.prompt, title: `GAV · ${p.cl.rotulo}${alvo ? ' · ' + alvo : ''}`.slice(0, 200),
+      environment_id: AMBIENTE, source_url: REPO, source_revision: RAMO, tags: ['gav-painel'],
+    }, { cache: false });
+    const id = idSessao(r.payload);
+    retorno('retorno-cl', `Sessão “${p.cl.rotulo}” aberta. O Claude já começou.`, 'ok', null, id ? `https://claude.ai/code/${id}` : null);
+    mcp.invalidate(SERVIDOR, 'list_sessions').catch(() => {});
+  } catch (e) {
+    retorno('retorno-cl', msgErro(e, true), 'warn');
+  } finally { b.disabled = false; b.textContent = 'Abrir sessão nova do Claude'; atualizar(); }
+});
+
+const ESTADOS = {
+  SESSION_STATUS_BUCKET_WORKING: ['Trabalhando', 'trab'], SESSION_STATUS_BUCKET_BLOCKED: ['Precisa de você', 'bloq'],
+  SESSION_STATUS_BUCKET_REVIEW_READY: ['Para revisar', 'ok'], SESSION_STATUS_BUCKET_COMPLETED: ['Concluída', 'ok'],
+  SESSION_STATUS_BUCKET_FAILED: ['Falhou', 'falha'],
+};
+function lerSessoes(payload) {
+  let o = payload;
+  if (typeof o === 'string') { const m = o.match(/\{[\s\S]*\}/); try { o = m ? JSON.parse(m[0]) : {}; } catch { o = {}; } }
+  return o?.ccr?.data || o?.data || o?.sessions || [];
+}
+function desenharSessoes(lista, quando) {
+  const ul = $('sessoes'); ul.textContent = '';
+  if (!lista.length) { ul.innerHTML = '<li class="vazio">Nenhuma sessão ainda.</li>'; return; }
+  for (const s of lista.slice(0, 6)) {
+    const li = document.createElement('li');
+    li.innerHTML = '<div class="t"><a target="_blank" rel="noopener"></a><span class="st"></span></div><div class="r"></div>';
+    const a = li.querySelector('a'); a.href = `https://claude.ai/code/${encodeURIComponent(s.id)}`; a.textContent = s.title || s.id;
+    const [txt, cls] = ESTADOS[s.status_bucket] || [String(s.session_status || '—').replace('SESSION_STATUS_', '').toLowerCase(), 'outro'];
+    const st = li.querySelector('.st'); st.textContent = txt; st.classList.add(cls);
+    li.querySelector('.r').textContent = s.post_turn_summary?.needs_action || s.post_turn_summary?.recent_action || s.task_summary || '';
+    ul.appendChild(li);
+  }
+  $('sessoes-hora').textContent = quando ? `Atualizado às ${new Date(quando).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : '';
+}
+function vigiarSessoes() {
+  if (desligarWatch) desligarWatch();
+  desligarWatch = mcp.watchTool(SERVIDOR, 'list_sessions', { limit: 6, mine: true }, (ev) => {
+    if (ev.type === 'data') desenharSessoes(lerSessoes(ev.result.payload), ev.result.cache?.storedAt || Date.now());
+    else {
+      const autz = ['needs_reauth', 'server_not_connected', 'blocked_by_policy', 'approval_required', 'not_in_manifest'].includes(ev.error.code);
+      if (autz || $('sessoes').querySelector('.vazio')) {
+        $('sessoes').innerHTML = '';
+        const li = document.createElement('li'); li.className = 'vazio';
+        li.textContent = ev.error.code === 'approval_required' ? 'Clique em Atualizar e permita o acesso às suas sessões.' : msgErro(ev.error, false);
+        $('sessoes').appendChild(li);
+      }
+    }
+  }, { refetchInterval: 60000 });
+}
+$('atualizar-sessoes').addEventListener('click', async () => {
+  if (!mcp) return;
+  try { const r = await mcp.callTool(SERVIDOR, 'list_sessions', { limit: 6, mine: true }, { cache: { refresh: true } }); desenharSessoes(lerSessoes(r.payload), Date.now()); }
+  catch (e) { const ul = $('sessoes'); ul.innerHTML = ''; const li = document.createElement('li'); li.className = 'vazio'; li.textContent = msgErro(e, false); ul.appendChild(li); }
+});
+
+(async () => {
+  mcp = window.claude?.use ? await window.claude.use('mcp').catch(() => null) : null;
+  if (!mcp) {
+    mcpEstado = 'indisponivel';
+    $('aviso-sessao').textContent = 'Abrir sessão daqui funciona com o painel aberto no claude.ai. Use “Copiar para colar no chat”.';
+    $('sessoes').innerHTML = '<li class="vazio">As sessões aparecem com o painel aberto no claude.ai.</li>';
+    $('atualizar-sessoes').hidden = true;
+  } else { mcpEstado = 'pronto'; vigiarSessoes(); }
+  atualizar();
+})();
+
+desenharPauta(); desenharFicha();
+</script>

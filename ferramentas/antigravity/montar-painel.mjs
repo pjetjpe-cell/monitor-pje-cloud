@@ -17,9 +17,15 @@ if (sujo) throw new Error('instalar.ps1 tem mudança sem commit: o link do paine
 const url = `https://raw.githubusercontent.com/pjetjpe-cell/monitor-pje-cloud/${sha}/ferramentas/antigravity/instalar.ps1`;
 const catalogo = readFileSync(join(aqui, 'tarefas.json'), 'utf8').trim();
 const nucleo = readFileSync(join(aqui, 'nucleo.mjs'), 'utf8').replace(/^export /gm, '');
-const html = readFileSync(join(aqui, 'painel.fonte.html'), 'utf8')
-  .replace('/*CATALOGO*/null', () => catalogo)
-  .replace('/*NUCLEO*/', () => nucleo)
-  .replaceAll('__INSTALADOR__', url);
-writeFileSync(join(aqui, 'painel.html'), html);
-console.log(`painel.html gerado (instalador ${sha.slice(0, 7)})`);
+const preencher = (h) => h.replace('/*CATALOGO*/null', () => catalogo)
+  .replace('/*NUCLEO*/', () => nucleo).replaceAll('__INSTALADOR__', url);
+const fonte = readFileSync(join(aqui, 'painel.fonte.html'), 'utf8');
+writeFileSync(join(aqui, 'painel.html'), preencher(fonte));
+
+// Central (metade Antigravity, metade Claude): mesma cabeça e mesmo CSS base
+// do painel, mais o corpo próprio.
+const cabeca = fonte.slice(0, fonte.indexOf('<div class="wrap">'))
+  .replace('<title>Painel Antigravity GAV</title>', '<title>Central Antigravity e Claude</title>');
+const corpo = readFileSync(join(aqui, 'central.corpo.html'), 'utf8');
+writeFileSync(join(aqui, 'central.html'), preencher(cabeca + corpo));
+console.log(`painel.html e central.html gerados (instalador ${sha.slice(0, 7)})`);

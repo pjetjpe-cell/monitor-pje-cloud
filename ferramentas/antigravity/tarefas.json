@@ -19,58 +19,146 @@
   ],
   "tarefas": [
     {
-      "id": "missao", "etapa": "Tudo", "rotulo": "Missão completa",
+      "id": "missao",
+      "etapa": "Tudo",
+      "rotulo": "Missão completa",
       "resumo": "WhatsApp → documentos → procuração → petição → distrato → upload → compartilhar, sem pular etapa.",
-      "workflow": "gav-missao", "agente": "gav-orquestrador",
-      "obrigatorios": ["cliente"], "opcionais": ["numero", "obs"]
+      "workflow": "gav-missao",
+      "agente": "gav-orquestrador",
+      "obrigatorios": [
+        "cliente"
+      ],
+      "opcionais": [
+        "numero",
+        "obs"
+      ],
+      "claude": "a skill gav-missao (o orquestrador gav-orquestrador aciona os agentes de cada etapa)"
     },
     {
-      "id": "coletar", "etapa": "1", "rotulo": "Baixar do WhatsApp",
+      "id": "coletar",
+      "etapa": "1",
+      "rotulo": "Baixar do WhatsApp",
       "resumo": "Baixa contrato, procuração assinada e extrato da conversa do cliente, sem escrever nada.",
-      "workflow": "gav-coletar", "agente": "gav-coletor-whatsapp",
-      "obrigatorios": ["cliente"], "opcionais": ["pasta", "obs"]
+      "workflow": "gav-coletar",
+      "agente": "gav-coletor-whatsapp",
+      "obrigatorios": [
+        "cliente"
+      ],
+      "opcionais": [
+        "pasta",
+        "obs"
+      ],
+      "claude": "a skill gav-whatsapp e o agente gav-coletor-whatsapp"
     },
     {
-      "id": "preparar", "etapa": "2", "rotulo": "Preparar documentos",
+      "id": "preparar",
+      "etapa": "2",
+      "rotulo": "Preparar documentos",
       "resumo": "NAO USAR, 01-04, contrato abaixo de 3 MB e RG recortado do contrato.",
-      "workflow": "gav-preparar", "agente": "gav-preparador-documentos",
-      "obrigatorios": ["pasta"], "opcionais": ["cliente", "obs"]
+      "workflow": "gav-preparar",
+      "agente": "gav-preparador-documentos",
+      "obrigatorios": [
+        "pasta"
+      ],
+      "opcionais": [
+        "cliente",
+        "obs"
+      ],
+      "claude": "a skill gav-esteira e o agente gav-preparador-documentos"
     },
     {
-      "id": "procuracao", "etapa": "3", "rotulo": "Alterar procuração",
+      "id": "procuracao",
+      "etapa": "3",
+      "rotulo": "Alterar procuração",
       "resumo": "Tira honorários, percentual e salário mínimo; prova com --verificar.",
-      "workflow": "gav-procuracao", "agente": "gav-procuracao",
-      "obrigatorios": ["pasta"], "opcionais": ["cliente", "obs"]
+      "workflow": "gav-procuracao",
+      "agente": "gav-procuracao",
+      "obrigatorios": [
+        "pasta"
+      ],
+      "opcionais": [
+        "cliente",
+        "obs"
+      ],
+      "claude": "o agente gav-procuracao"
     },
     {
-      "id": "peticao", "etapa": "4", "rotulo": "Gerar petição",
+      "id": "peticao",
+      "etapa": "4",
+      "rotulo": "Gerar petição",
       "resumo": "Peticionador GAV v4: preencher, baixar, salvar em PDF e conferir contra o extrato.",
-      "workflow": "gav-peticao", "agente": "gav-peticionador",
-      "obrigatorios": ["cliente", "tipo"], "opcionais": ["pasta", "obs"]
+      "workflow": "gav-peticao",
+      "agente": "gav-peticionador",
+      "obrigatorios": [
+        "cliente",
+        "tipo"
+      ],
+      "opcionais": [
+        "pasta",
+        "obs"
+      ],
+      "claude": "a skill gav-peticao e o agente gav-peticionador"
     },
     {
-      "id": "notificar", "etapa": "5", "rotulo": "Notificar distrato à GAV",
+      "id": "notificar",
+      "etapa": "5",
+      "rotulo": "Notificar distrato à GAV",
       "resumo": "Rascunho no Gmail da Di PALLACIO; só envia com o seu \"pode enviar\".",
-      "workflow": "gav-notificar", "agente": "gav-notificador-distrato",
-      "obrigatorios": ["cliente"], "opcionais": ["pasta", "obs"]
+      "workflow": "gav-notificar",
+      "agente": "gav-notificador-distrato",
+      "obrigatorios": [
+        "cliente"
+      ],
+      "opcionais": [
+        "pasta",
+        "obs"
+      ],
+      "claude": "o agente gav-notificador-distrato"
     },
     {
-      "id": "publicar", "etapa": "6", "rotulo": "Organizar, subir e compartilhar",
+      "id": "publicar",
+      "etapa": "6",
+      "rotulo": "Organizar, subir e compartilhar",
       "resumo": "Nome no padrão, upload para CLIENTES e compartilhamento só com a pasta completa.",
-      "workflow": "gav-publicar", "agente": "gav-drive-publicador",
-      "obrigatorios": ["pasta"], "opcionais": ["cliente", "obs"]
+      "workflow": "gav-publicar",
+      "agente": "gav-drive-publicador",
+      "obrigatorios": [
+        "pasta"
+      ],
+      "opcionais": [
+        "cliente",
+        "obs"
+      ],
+      "claude": "o agente gav-drive-publicador"
     },
     {
-      "id": "conferir", "etapa": "Conferência", "rotulo": "Conferir pasta pronta",
+      "id": "conferir",
+      "etapa": "Conferência",
+      "rotulo": "Conferir pasta pronta",
       "resumo": "Só leitura: roda gav.pasta e o --verificar da procuração e mostra o resultado.",
-      "workflow": "gav-conferir", "agente": "gav-drive-publicador",
-      "obrigatorios": ["pasta"], "opcionais": ["obs"]
+      "workflow": "gav-conferir",
+      "agente": "gav-drive-publicador",
+      "obrigatorios": [
+        "pasta"
+      ],
+      "opcionais": [
+        "obs"
+      ],
+      "claude": "o agente gav-drive-publicador só para conferir (gav.pasta e --verificar), sem alterar nada"
     },
     {
-      "id": "pje", "etapa": "Consulta", "rotulo": "Consultar processos no PJe",
+      "id": "pje",
+      "etapa": "Consulta",
+      "rotulo": "Consultar processos no PJe",
       "resumo": "PJe/TJPE por advogado, Ipojuca, última movimentação. Só leitura.",
-      "workflow": "pje-consulta", "agente": null,
-      "obrigatorios": [], "opcionais": ["advogado", "obs"]
+      "workflow": "pje-consulta",
+      "agente": null,
+      "obrigatorios": [],
+      "opcionais": [
+        "advogado",
+        "obs"
+      ],
+      "claude": "a skill pje-consulta (só leitura)"
     }
   ]
 }
