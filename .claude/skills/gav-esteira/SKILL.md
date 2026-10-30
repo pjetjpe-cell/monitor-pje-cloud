@@ -11,6 +11,26 @@ o meio salário mínimo ainda visíveis — o arquivo "01 - PROCURAÇÃO" era c�
 renomeada do original, não uma versão limpa. Cada trava aqui corresponde a um
 erro que já aconteceu.
 
+## Fluxo oficial (vídeos de 30/10/2026)
+
+O passo a passo do escritório está em **`references/fluxo-video.md`** — leia
+antes de qualquer etapa. Resumo, na ordem das etapas do dossiê:
+
+| Etapa | O que é | Agente |
+|---|---|---|
+| `localizar` | achar o cliente; baixar do WhatsApp para `Downloads\CLIENTE XXX` | `gav-coletor-whatsapp` |
+| `renomear` / `nao_usar` | `NAO USAR` com originais; nomes `01 PROCURAÇÃO`, `02 RG`, `03 EXTRATO DE PAGAMENTOS`, `04 CONTRATO` | `gav-preparador-documentos` |
+| `contrato` / `identidade` | contrato < 3 MB; `02 RG` das pp. 33-36 (< 3 MB) | `gav-preparador-documentos` |
+| `procuracao` | tirar honorários/percentual/SM e **conferir** (`--verificar`) | `gav-procuracao` |
+| `peticao` | Peticionador GAV v4 → `Petição Inicial — NOME.pdf` | `gav-peticionador` |
+| `email_gav` | notificação de distrato + `08 NOTIFICAÇÃO EXTRAJUDICIAL.pdf` | `gav-notificador-distrato` |
+| `organizar` / `upload` / `compartilhar` | pasta `NNN. NOME XX COTA PP% R$ VALOR`, subir em CLIENTES, compartilhar com a equipe | `gav-drive-publicador` |
+
+O agente **`gav-orquestrador`** conduz tudo: lê o dossiê, acorda o agente da
+próxima etapa liberada e só avança com evidência. A pasta **só é compartilhada
+completa**, com a notificação de distrato dentro (`python3 -m gav.pasta --para
+compartilhar` — a etapa `compartilhar` depende de `email_gav`).
+
 ## As três regras
 
 **Não pule.** Cada etapa declara de quais depende. O `dossie.json` guarda o
@@ -138,7 +158,7 @@ demais.
 
 ```bash
 python3 -m gav.procuracao "NÃO USAR/Procuracao_..._assinado.pdf" \
-  "PASTA_INTERNA/01 - PROCURAÇÃO - PRIMEIRONOME.pdf" \
+  "PASTA_INTERNA/01 PROCURAÇÃO.pdf" \
   --manifesto "NÃO USAR/manifesto-procuracao.json"
 ```
 
@@ -159,12 +179,12 @@ python3 -m gav.drive_io cabe --bytes <fileSize que o Drive informou>
 
 ```bash
 python3 -m gav.compressao "NÃO USAR/contrato-original.pdf" \
-  "PASTA_INTERNA/04.1 - CONTRATO.pdf" --alvo-mb 3 --dividir-se-nao-couber \
+  "PASTA_INTERNA/04 CONTRATO.pdf" --alvo-mb 3 --dividir-se-nao-couber \
   --manifesto "NÃO USAR/manifesto-contrato.json"
 ```
 
 Busca o degrau mais leve que couber, em vez de aplicar uma taxa fixa. Se nem o
-máximo couber, divide em `04.1 - CONTRATO PARTE 1-3.pdf` etc. Confere página e
+máximo couber, divide em `04 CONTRATO PARTE 1-3.pdf` etc. Confere página e
 texto: reprova se perder qualquer um. **Preserva a camada de texto** — só
 recomprime as imagens.
 
@@ -207,10 +227,10 @@ O RG fica por volta da página 33, às vezes 34 ou 35. Entra escaneado — o tex
 está nos pixels, então a ferramenta roda OCR.
 
 ```bash
-python3 -m gav.identidade "PASTA_INTERNA/03 - DOC - IDENTIFICAÇÃO - NOME.pdf" \
-  --contrato "PASTA_INTERNA/04.1 - CONTRATO PARTE 1-3.pdf" \
-  --contrato "PASTA_INTERNA/04.1 - CONTRATO PARTE 2-3.pdf" \
-  --contrato "PASTA_INTERNA/04.1 - CONTRATO PARTE 3-3.pdf" \
+python3 -m gav.identidade "PASTA_INTERNA/02 RG.pdf" \
+  --contrato "PASTA_INTERNA/04 CONTRATO PARTE 1-3.pdf" \
+  --contrato "PASTA_INTERNA/04 CONTRATO PARTE 2-3.pdf" \
+  --contrato "PASTA_INTERNA/04 CONTRATO PARTE 3-3.pdf" \
   --manifesto "NÃO USAR/manifesto-rg.json"
 ```
 
@@ -247,12 +267,26 @@ sai do dossiê, com fonte. Falta algum: pergunte. Não escreva "Venda 00000".
 **Crie como rascunho e mostre ao usuário antes de enviar.** E-mail para a parte
 contrária não se desfaz.
 
-Depois de enviado, salve o PDF do e-mail como `08 - NOTIFICAÇÃO EXTRAJUDICIAL -
-NOME.pdf` na pasta interna.
+Depois de enviado, salve o PDF do e-mail como `08 NOTIFICAÇÃO EXTRAJUDICIAL.pdf` na pasta interna.
 
 ## Etapa 8 — Petição
 
-Use a skill `gav-peticao`. Ela depende das etapas 4, 6 e 7 concluídas.
+Use a skill `gav-peticao` (Peticionador GAV v4 — vídeo 6). Depende de
+`procuracao` e `identidade`. Leia o PDF gerado antes de aceitar: nome/CPF do
+contrato, data com mês, valor da causa = RECEBIDO.
+
+## Etapas 9-11 — Organizar, subir e compartilhar
+
+Detalhe em `references/fluxo-video.md` (vídeos 7, 8 e 9).
+
+- `organizar`: pasta interna e externa com o mesmo nome
+  `NNN. NOME XX COTA PP% R$ VALOR`; dentro, 01-04 + petição (+ 08 depois).
+  `python3 -m gav.pasta --dir "<interna>" --para upload` tem de aprovar.
+- `upload`: Drive DI PALLACIO → PROCESSOS DISTRATO → CLIENTES → Upload de pasta.
+  Confira listando a pasta no Drive e rodando `gav.pasta --lista`.
+- `compartilhar`: só com `gav.pasta --para compartilhar` APROVADO.
+  atuacaoadv@gmail.com e copa2026adv@gmail.com, **Editor**, mensagem
+  "PETICIONAR INICIAL". Peça o "pode compartilhar" antes.
 
 ## Ao terminar
 

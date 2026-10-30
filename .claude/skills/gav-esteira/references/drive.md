@@ -10,80 +10,51 @@ Fora do escopo: `1ws13n0Jc5c2iX_0TSEMLun2xn08EUemD` e as demais pastas de
 processos já protocolados ou antigos. Não buscar, não ler, não mexer — nome
 parecido lá é outro cliente/caso.
 
-## Padrão do nome
+## Padrão do nome (vídeos de 30/10/2026)
 
 ```
-NN. [EMPREENDIMENTO -] NOME - XX COTA(S) - PP% - R$ VALOR [- Nº PROCESSO]
+NNN. NOME XX COTA(S) PP% R$ VALOR [- Nº PROCESSO]
 ```
 
-Nomes reais, com as variações que existem hoje:
+Exemplos do padrão atual em CLIENTES: `110. VALTEMIR URCINO 01 COTA 18% R$ 13.507,38`,
+`109. VANESSA 01 COTA 18% R$ 34.733,81`, `108. VALTEMIR 04 COTAS 18% R$ 54.029,52`.
+Empreendimento **não** entra no nome (vai na descrição da pasta). VALOR = RECEBIDO
+do extrato (soma das cotas do distrato). Pastas mais antigas usam outras formas
+(com hífens, com empreendimento); `gav.nomes.analisar()` lê todas e
+`formatar()` devolve o padrão atual. Campo ausente vira `None` e entra em
+`observacoes` — nunca é preenchido por palpite.
 
-| Nome no Drive | Observação |
-|---|---|
-| `92. KAREN CARDOSO VENTURATO - 01 COTA - 18% - R$ 17.418,84` | forma canônica |
-| `91. ARIEL ANTEBI - 06 COTAS - JERIQUIÁ LAGOA - 18% - R$ 152.652,45` | empreendimento fora de ordem |
-| `83. JANICE BRUTTI - 01 COTA R$ 29.883,63 - 0003701-68.2026.8.17.2730` | sem hífen antes do R$, sem % |
-| `79. PORTO 2 LIFE - LUIZ PAULO 30% R$ 29.316,28 1 COTA - 0003460-94...` | ordem embaralhada |
-| `10. PITANGUI - FILLIPE E PAULA - 02 COTAS - 20% - R$ 66.415,56` | dois titulares |
-
-`gav.nomes.analisar()` lê todas por extração de padrão, não por posição. Campo
-ausente vira `None` e entra em `observacoes` — nunca é preenchido por palpite.
-
-**Números repetidos existem.** Três pastas começam com `83.` (JANICE, MIRIAN,
-DANILO) e duas com `02.`. Buscar por número acha a pasta errada; busque por nome
-e, se voltar mais de uma, pergunte.
+**Números repetidos existem** (três `83.`, duas `02.`). Busque por nome dentro
+de CLIENTES e, se voltar mais de uma, pergunte. Número novo = próximo livre na
+listagem de CLIENTES.
 
 ## Árvore de cada cliente
 
 ```
-83. JANICE BRUTTI - 01 COTA - R$ 29.883,63 - 0003701-68.2026.8.17.2730/
-├── 83. JANICE BRUTTI - 01 COTA - R$ 29.883,63/      ← peticionar
-│   ├── 01 - PROCURAÇÃO - JANICE.pdf                  ← LIMPA
-│   ├── 02 EXTRATO DE COTA.pdf
-│   ├── 03 - DOC - IDENTIFICAÇÃO - JANICE.pdf         ← RG das pp. 33-35
-│   ├── 04.1 - CONTRATO PARTE 1-3.pdf                 ← cada parte < 3 MB
-│   ├── 04.1 - CONTRATO PARTE 2-3.pdf
-│   ├── 04.1 - CONTRATO PARTE 3-3.pdf
-│   ├── 06. CARTEIRA DE TRABALHO.pdf                  ← justiça gratuita
-│   ├── 07 - COMPROVANTE DE RESIDÊNCIA.pdf
-│   ├── 08 - NOTIFICAÇÃO EXTRAJUDICIAL - JANICE.pdf   ← PDF do e-mail à GAV
-│   └── Petição Inicial — J. B.pdf
-└── NÃO USAR/                                         ← originais, fora dos autos
-    ├── Procuracao_Interativa_JANICE_BRUTTI_Cliente_193_2026_assinado.pdf
-    ├── extrato-5.pdf
-    └── manifesto-*.json                              ← trilha do que foi feito
+110. VALTEMIR URCINO 01 COTA 18% R$ 13.507,38/               ← externa
+├── 110. VALTEMIR URCINO 01 COTA 18% R$ 13.507,38/           ← interna (peticionar)
+│   ├── 01 PROCURAÇÃO.pdf              ← já alterada e conferida (--verificar)
+│   ├── 02 RG.pdf                      ← pp. 33-36 do contrato, < 3 MB
+│   ├── 03 EXTRATO DE PAGAMENTOS.jpeg  ← ou .pdf
+│   ├── 04 CONTRATO.pdf                ← < 3 MB (ou 04 CONTRATO PARTE 1-N)
+│   ├── Petição Inicial — NOME.pdf
+│   └── 08 NOTIFICAÇÃO EXTRAJUDICIAL.pdf   ← impressão do e-mail enviado
+└── NAO USAR/                                                ← originais
 ```
 
-## Duas numerações em uso — confira antes de renomear
+`06 CARTEIRA DE TRABALHO` e `07 COMPROVANTE DE RESIDÊNCIA` quando houver.
+**05 não existe** — precisando de outro documento, pergunte como nomear.
 
-Há duas convenções vivas no Drive, e elas **se contradizem**: o 05 é comprovante
-de residência numa e o 07 é na outra.
+## Numeração anterior (não usar em pasta nova)
 
-| Nº | Oficial (JANICE, cliente 193) | Outra em uso (AYRES, KAREN) |
-|---|---|---|
-| 01 | Procuração | Procuração |
-| 02 | Extrato de cota | **Doc identificação** |
-| 03 | **Doc identificação** | Histórico de pagamentos (03.1, 03.2 por cota) |
-| 04 | Contrato (04.1 PARTE 1-N) | Contrato por componente (04.1.1 quadro-resumo, 04.1.2 termo de verificação, 04.1.3 normas gerais, 04.1.4 regulamento) |
-| 05 | *(não existe)* | **Comprovante de residência** |
-| 06 | Carteira de trabalho | Notificação extrajudicial |
-| 07 | **Comprovante de residência** | — |
-| 08 | Notificação extrajudicial | — |
-
-**A oficial é a da JANICE** — é a que `gav.nomes.DOCUMENTOS` implementa.
-
-O **05 não existe** nela. Não invente rótulo para tapar o buraco: precisando de
-um documento entre o contrato e a carteira de trabalho, pergunte como nomear.
-`nome_documento("05", ...)` levanta erro de propósito.
-
-Abrindo uma pasta que segue a outra numeração (Ayres, Karen, Nilton, Sibely,
-Camila, Debora, Monique, Roberio, Thiago), **avise o usuário antes de renumerar**.
-Renumerar mexe em pasta que pode já estar peticionada, e o 02 de uma é o 03 da
-outra — trocar em silêncio embaralha a instrução do processo.
+Pastas antigas seguem a numeração da JANICE (02 extrato, 03 doc. identificação,
+04.1 contrato) ou a do AYRES/KAREN (02 identificação, 03 histórico, 05
+comprovante). Ao reorganizar uma delas, **avise antes de renumerar** — pode já
+estar peticionada.
 
 ## Divisão do contrato
 
-Por **tamanho**, em `04.1 - CONTRATO PARTE 1-N.pdf`, cada parte abaixo de 3 MB.
+Por **tamanho**, em `04 CONTRATO PARTE 1-N.pdf`, cada parte abaixo de 3 MB.
 A divisão por componente que aparece nas pastas do Pitangui (quadro-resumo,
 termo de verificação, normas gerais, regulamento) é feita à mão quando o
 contrato já vem separado pela GAV — a esteira não tenta reconhecer seções.

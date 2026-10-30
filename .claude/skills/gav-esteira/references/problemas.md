@@ -46,7 +46,7 @@ costuma cair na PARTE 2 ou 3.
 ## "não coube em 3 MB nem no degrau máximo"
 
 Contrato muito escaneado. Use `--dividir-se-nao-couber`: gera
-`04.1 - CONTRATO PARTE 1-N.pdf`. Não baixe o alvo abaixo de 3 MB para forçar —
+`04 CONTRATO PARTE 1-N.pdf`. Não baixe o alvo abaixo de 3 MB para forçar —
 o contrato é prova e precisa continuar legível.
 
 ## Dois clientes com o mesmo número de pasta

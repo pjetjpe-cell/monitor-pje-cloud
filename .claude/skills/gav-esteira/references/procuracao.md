@@ -65,3 +65,24 @@ cliente — e não de conteúdo do mandato.
 Se o juízo ou a parte contrária pedir a procuração integral, entregue o original
 da `NÃO USAR`. A versão limpa é para instruir a inicial, não para negar que o
 contrato de honorários existe.
+
+## Modo do vídeo 05 — cobrir o quadro e imprimir em PDF
+
+O escritório altera a procuração no Firefox: recorta um pedaço **vazio do fundo**
+(Ferramenta de Captura), cola como imagem por cima do quadro de honorários
+(percentual, "honorário de êxito", salário mínimo, entrada), redimensiona e
+**Imprime → Salvar como PDF** sobre `01 PROCURAÇÃO`. Na procuração interativa
+Di PALLACIO o alvo é o quadro do percentual (página 1); as declarações seguem
+como estão.
+
+Seja qual for o modo, a etapa só fica `ok` com:
+
+```bash
+python3 -m gav.procuracao "01 PROCURAÇÃO.pdf" --verificar
+```
+
+Lê o texto — ou faz **OCR** quando o PDF é imagem — e reprova se sobrar
+percentual (18%, 23 %...), "por cento", salário mínimo, "2/3", "(0,5 SM)";
+reprova também se sumir outorgante, CPF/RG, poderes ou OAB. Colar a imagem e
+salvar o PDF **sem imprimir** deixa o texto por baixo: a conferência pega.
+"100% online" não é honorário e não reprova.

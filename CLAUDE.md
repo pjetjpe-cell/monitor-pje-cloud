@@ -31,6 +31,11 @@ Este projeto inclui 10 skills especializadas. Use `/nome-da-skill` para invocar:
 | `/gav-whatsapp` | Baixa os documentos do cliente no WhatsApp Web e arquiva no Drive |
 | `/gav-peticao` | Monta a inicial pelo PREENCHEDOR DE PETIÇÃO INTERATIVO |
 | `/pje-consulta` | Consulta os processos no PJe/TJPE por advogado e diz se estão atualizados (última movimentação) |
+| `/gav-missao` | Missão completa de um cliente (WhatsApp → pasta → procuração → petição → distrato → upload → compartilhar), ou uma etapa, acionando os agentes |
+
+Agentes (`.claude/agents/`): `gav-orquestrador` (conduz e confere), `gav-coletor-whatsapp`,
+`gav-preparador-documentos`, `gav-procuracao`, `gav-peticionador`, `gav-notificador-distrato`,
+`gav-drive-publicador`. Passo a passo oficial: `.claude/skills/gav-esteira/references/fluxo-video.md`.
 
 As três se apoiam nos CLIs de `ferramentas/` (ver `ferramentas/README.md`), que
 fazem o trabalho mecânico de forma determinística e **conferem o resultado**

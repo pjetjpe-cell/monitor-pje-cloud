@@ -187,13 +187,13 @@ def comprimir(
     if not resultado["atingiu_alvo"]:
         resultado["aviso"] = (
             f"não coube em {alvo_mb} MB nem no degrau máximo (ficou em {mb_depois:.2f} MB). "
-            "Divida o contrato em partes (04.1 - CONTRATO PARTE 1-3.pdf etc.)."
+            "Divida o contrato em partes (04 CONTRATO PARTE 1-3.pdf etc.)."
         )
     return resultado
 
 
 def dividir(entrada: str | Path, saida_dir: str | Path, alvo_mb: float = 3.0,
-            prefixo: str = "04.1 - CONTRATO PARTE") -> list[dict[str, Any]]:
+            prefixo: str = "04 CONTRATO PARTE") -> list[dict[str, Any]]:
     """Divide o PDF em partes que caibam no alvo, seguindo o padrão do escritório.
 
     Só entra em cena quando nem o degrau máximo resolve."""

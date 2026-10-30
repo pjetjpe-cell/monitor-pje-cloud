@@ -17,6 +17,37 @@ peça o manifesto de volta. Não finja que baixou.
 
 Nenhuma credencial passa pelo script: a sessão é a que o usuário já abriu.
 
+## Rodando da nuvem pelo Desktop Commander (o caso normal)
+
+Validado em 30/10/2026 no computador do escritório (`DESKTOP-TO80D26`, usuário
+`gigica`, pasta `C:\Users\gigica\gav-whatsapp` com Node e `playwright`).
+
+1. `list_devices` → precisa estar **Online**. Offline: peça ao usuário rodar
+   `npx @wonderwhy-er/desktop-commander@latest remote` e deixar a janela aberta.
+2. `curl.exe -s http://127.0.0.1:9222/json` (start_process) → precisa listar uma
+   aba `web.whatsapp.com`. Nada: o Chrome não está com a porta de depuração
+   (comando do "Preparo"). Desde o Chrome 136 a porta só funciona com
+   `--user-data-dir` próprio — o WhatsApp do Chrome do dia a dia não serve.
+3. Atualize o script pelo commit (o CDN do GitHub segura cache do branch):
+   `curl.exe -s -L -o baixar.mjs "https://raw.githubusercontent.com/pjetjpe-cell/monitor-pje-cloud/<SHA>/ferramentas/whatsapp/baixar.mjs"`
+   e confira o tamanho em bytes contra o do repositório. Idem `conversas.mjs`.
+4. Nome exato: `node conversas.mjs "Petrus"` — conversas são renomeadas
+   (ex.: "GAV Falta Gabriel Rocha (Washington)" → "GAV Gabriel VALTEMIR (Washington)").
+5. `node baixar.mjs --contato "<título exato>" --simular`, depois com
+   `--destino "C:\Users\gigica\Downloads\CLIENTE XXX\NAO USAR" --manifesto ...`.
+   Processos longos: leia a saída com `read_process_output` aos poucos ou grave
+   com `| Tee-Object log.txt`.
+6. Arquivos repetidos (cliente reenviou): compare `Get-FileHash` e fique com um.
+
+O que o layout de 2026 mudou (já tratado no script): busca é `<input>`; PDF
+abre num **visualizador** com botões "Baixar"/"Fechar" (Esc não fecha); a lista
+de mensagens é **virtualizada** (coleta enquanto rola e reencontra pelo
+`data-id`); conectado por CDP, o download vem por `Browser.setDownloadBehavior`
+e é devolvido ao padrão no fim; mídia antiga mostra **"Documento indisponível"**
+— o script pula e registra.
+
+**Responder ao cliente:** só rascunho, o usuário envia. O script não digita.
+
 ## Preparo, uma vez só
 
 O Chrome precisa estar aberto com a porta de depuração. **Feche o Chrome antes**
@@ -62,7 +93,8 @@ node ferramentas/whatsapp/baixar.mjs \
 ```
 
 Documento vindo do cliente é **original**: entra na `NÃO USAR` e de lá sai a
-versão de trabalho, já renomeada, para a pasta de peticionamento. Nunca baixe
+versão de trabalho, já renomeada (`01 PROCURAÇÃO`, `03 EXTRATO DE PAGAMENTOS`,
+`04 CONTRATO` — ver `gav-esteira/references/fluxo-video.md`). Nunca baixe
 direto na pasta que vai instruir a inicial.
 
 **4. Classifique com o usuário.** O WhatsApp entrega `documento-1.pdf`,

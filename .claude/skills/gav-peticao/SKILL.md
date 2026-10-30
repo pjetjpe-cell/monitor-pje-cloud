@@ -1,15 +1,47 @@
 ---
 name: gav-peticao
-description: Monta a petição inicial de distrato de multipropriedade GAV a partir do dossiê do cliente, usando o artefato PREENCHEDOR DE PETIÇÃO INTERATIVO. Escolhe a variante conforme o caso — advogado constituído, justiça gratuita ou só o pedido de suspensão/parcelamento. Use quando o usuário disser "faz a petição do [cliente]", "monta a inicial", "peticionador", "preenchedor de petição", ou pedir a inicial depois de organizar a pasta.
+description: Monta petições GAV (inicial, inicial cota quitada, réplica, petições avulsas, cumprimento de sentença) pelo Peticionador GAV v4 / PREENCHEDOR DE PETIÇÃO INTERATIVO, a partir do dossiê e dos documentos da pasta do cliente. Escolhe a variante conforme o caso — advogado constituído, justiça gratuita ou só o pedido de suspensão/parcelamento. Use quando o usuário disser "faz a petição do [cliente]", "monta a inicial", "peticionador", "preenchedor de petição", ou pedir a inicial depois de organizar a pasta.
 ---
 
 # Petição inicial — distrato GAV
 
 Fecha a esteira: pega o dossiê montado pela `gav-esteira` e produz a inicial.
 
+## Caminho oficial — Peticionador GAV v4 (vídeo 6, 30/10/2026)
+
+claude.ai → projeto **PROCESSOS MULTIPROPRIEDADE** → conversa **"2 PREENCHEDOR
+DE PETIÇÃO INTERATIVA"** → artefato **"Peticionador gav v4"**. Abas: Petição
+Inicial · Réplica à Contestação · Petições Avulsas · Cumprimento de Sentença ·
+**Inicial Cota Quitada** · Réplica Cota Quitada — escolha a aba pelo caso
+(cota quitada tem aba própria).
+
+1. **Preencher com IA** → anexar `03 EXTRATO DE PAGAMENTOS` (e contrato/procuração
+   se a aba pedir). Ou "Extração local (offline, por regras)".
+2. Conferir cada campo com o documento: tipo de petição (ex.: Parcelamento de
+   Custas, nº de parcelas), gênero do(a) autor(a), 2º autor(a), advogado
+   (padrão **Gilzielle Veloso Pontes**), data da petição, empreendimento(s),
+   fundamentos especiais (Bloco 6 inoperante, casos análogos, grupo econômico...),
+   preliminares (valor da causa, papel branco, eleição de foro), **preço total
+   contratado** e **total pago = valor da causa** (RECEBIDO do extrato).
+3. **Baixar HTML (standalone)** → abrir no Chrome → Imprimir → Salvar como PDF →
+   **`Petição Inicial — NOME COMPLETO.pdf`** na pasta interna.
+
+**Conferência antes de aceitar** (o agente lê o PDF; não confia na tela):
+- nome e CPF iguais aos do contrato — no vídeo o arquivo saiu "VALTER UCINO"
+  para VALTEMIR URCINO;
+- data com dia, **mês** e ano — saiu "Ipojuca, 30 de 2026";
+- valor da causa = RECEBIDO do `03 EXTRATO`; preço contratado = contrato;
+- nenhum `[___]`/`⚡` sobrando, exceto o número da vara ("AO JUÍZO DA ___ VARA");
+- réu/CNPJ do empreendimento certo (Porto 2 Life: GAV MURO ALTO 2, 39.673.888/0001-69).
+
+Se o Peticionador não estiver acessível (outra sessão, sem login), use o
+fluxo abaixo com o PREENCHEDOR e a skill `preenchedor-peticoes-gav`, ou gere a
+peça no chat — sempre com a mesma conferência.
+
 ## Pré-requisitos — não contorne
 
-A petição depende de três etapas concluídas:
+A petição depende de duas etapas concluídas (a notificação à GAV pode vir
+depois, mas a pasta **não é compartilhada** sem ela — etapa `compartilhar`):
 
 ```bash
 python3 -m gav.esteira checar --dossie d.json --etapa peticao
@@ -17,12 +49,12 @@ python3 -m gav.esteira checar --dossie d.json --etapa peticao
 
 - **procuração limpa** (etapa 4) — instrui a inicial;
 - **documento de identificação** (etapa 6) — qualificação;
-- **notificação à GAV** (etapa 7) — prova da tentativa extrajudicial, que
-  sustenta o interesse de agir e a mora.
+- a **notificação à GAV** não trava a geração da petição, mas a peça cita a
+  tentativa extrajudicial: confirme que o e-mail foi (ou será) enviado antes de
+  protocolar.
 
-Bloqueou? Volte e conclua. Peticionar sem a notificação enfraquece o pedido;
-peticionar com a procuração suja entrega o percentual de honorários à parte
-contrária.
+Bloqueou? Volte e conclua. Peticionar com a procuração suja entrega o
+percentual de honorários à parte contrária.
 
 ## Passo 1 — Qual variante
 
@@ -105,7 +137,7 @@ Antes de dar a inicial por pronta:
 O último item é o erro que já aconteceu. Confira o arquivo, não o nome dele:
 
 ```bash
-python3 -m gav.procuracao "01 - PROCURAÇÃO - NOME.pdf" /dev/null --conferir
+python3 -m gav.procuracao "01 PROCURAÇÃO.pdf" --verificar
 ```
 
 Se **achar** cláusula de honorários, esse arquivo é o original — a etapa 4 não
