@@ -36,6 +36,8 @@ Este projeto inclui 10 skills especializadas. Use `/nome-da-skill` para invocar:
 Agentes (`.claude/agents/`): `gav-orquestrador` (conduz e confere), `gav-coletor-whatsapp`,
 `gav-preparador-documentos`, `gav-procuracao`, `gav-peticionador`, `gav-notificador-distrato`,
 `gav-drive-publicador`. Passo a passo oficial: `.claude/skills/gav-esteira/references/fluxo-video.md`.
+Executor alternativo no PC do escritório: **Antigravity** (`.agent/rules` e
+`.agent/workflows/gav-*.md`; guia em `.claude/skills/gav-esteira/references/antigravity.md`).
 
 As três se apoiam nos CLIs de `ferramentas/` (ver `ferramentas/README.md`), que
 fazem o trabalho mecânico de forma determinística e **conferem o resultado**

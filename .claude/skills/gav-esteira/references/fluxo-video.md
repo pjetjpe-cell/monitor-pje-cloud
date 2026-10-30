@@ -134,6 +134,8 @@ Rascunho no Gmail (dipallacio@gmail.com) → `contato@gavresorts.com.br`
 Só envia com o "pode enviar" do usuário. Depois: Gmail → Enviados → abrir →
 Imprimir tudo → Salvar como PDF → **`08 NOTIFICAÇÃO EXTRAJUDICIAL`** na pasta
 interna.
+As pastas 108 e 109 (feitas à mão) usam **`05 - NOTIFICAÇÃO ...`**; o `gav.pasta`
+aceita 05 ou 08 até o escritório fixar um número.
 
 ## 8. Subir a pasta (vídeo 8)
 

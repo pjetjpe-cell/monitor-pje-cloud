@@ -196,29 +196,39 @@ def dividir(entrada: str | Path, saida_dir: str | Path, alvo_mb: float = 3.0,
             prefixo: str = "04 CONTRATO PARTE") -> list[dict[str, Any]]:
     """Divide o PDF em partes que caibam no alvo, seguindo o padrão do escritório.
 
-    Só entra em cena quando nem o degrau máximo resolve."""
+    Passe o ORIGINAL: a divisão não recomprime nada (sem perda). Se alguma parte
+    passar do alvo, aumenta o número de partes e refaz; confere cada parte e a
+    soma das páginas antes de devolver."""
     entrada, saida_dir = Path(entrada), Path(saida_dir)
     saida_dir.mkdir(parents=True, exist_ok=True)
     doc = pymupdf.open(entrada)
     total = doc.page_count
-    mb = tamanho_mb(entrada)
-    n_partes = max(2, int(mb / alvo_mb) + 1)
+    n_partes = max(2, int(tamanho_mb(entrada) / alvo_mb) + 1)
     por_parte = -(-total // n_partes)  # teto
 
-    partes: list[dict[str, Any]] = []
-    for i in range(n_partes):
-        inicio, fim = i * por_parte, min((i + 1) * por_parte, total) - 1
-        if inicio > fim:
+    while True:
+        n_real = -(-total // por_parte)
+        partes: list[dict[str, Any]] = []
+        for i in range(n_real):
+            inicio, fim = i * por_parte, min((i + 1) * por_parte, total) - 1
+            parte = pymupdf.open()
+            parte.insert_pdf(doc, from_page=inicio, to_page=fim)
+            destino = saida_dir / f"{prefixo} {i + 1}-{n_real}.pdf"
+            parte.save(destino, garbage=4, deflate=True, clean=True)
+            parte.close()
+            partes.append({
+                "arquivo": str(destino), "paginas": f"{inicio + 1}-{fim + 1}",
+                "mb": round(tamanho_mb(destino), 3),
+            })
+        if all(p["mb"] <= alvo_mb for p in partes):
             break
-        parte = pymupdf.open()
-        parte.insert_pdf(doc, from_page=inicio, to_page=fim)
-        destino = saida_dir / f"{prefixo} {i + 1}-{n_partes}.pdf"
-        parte.save(destino, garbage=4, deflate=True, clean=True)
-        parte.close()
-        partes.append({
-            "arquivo": str(destino), "paginas": f"{inicio + 1}-{fim + 1}",
-            "mb": round(tamanho_mb(destino), 3),
-        })
+        for p in partes:
+            Path(p["arquivo"]).unlink(missing_ok=True)
+        if por_parte == 1:
+            doc.close()
+            raise VerificacaoFalhou(
+                f"há página que sozinha passa de {alvo_mb} MB: comprima antes de dividir.")
+        por_parte -= 1  # sempre diminui: o laço termina em 1 página por parte
     doc.close()
 
     somadas = sum(int(p["paginas"].split("-")[1]) - int(p["paginas"].split("-")[0]) + 1 for p in partes)
@@ -254,7 +264,22 @@ def main(argv: list[str] | None = None) -> int:
     if not rel.get("atingiu_alvo", True):
         print(f"  AVISO: {rel['aviso']}")
         if args.dividir_se_nao_couber:
-            partes = dividir(args.saida, Path(args.saida).parent, alvo_mb=args.alvo_mb)
+            # Divide o ORIGINAL (sem perda) e tira o comprimido que não coube,
+            # para não ficar um "04 CONTRATO" acima de 3 MB ao lado das partes.
+            # Se nem página a página o original cabe, divide o comprimido (avisa).
+            try:
+                partes = dividir(args.entrada, Path(args.saida).parent, alvo_mb=args.alvo_mb)
+                rel["divisao"] = "original, sem perda"
+            except VerificacaoFalhou:
+                try:
+                    partes = dividir(args.saida, Path(args.saida).parent, alvo_mb=args.alvo_mb)
+                    rel["divisao"] = f"comprimido no degrau '{rel['degrau']}' (página do original passa de {args.alvo_mb} MB sozinha)"
+                except VerificacaoFalhou as e:
+                    print(f"REPROVADO: {e}", file=sys.stderr)
+                    return 2
+            print(f"  divisão: {rel['divisao']}")
+            if Path(args.saida).resolve() != Path(args.entrada).resolve():
+                Path(args.saida).unlink(missing_ok=True)
             rel["partes"] = partes
             print(f"  dividido em {len(partes)} partes:")
             for p in partes:

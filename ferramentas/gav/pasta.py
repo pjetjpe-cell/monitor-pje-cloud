@@ -31,10 +31,29 @@ def _chave(nome: str) -> str:
     return sem_acento(nome).upper().strip()
 
 
-def _item(arquivos: list[dict], prefixo: str, exts: tuple[str, ...]) -> list[dict]:
-    alvo = _chave(prefixo)
+def _chave_flex(nome: str) -> str:
+    """Chave tolerante às variações reais das pastas 108/109: '01 - PROCURAÇÃO
+    - VANESSA', '03 EXTRATO DE PAGAMENTO .pdf', '4.1 CONTRATO ...'."""
+    k = re.sub(r"[-–—_]+", " ", _chave(nome))
+    return re.sub(r"\s+", " ", k).strip()
+
+
+# Cada documento exigido e o padrão que o reconhece (sobre _chave_flex).
+PADROES = {
+    "01 PROCURAÇÃO": r"^0?1 PROCURACAO",
+    "02 RG": r"^0?2 (RG|DOC|DOCUMENTO|IDENTIDADE|IDENTIFICACAO|CNH)",
+    "03 EXTRATO DE PAGAMENTOS": r"^0?3 EXTRATO",
+    "04 CONTRATO": r"^0?4(\.\d+)? CONTRATO",
+    "NOTIFICAÇÃO (05 ou 08)": r"^0?[58] NOTIFICACAO",
+    PREFIXO_PETICAO.strip(): r"^PETICAO INICIAL",
+}
+CONHECIDOS = r"^(0?[1-8](\.\d+)? |PETICAO INICIAL)"
+
+
+def _item(arquivos: list[dict], rotulo: str, exts: tuple[str, ...]) -> list[dict]:
+    padrao = PADROES[rotulo]
     return [a for a in arquivos
-            if _chave(a["nome"]).startswith(alvo) and a["nome"].lower().endswith(exts)]
+            if re.match(padrao, _chave_flex(a["nome"])) and a["nome"].lower().endswith(exts)]
 
 
 def conferir(nome_pasta: str, arquivos: list[dict], para: str,
@@ -58,7 +77,7 @@ def conferir(nome_pasta: str, arquivos: list[dict], para: str,
         (PREFIXO_PETICAO.strip(), EXT_DOC),
     ]
     if para == "compartilhar":
-        exigidos.append(("08 NOTIFICAÇÃO EXTRAJUDICIAL", EXT_DOC))
+        exigidos.append(("NOTIFICAÇÃO (05 ou 08)", EXT_DOC))
     for prefixo, exts in exigidos:
         if not _item(arquivos, prefixo, exts):
             faltas.append(f"falta '{prefixo}' ({'/'.join(exts)})")
@@ -82,11 +101,10 @@ def conferir(nome_pasta: str, arquivos: list[dict], para: str,
     if para in ("upload", "compartilhar") and tem_nao_usar is False:
         faltas.append("falta a pasta NAO USAR com os originais")
 
-    conhecidos = ("01 ", "02 ", "03 ", "04 ", "06 ", "07 ", "08 ", _chave(PREFIXO_PETICAO)[:15])
     for a in arquivos:
         if a.get("bytes") is not None and a["bytes"] > LIMITE_PJE:
             grandes.append(f"{a['nome']} tem {a['bytes'] / 1048576:.1f} MB (> 3 MB): comprimir ou dividir")
-        if not _chave(a["nome"]).startswith(conhecidos):
+        if not re.match(CONHECIDOS, _chave_flex(a["nome"])):
             avisos.append(f"arquivo fora da numeração: {a['nome']}")
 
     ok = not faltas and not grandes

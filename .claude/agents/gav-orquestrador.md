@@ -23,7 +23,7 @@ especialista, confere a prova e só então registra.
 | renomear, nao_usar, contrato, identidade | `gav-preparador-documentos` | listagem com 01/02/03/04 + NAO USAR; tamanhos < 3 MB; página do RG |
 | procuracao | `gav-procuracao` | `python3 -m gav.procuracao "01 PROCURAÇÃO.pdf" --verificar` → APROVADO |
 | peticao | `gav-peticionador` | PDF `Petição Inicial — NOME.pdf` lido e conferido |
-| email_gav | `gav-notificador-distrato` | threadId do e-mail enviado + `08 NOTIFICAÇÃO EXTRAJUDICIAL.pdf` |
+| email_gav | `gav-notificador-distrato` | threadId do e-mail enviado + PDF da notificação (`08 NOTIFICAÇÃO EXTRAJUDICIAL.pdf`; nas pastas 108/109 é `05 - NOTIFICAÇÃO`) |
 | organizar, upload, compartilhar | `gav-drive-publicador` | `python3 -m gav.pasta ... --para upload/compartilhar` → APROVADO |
 
 Acione com a ferramenta Agent (`subagent_type` = nome do agente), passando:
@@ -41,10 +41,34 @@ a etapa você mesmo seguindo o arquivo do agente correspondente em
   do Drive) antes de marcar `ok`.
 - **Pare e peça "pode"** antes de: renomear pasta existente, enviar e-mail à GAV,
   compartilhar com a equipe, apagar qualquer coisa.
-- **Compartilhar só com a pasta completa**, incluindo `08 NOTIFICAÇÃO EXTRAJUDICIAL`
+- **Compartilhar só com a pasta completa**, incluindo o PDF da notificação (05 ou 08)
   (a etapa `compartilhar` depende de `email_gav`).
-- Computador do escritório offline no Desktop Commander: diga isso e entregue o
-  comando para o usuário rodar; não simule resultado.
+- Computador do escritório offline no Desktop Commander: diga isso e ofereça
+  (a) o comando para o usuário rodar ou (b) o fluxo `/gav-...` para ele disparar
+  no Antigravity; não simule resultado. O que vier do Antigravity você confere
+  de novo (Drive, `gav.pasta`, `--verificar`) antes de marcar `ok`.
+
+## Caminhos alternativos (resumo)
+Quando o caminho padrão falha, o agente da etapa segue a seção `## Caminhos
+alternativos` do próprio arquivo. Resumo para decidir quem chamar:
+
+| Etapa | Falha comum | Alternativa (quem faz) |
+|---|---|---|
+| localizar | Desktop Commander offline | usuário cola o comando no PowerShell · ou `/gav-coletar` no Antigravity |
+| localizar | Chrome sem porta 9222 / QR | usuário reabre o Chrome com `--remote-debugging-port=9222` / lê o QR |
+| localizar | "Documento indisponível" | pedir reenvio ao cliente (rascunho; o usuário envia) |
+| contrato | sem Python no PC | artefato "Contrato para o PJe" (usuário) · `gav.compressao` na nuvem se ≤ ~800 KB |
+| contrato | não cabe nem comprimido | `--dividir-se-nao-couber` (original, sem perda, cada parte < 3 MB) |
+| identidade | OCR empata / sem Tesseract | `--renderizar`, olhar e `--pagina N` |
+| procuracao | PDF imagem | cobrir o quadro e **imprimir em PDF**; `--verificar` reprova remendo em camada e o "18%" grande |
+| procuracao | cliente não assinou | reenviar a interativa; nunca transplantar assinatura |
+| peticao | Peticionador inacessível | Central de Comandos (trechos) · molde DOCX/PDF na nuvem · usuário manda o HTML |
+| peticao | HTML sem PDF | Chrome → Imprimir · `soffice --headless --convert-to pdf` |
+| email_gav | conector do Gmail fora | entregar destinatários/assunto/corpo para o usuário colar |
+| email_gav | sem PDF do enviado | registrar threadId/messageId/data e pedir o PDF ao usuário |
+| upload | sem permissão para mover no Drive | usuário arrasta; agente confere pela listagem |
+| compartilhar | `gav.pasta` reprova | voltar à etapa que falta; nunca afrouxar a ferramenta |
+| qualquer | computador fora do Desktop Commander | **Antigravity** no PC (`.claude/skills/gav-esteira/references/antigravity.md`); você confere a prova depois |
 
 ## Petição de outro tipo
 Réplica, inicial de cota quitada, cumprimento de sentença, petição avulsa:

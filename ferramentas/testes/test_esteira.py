@@ -266,7 +266,8 @@ def test_divisao_nao_perde_pagina(tmp: Path):
     partes = compressao.dividir(tmp / "04.1 - CONTRATO.pdf", tmp / "partes2", alvo_mb=1.0)
     somadas = sum(pymupdf.open(p["arquivo"]).page_count for p in partes)
     assert somadas == total, f"{total} páginas viraram {somadas}"
-    _verde(f"divisão preserva as {total} páginas")
+    assert all(p["mb"] <= 1.0 for p in partes), partes
+    _verde(f"divisão preserva as {total} páginas e cada parte cabe no alvo")
 
 
 # --------------------------------------------------------------------------
@@ -356,7 +357,7 @@ def test_pasta_completa_e_limite_de_3mb(tmp: Path):
             {"nome": "Petição Inicial — VALTEMIR URCINO.pdf", "bytes": 380_000}]
     r = pasta.conferir(nome, arqs, "compartilhar", tem_nao_usar=True)
     assert not r["aprovado"]
-    assert any("08 NOTIFICA" in f for f in r["faltas"]), r
+    assert any("NOTIFICA" in f for f in r["faltas"]), r
     assert any("02 RG" in g for g in r["acima_de_3mb"]), r
     arqs[1]["bytes"] = 900_000
     arqs.append({"nome": "08 NOTIFICAÇÃO EXTRAJUDICIAL.pdf", "bytes": 120_000})
@@ -367,6 +368,29 @@ def test_pasta_completa_e_limite_de_3mb(tmp: Path):
     r = pasta.conferir(nome, partes, "upload", tem_nao_usar=True)
     assert any("PARTE 2-3" in f for f in r["faltas"]), r
     _verde("pasta: barra sem notificação, acima de 3 MB e com parte faltando")
+
+
+def test_pasta_aceita_os_nomes_reais_108_109():
+    """Nomes como estão no Drive em 30/10/2026 (pastas 108 e 109)."""
+    from gav import pasta
+    v109 = [{"nome": "01 - PROCURAÇÃO - VANESSA.pdf", "bytes": 400_000},
+            {"nome": "02 - RG - VANESSA.pdf", "bytes": 300_000},
+            {"nome": "03 - EXTRATO DE PAGAMENTO .pdf", "bytes": 200_000},
+            {"nome": "04 - CONTRATO PORTO2LIFE.pdf", "bytes": 2_000_000},
+            {"nome": "05 - NOTIFICAÇÃO DISTRATO E-mail enviado à GAV 30-10-2026.pdf", "bytes": 90_000},
+            {"nome": "Petição Inicial — VANESSA.pdf", "bytes": 300_000}]
+    r = pasta.conferir("109. VANESSA 01 COTA 20% R$ 10.000,00", v109, "compartilhar", True)
+    assert r["aprovado"] and not r["avisos"], r
+    v108 = [{"nome": "01 PROCURAÇÃO - VALTEMIR.pdf", "bytes": 400_000},
+            {"nome": "02 DOC IDENTIFICAÇÃO VALT.pdf", "bytes": 300_000},
+            {"nome": "03 EXTRATO DE PAGAMENTOS - OK .pdf", "bytes": 200_000},
+            {"nome": "4.1 CONTRATO cota 12.pdf", "bytes": 1_000_000},
+            {"nome": "4.2 CONTRATO cota 20.pdf", "bytes": 1_000_000},
+            {"nome": "05 NOTIFICAÇÃO.pdf", "bytes": 90_000},
+            {"nome": "Petição Inicial — VALTEMIR URCINO (de Washington).pdf", "bytes": 300_000}]
+    r = pasta.conferir("108. VALTEMIR 04 COTAS 18% R$ 50.000,00", v108, "compartilhar", True)
+    assert r["aprovado"] and not r["avisos"], r
+    _verde("pasta: aceita hífen, sufixo do cliente, 4.x e notificação 05 (pastas 108/109)")
 
 
 def test_procuracao_alterada_confere_ate_imagem(tmp: Path):
@@ -434,6 +458,7 @@ def principal() -> int:
         ("fluxo dos vídeos", [test_nome_no_padrao_dos_videos,
                               test_compartilhar_exige_notificacao_enviada,
                               test_pasta_completa_e_limite_de_3mb,
+                              test_pasta_aceita_os_nomes_reais_108_109,
                               test_procuracao_alterada_confere_ate_imagem]),
     ]
     try:

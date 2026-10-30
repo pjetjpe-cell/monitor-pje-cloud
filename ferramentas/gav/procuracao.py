@@ -423,23 +423,48 @@ def _texto_com_ocr(caminho: str | Path) -> tuple[str, str]:
     if len(texto.strip()) < 300:
         partes = []
         for p in doc:
-            try:
-                tp = p.get_textpage_ocr(language="por", dpi=200, full=True)
-            except Exception as e:  # tesseract ausente
-                doc.close()
-                raise VerificacaoFalhou(
-                    "o PDF é imagem e não há OCR disponível para conferi-lo "
-                    f"({e}). Instale tesseract-ocr + tesseract-ocr-por; não aprove sem ler."
-                ) from e
-            partes.append(p.get_text(textpage=tp))
+            # Duas leituras: 200 dpi pega o texto miúdo; 100 dpi pega o número
+            # grande e isolado do quadro (o "18%" que a de 200 não vê).
+            for dpi in (200, 100):
+                try:
+                    tp = p.get_textpage_ocr(language="por", dpi=dpi, full=True)
+                except Exception as e:  # tesseract ausente
+                    doc.close()
+                    raise VerificacaoFalhou(
+                        "o PDF é imagem e não há OCR disponível para conferi-lo "
+                        f"({e}). Instale tesseract-ocr + tesseract-ocr-por; não aprove sem ler."
+                    ) from e
+                partes.append(p.get_text(textpage=tp))
         texto, origem = "\n".join(partes), "ocr"
     doc.close()
     return texto, origem
 
 
+def _camadas(caminho: str | Path) -> list[str]:
+    """Remendo colado por cima sem 'imprimir em PDF' deixa a página original
+    inteira dentro do arquivo: imagens sobrepostas ou anotações (o editor do
+    Firefox grava o recorte como carimbo)."""
+    problemas = []
+    doc = pymupdf.open(caminho)
+    for p in doc:
+        if any(True for _ in p.annots()):
+            problemas.append(f"p.{p.number + 1}: anotação sobre a página")
+        caixas = [r for img in p.get_images(full=True) for r in p.get_image_rects(img[0])]
+        if any(a.intersects(b) for i, a in enumerate(caixas) for b in caixas[i + 1:]):
+            problemas.append(f"p.{p.number + 1}: imagem colada sobre outra imagem")
+    doc.close()
+    return problemas
+
+
 def verificar_alterada(caminho: str | Path) -> dict[str, Any]:
     """Prova que a procuração alterada não traz mais condição econômica e
     continua sendo uma procuração (outorgante, documento, poderes, OAB)."""
+    camadas = _camadas(caminho)
+    if camadas:
+        raise VerificacaoFalhou(
+            "o remendo está em camada e o original continua no arquivo ("
+            + "; ".join(camadas) + "). Imprima → Salvar como PDF e confira de novo."
+        )
     texto, origem = _texto_com_ocr(caminho)
     norm = _normalizar(texto)
     achados = []
