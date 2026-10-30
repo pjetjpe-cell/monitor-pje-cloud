@@ -22,7 +22,18 @@ segundo a documentação do Google ainda leem `.agent/`. **Não testado no PC do
 escritório.** Se os comandos não aparecerem ao digitar `/`, copie a pasta para
 `.agents/`.
 
-## Montar no PC (uma vez; precisa do "pode" para instalar)
+## Painel visual + vigia (comandar pelo artefato)
+O usuário trabalha no **Painel Antigravity GAV** (artefato) e o programa roda no
+CLI do PC. Detalhes e segurança: `ferramentas/antigravity/README.md`.
+1. Primeira vez: no PowerShell do PC, o comando `irm .../instalar.ps1 | iex`
+   mostrado no painel (baixa a esteira para `C:\Users\gigica\gav\monitor-pje-cloud`,
+   oferece instalar o `agy`, cria o atalho **GAV Antigravity**, mostra o token).
+2. `agy` uma vez para entrar com a conta Google.
+3. Todo dia: duplo clique em **GAV Antigravity** (acorda o vigia).
+4. No painel: token colado uma vez → escolher tarefa → **Enviar ao Antigravity**.
+Sem vigia: botão "Copiar comando do PowerShell" (`node ponte.mjs executar ...`).
+
+## Montar no PC à mão (alternativa ao instalar.ps1)
 1. Instalar o Antigravity e abrir a pasta do repositório clonado
    (`git clone https://github.com/pjetjpe-cell/monitor-pje-cloud`).
 2. Python 3 com `pip install pymupdf`. OCR: Tesseract com o idioma `por`.
