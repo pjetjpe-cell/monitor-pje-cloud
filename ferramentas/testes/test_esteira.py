@@ -317,6 +317,87 @@ def test_base64_truncado_e_reprovado(tmp: Path):
 # Original preservado
 # --------------------------------------------------------------------------
 
+
+# --------------------------------------------------------------------------
+# Fluxo dos vídeos de 30/10/2026
+# --------------------------------------------------------------------------
+
+def test_nome_no_padrao_dos_videos():
+    r = nomes.normalizar("105. PORTO 2 LIFE - RODOLFO VELOSO DE ARAUJO FILHO - 01 COTA - 28% - R$ 45.916,87")
+    assert r["nome_externo"] == "105. RODOLFO VELOSO DE ARAUJO FILHO 01 COTA 28% R$ 45.916,87", r
+    assert nomes.normalizar("110. VALTEMIR URCINO 01 COTA 18% R$ 13.507,38")["precisa_renomear"] is False
+    assert nomes.nome_documento("02") == "02 RG.pdf"
+    assert nomes.nome_documento("03", extensao=".jpeg") == "03 EXTRATO DE PAGAMENTOS.jpeg"
+    _verde("nome da pasta e dos documentos no padrão dos vídeos")
+
+
+def test_compartilhar_exige_notificacao_enviada():
+    d = Dossie(tempfile.mktemp(suffix=".json"))
+    for etapa in ["localizar", "renomear", "nao_usar", "procuracao", "contrato",
+                  "identidade", "peticao", "organizar", "upload"]:
+        d.registrar(etapa, "ok", evidencias={"x": "y"})
+    try:
+        d.exigir("compartilhar")
+        raise AssertionError("deixou compartilhar sem a notificação de distrato")
+    except EtapaBloqueada as e:
+        assert "email_gav" in str(e)
+    d.registrar("email_gav", "ok", evidencias={"pdf": "08 NOTIFICAÇÃO EXTRAJUDICIAL.pdf"})
+    d.exigir("compartilhar")
+    _verde("compartilhar só libera depois da notificação de distrato")
+
+
+def test_pasta_completa_e_limite_de_3mb(tmp: Path):
+    from gav import pasta
+    nome = "110. VALTEMIR URCINO 01 COTA 18% R$ 13.507,38"
+    arqs = [{"nome": "01 PROCURAÇÃO.pdf", "bytes": 1_000_000},
+            {"nome": "02 RG.pdf", "bytes": 6_700_000},
+            {"nome": "03 EXTRATO DE PAGAMENTOS.jpeg", "bytes": 190_000},
+            {"nome": "04 CONTRATO.pdf", "bytes": 1_500_000},
+            {"nome": "Petição Inicial — VALTEMIR URCINO.pdf", "bytes": 380_000}]
+    r = pasta.conferir(nome, arqs, "compartilhar", tem_nao_usar=True)
+    assert not r["aprovado"]
+    assert any("08 NOTIFICA" in f for f in r["faltas"]), r
+    assert any("02 RG" in g for g in r["acima_de_3mb"]), r
+    arqs[1]["bytes"] = 900_000
+    arqs.append({"nome": "08 NOTIFICAÇÃO EXTRAJUDICIAL.pdf", "bytes": 120_000})
+    assert pasta.conferir(nome, arqs, "compartilhar", tem_nao_usar=True)["aprovado"]
+    partes = [a for a in arqs if not a["nome"].startswith("04")] + [
+        {"nome": "04 CONTRATO PARTE 1-3.pdf", "bytes": 2_000_000},
+        {"nome": "04 CONTRATO PARTE 3-3.pdf", "bytes": 2_000_000}]
+    r = pasta.conferir(nome, partes, "upload", tem_nao_usar=True)
+    assert any("PARTE 2-3" in f for f in r["faltas"]), r
+    _verde("pasta: barra sem notificação, acima de 3 MB e com parte faltando")
+
+
+def test_procuracao_alterada_confere_ate_imagem(tmp: Path):
+    """Procuração impressa como imagem (vídeo 5): sem honorários passa, com reprova."""
+    def pagina(caminho, com_honorarios):
+        doc = pymupdf.open()
+        p = doc.new_page()
+        linhas = ["PROCURACAO - INSTRUMENTO PARTICULAR", "OUTORGANTE: MARIA EXEMPLO  CPF: 000.000.000-00",
+                  "OUTORGADOS: Gilzielle Veloso Pontes OAB/PE 55.134", "PODERES CONFERIDOS",
+                  "I - JUDICIAIS (AD JUDICIA): representar em qualquer juizo.",
+                  "Processo e atendimento 100% online."]
+        if com_honorarios:
+            linhas.insert(3, "18% DEZOITO POR CENTO - HONORARIO DE EXITO; 2/3 de salario minimo")
+        y = 80
+        for l in linhas:
+            p.insert_text((50, y), l, fontsize=13); y += 30
+        pix = p.get_pixmap(dpi=200)
+        img = pymupdf.open()
+        q = img.new_page(width=p.rect.width, height=p.rect.height)
+        q.insert_image(q.rect, pixmap=pix)          # vira imagem, como a impressão do Firefox
+        img.save(caminho)
+    limpa, suja = tmp / "limpa.pdf", tmp / "suja.pdf"
+    pagina(limpa, False); pagina(suja, True)
+    assert procuracao.verificar_alterada(limpa)["lido_por"] == "ocr"
+    try:
+        procuracao.verificar_alterada(suja)
+        raise AssertionError("aprovou procuração com honorários")
+    except VerificacaoFalhou:
+        pass
+    _verde("procuração alterada: OCR aprova a limpa e reprova a com honorários")
+
 def test_original_nunca_e_sobrescrito(tmp: Path):
     nao_usar = tmp / "NÃO USAR"
     origem = tmp / "assinada.pdf"
@@ -350,6 +431,10 @@ def principal() -> int:
         ("ponte com o Drive", [test_teto_de_transporte_pelo_mcp,
                                test_base64_truncado_e_reprovado]),
         ("originais", [test_original_nunca_e_sobrescrito]),
+        ("fluxo dos vídeos", [test_nome_no_padrao_dos_videos,
+                              test_compartilhar_exige_notificacao_enviada,
+                              test_pasta_completa_e_limite_de_3mb,
+                              test_procuracao_alterada_confere_ate_imagem]),
     ]
     try:
         for grupo, funcoes in testes:

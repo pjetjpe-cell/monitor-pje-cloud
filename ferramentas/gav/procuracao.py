@@ -392,6 +392,76 @@ def conferir(
 
 
 # --------------------------------------------------------------------------
+# Conferência de procuração já alterada (fluxo do vídeo 5)
+# --------------------------------------------------------------------------
+
+# No fluxo dos vídeos a procuração é alterada à mão: cobre-se o quadro de
+# honorários com um recorte do fundo e imprime-se em PDF. O que importa é o
+# resultado — e o resultado se confere aqui, venha de onde vier. O PDF impresso
+# pelo Firefox costuma sair como imagem; sem texto, a conferência lê por OCR.
+# Sem texto e sem OCR, recusa: "não achei nada" não prova que está limpo.
+PROIBIDOS_ALTERADA = [
+    ("percentual", r"(?<![\d.,])\d{1,2}(?:[.,]\d+)?\s?%"),   # 18%, 23 % (não pega 100%)
+    ("por_extenso", r"por cento"),
+    ("salario_minimo", r"salario[s]? minimo"),
+    ("sigla_sm", r"\(\s*\d+(?:[,/.]\d+)?\s*sm\s*\)|\b\d+(?:[,/]\d+)?\s*sm\b"),
+    ("dois_tercos", r"dois tercos|\b2/3\b"),
+    ("meio_sm", r"meio salario"),
+]
+SENTINELAS_ALTERADA = [
+    ("outorgante", r"outorgante"),
+    ("documento", r"\bcpf\b|\brg\b"),
+    ("poderes", r"poderes conferidos|ad judicia"),
+    ("oab", r"oab/?\s*[a-z]{2}"),
+]
+
+
+def _texto_com_ocr(caminho: str | Path) -> tuple[str, str]:
+    doc = pymupdf.open(caminho)
+    texto = "\n".join(p.get_text() for p in doc)
+    origem = "texto"
+    if len(texto.strip()) < 300:
+        partes = []
+        for p in doc:
+            try:
+                tp = p.get_textpage_ocr(language="por", dpi=200, full=True)
+            except Exception as e:  # tesseract ausente
+                doc.close()
+                raise VerificacaoFalhou(
+                    "o PDF é imagem e não há OCR disponível para conferi-lo "
+                    f"({e}). Instale tesseract-ocr + tesseract-ocr-por; não aprove sem ler."
+                ) from e
+            partes.append(p.get_text(textpage=tp))
+        texto, origem = "\n".join(partes), "ocr"
+    doc.close()
+    return texto, origem
+
+
+def verificar_alterada(caminho: str | Path) -> dict[str, Any]:
+    """Prova que a procuração alterada não traz mais condição econômica e
+    continua sendo uma procuração (outorgante, documento, poderes, OAB)."""
+    texto, origem = _texto_com_ocr(caminho)
+    norm = _normalizar(texto)
+    achados = []
+    for nome, padrao in PROIBIDOS_ALTERADA:
+        m = re.search(padrao, norm)
+        if m:
+            achados.append({"alvo": nome, "trecho": norm[max(0, m.start() - 30):m.end() + 30]})
+    faltando = [n for n, pad in SENTINELAS_ALTERADA if not re.search(pad, norm)]
+    if achados:
+        raise VerificacaoFalhou(
+            "a procuração ainda mostra condição econômica: "
+            + "; ".join(f"{a['alvo']} ({a['trecho']!r})" for a in achados)
+        )
+    if faltando:
+        raise VerificacaoFalhou(
+            "a procuração perdeu conteúdo essencial (ou o OCR não leu): " + ", ".join(faltando)
+        )
+    return {"arquivo": str(caminho), "lido_por": origem, "limpa": True,
+            "sentinelas": [n for n, _ in SENTINELAS_ALTERADA]}
+
+
+# --------------------------------------------------------------------------
 # CLI
 # --------------------------------------------------------------------------
 
@@ -401,7 +471,7 @@ def main(argv: list[str] | None = None) -> int:
         description="Limpa honorários/percentual/0,5 SM da procuração assinada.",
     )
     ap.add_argument("entrada", help="PDF da procuração assinada (original)")
-    ap.add_argument("saida", help="PDF limpo a gerar")
+    ap.add_argument("saida", nargs="?", help="PDF limpo a gerar (dispensado com --verificar)")
     ap.add_argument("--fundo", default="auto", choices=["auto", "amostrar", "nenhum"],
                     help="auto/nenhum: só apaga os glifos e preserva o fundo original "
                          "(recomendado). amostrar: pinta a cor predominante por cima.")
@@ -410,7 +480,19 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--conferir", action="store_true",
                     help="apenas lista o que seria removido, sem gravar nada")
     ap.add_argument("--manifesto", help="grava o relatório da limpeza neste JSON")
+    ap.add_argument("--verificar", action="store_true",
+                    help="só confere uma procuração JÁ alterada (fluxo do vídeo 5), com OCR se for imagem")
     args = ap.parse_args(argv)
+    if args.verificar:
+        try:
+            r = verificar_alterada(args.entrada)
+        except VerificacaoFalhou as e:
+            print(f"REPROVADO: {e}")
+            return 1
+        print(f"APROVADO: procuração sem condição econômica (lida por {r['lido_por']})")
+        return 0
+    if not args.saida:
+        ap.error("informe a saída, ou use --verificar")
 
     if args.conferir:
         doc = pymupdf.open(args.entrada)

@@ -43,37 +43,50 @@ class VerificacaoFalhou(ErroEsteira):
 # --------------------------------------------------------------------------
 
 ETAPAS: dict[str, dict[str, Any]] = {
+    # Fluxo oficial dos vídeos de 30/10/2026 (references/fluxo-video.md).
     "localizar": {
-        "titulo": "Localizar o cliente no Drive",
+        "titulo": "Localizar o cliente e reunir os documentos (Drive ou conversa do WhatsApp)",
         "depende": [],
     },
     "renomear": {
-        "titulo": "Normalizar o nome da pasta e criar a subpasta de peticionamento",
+        "titulo": "Montar a pasta de trabalho e dar os nomes 01-04 aos documentos",
         "depende": ["localizar"],
     },
     "nao_usar": {
-        "titulo": "Criar/normalizar a pasta NÃO USAR e recolher os originais",
+        "titulo": "Criar a pasta NÃO USAR e guardar nela os originais",
         "depende": ["renomear"],
     },
     "procuracao": {
-        "titulo": "Limpar a procuração assinada (honorários / percentual / 0,5 SM)",
+        "titulo": "Alterar a procuração: tirar honorários, percentual e salário mínimo",
         "depende": ["nao_usar"],
     },
     "contrato": {
-        "titulo": "Comprimir o contrato para menos de 3 MB",
+        "titulo": "Comprimir o contrato (cada arquivo < 3 MB)",
         "depende": ["renomear"],
     },
     "identidade": {
-        "titulo": "Extrair o documento de identificação (pp. 33-35 do contrato)",
+        "titulo": "Gerar o 02 RG a partir das pp. 33-36 do contrato",
         "depende": ["contrato"],
     },
+    "peticao": {
+        "titulo": "Gerar a petição pelo Peticionador GAV v4 e salvar em PDF",
+        "depende": ["procuracao", "identidade"],
+    },
     "email_gav": {
-        "titulo": "Enviar a notificação extrajudicial de distrato à GAV",
+        "titulo": "Enviar a notificação de distrato à GAV e salvar o PDF do e-mail enviado",
         "depende": ["procuracao"],
     },
-    "peticao": {
-        "titulo": "Montar a petição inicial",
-        "depende": ["procuracao", "identidade", "email_gav"],
+    "organizar": {
+        "titulo": "Fechar a pasta NNN. NOME XX COTA PP% R$ VALOR com tudo dentro",
+        "depende": ["peticao"],
+    },
+    "upload": {
+        "titulo": "Subir a pasta para PROCESSOS DISTRATO / CLIENTES no Drive",
+        "depende": ["organizar"],
+    },
+    "compartilhar": {
+        "titulo": "Compartilhar com a equipe (PETICIONAR INICIAL) — só com a pasta completa",
+        "depende": ["upload", "email_gav"],
     },
 }
 

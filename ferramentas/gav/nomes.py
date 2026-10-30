@@ -129,26 +129,24 @@ def analisar(nome: str) -> PastaCliente:
 
 
 def formatar(p: PastaCliente, incluir_processo: bool = True) -> str:
-    """Monta o nome canônico com o que existe. Não preenche buraco com palpite."""
+    """Nome canônico no padrão dos vídeos de 30/10/2026:
+    'NNN. NOME XX COTA(S) PP% R$ VALOR' (+ ' - Nº PROCESSO' na externa).
+    Empreendimento não entra no nome (fica na descrição da pasta).
+    Não preenche buraco com palpite: campo ausente simplesmente não aparece."""
     partes: list[str] = []
     if p.numero is not None:
         partes.append(f"{p.numero:02d}.")
-    if p.empreendimento:
-        partes.append(f"{p.empreendimento} -")
     if p.cliente:
         partes.append(p.cliente)
-    cauda: list[str] = []
     if p.cotas is not None:
-        cauda.append(f"{p.cotas:02d} {'COTAS' if p.cotas > 1 else 'COTA'}")
+        partes.append(f"{p.cotas:02d} {'COTAS' if p.cotas > 1 else 'COTA'}")
     if p.percentual is not None:
-        cauda.append(f"{p.percentual}%")
+        partes.append(f"{p.percentual}%")
     if p.valor:
-        cauda.append(f"R$ {p.valor}")
-    if incluir_processo and p.processo:
-        cauda.append(p.processo)
+        partes.append(f"R$ {p.valor}")
     nome = " ".join(partes)
-    if cauda:
-        nome = f"{nome} - {' - '.join(cauda)}" if nome else " - ".join(cauda)
+    if incluir_processo and p.processo:
+        nome = f"{nome} - {p.processo}"
     return re.sub(r"\s+", " ", nome).strip()
 
 
@@ -180,30 +178,30 @@ def estrutura_esperada(nome_externo: str, nome_interno: str) -> dict[str, Any]:
     }
 
 
-# Numeração dos documentos na pasta de peticionamento.
+# Numeração dos documentos na pasta de peticionamento — a dos vídeos de
+# 30/10/2026 (CLIENTE XXX → 110. VALTEMIR URCINO), que substitui a da JANICE.
+# Nome do arquivo é só o código e o rótulo: "01 PROCURAÇÃO.pdf".
 #
-# Esta é a numeração da pasta da cliente 193 (JANICE), confirmada como a
-# oficial. Existe outra em uso no Drive — a do AYRES e da KAREN, em que 02 é o
-# documento de identificação, 03 o histórico de pagamentos e 05 o comprovante de
-# residência. São incompatíveis: 05 é comprovante de residência lá e 07 aqui.
-# Ao organizar uma pasta que siga a outra, avise o usuário antes de renumerar.
-#
-# O 05 está deliberadamente ausente. Nenhuma pasta nesta numeração tem um, e não
-# se inventa um rótulo para tapar buraco: precisando de um documento entre o
-# contrato e a carteira de trabalho, pergunte ao usuário como nomear.
+# 05 continua deliberadamente ausente: não se inventa rótulo para tapar buraco.
+# 06-08 vêm da numeração anterior e não aparecem nos vídeos; se a pasta pedir
+# outro documento, pergunte ao usuário como nomear.
 DOCUMENTOS = [
-    ("01", "PROCURAÇÃO", "procuração limpa (sem honorários/percentual/0,5 SM)"),
-    ("02", "EXTRATO DE COTA", "extrato da cota enviado pela GAV"),
-    ("03", "DOC - IDENTIFICAÇÃO", "RG/CNH extraído do contrato (pp. 33-35)"),
-    ("04.1", "CONTRATO", "contrato dividido por tamanho: PARTE 1-N, cada uma <3 MB"),
+    ("01", "PROCURAÇÃO", "procuração assinada já alterada (sem honorários/percentual/SM)"),
+    ("02", "RG", "documento de identificação recortado do contrato (pp. 33-36)"),
+    ("03", "EXTRATO DE PAGAMENTOS", "extrato/print dos pagamentos da cota"),
+    ("04", "CONTRATO", "contrato comprimido; se não couber em 3 MB: 04 CONTRATO PARTE 1-N"),
     ("06", "CARTEIRA DE TRABALHO", "para justiça gratuita, quando for o caso"),
     ("07", "COMPROVANTE DE RESIDÊNCIA", "comprovante de endereço"),
-    ("08", "NOTIFICAÇÃO EXTRAJUDICIAL", "PDF do e-mail enviado à GAV"),
+    ("08", "NOTIFICAÇÃO EXTRAJUDICIAL", "PDF (impressão do Gmail) do e-mail de distrato enviado"),
 ]
 
+# A petição não leva número: "Petição Inicial — NOME.pdf" (vídeo 6).
+PREFIXO_PETICAO = "Petição Inicial — "
 
-def nome_documento(codigo: str, cliente: str | None = None) -> str:
-    """Nome de arquivo no padrão da pasta: '01 - PROCURAÇÃO - JANICE.pdf'."""
+
+def nome_documento(codigo: str, cliente: str | None = None, extensao: str = ".pdf") -> str:
+    """Nome de arquivo no padrão dos vídeos: '01 PROCURAÇÃO.pdf'. O `cliente`
+    é aceito por compatibilidade e ignorado — o nome da pessoa vai na pasta."""
     entrada = next((d for d in DOCUMENTOS if d[0] == codigo), None)
     if entrada is None:
         extra = ""
@@ -212,11 +210,7 @@ def nome_documento(codigo: str, cliente: str | None = None) -> str:
                      "como nomear o documento em vez de escolher um rótulo.")
         raise ValueError(f"código de documento desconhecido: {codigo!r} "
                          f"(use um de {[d[0] for d in DOCUMENTOS]}).{extra}")
-    base = f"{entrada[0]} - {entrada[1]}"
-    if cliente:
-        primeiro = cliente.strip().split()[0].upper()
-        base = f"{base} - {primeiro}"
-    return f"{base}.pdf"
+    return f"{entrada[0]} {entrada[1]}{extensao}"
 
 
 if __name__ == "__main__":
