@@ -173,48 +173,76 @@ async function abrirConversa(pagina, contato) {
   return titulo.trim();
 }
 
-async function rolarHistorico(pagina, vezes) {
-  const painel = pagina.locator('#main [data-testid="conversation-panel-messages"], #main div[role="application"]').first();
-  const alvo = (await painel.count()) ? painel : pagina.locator('#main').first();
-  for (let i = 0; i < vezes; i++) {
-    await alvo.evaluate((el) => { el.scrollTop = 0; }).catch(() => {});
-    await pagina.waitForTimeout(700);
-  }
-  await alvo.evaluate((el) => { el.scrollTop = el.scrollHeight; }).catch(() => {});
-  await pagina.waitForTimeout(500);
+// Seletores do item clicável de cada anexo (layouts antigo e de 2026).
+const SELETOR_ANEXO = [
+  '[data-testid="document-thumb"]',
+  '[data-icon="document"]',
+  '[data-icon="audio-download"]',
+  '[data-testid="media-download"]',
+  '[data-icon="media-download"]',
+  'div[role="button"][title*="aixar" i]',
+  'span[data-icon="download"]',
+].join(', ');
+
+function painelMensagens(pagina) {
+  return pagina.locator('#main [data-testid="conversation-panel-messages"], #main div[role="application"]').first();
 }
 
-async function coletarAnexos(pagina, limite) {
-  const seletores = [
-    '#main [data-testid="document-thumb"]',
-    '#main [data-icon="document"]',
-    '#main [data-icon="audio-download"]',
-    '#main [data-testid="media-download"]',
-    '#main [data-icon="media-download"]',
-    '#main div[role="button"][title*="aixar" i]',
-    '#main span[data-icon="download"]',
-  ];
-  const vistos = new Set();
+// A lista de mensagens é virtualizada: o que sai da tela sai do DOM. Por isso
+// coleta-se ENQUANTO se rola — primeiro o fim da conversa (onde ficam os
+// documentos recém-enviados), depois subindo aos poucos — e cada anexo é
+// guardado pelo data-id da mensagem, não por um localizador vivo.
+async function varrerConversa(pagina, vezes, limite) {
+  const painel = painelMensagens(pagina);
   const anexos = [];
-  for (const seletor of seletores) {
-    const itens = pagina.locator(seletor);
-    const total = await itens.count();
-    for (let i = 0; i < total && anexos.length < limite; i++) {
-      const item = itens.nth(i);
-      const chave = await item.evaluate((el) => {
-        const linha = el.closest('[data-id]');
-        return linha ? linha.getAttribute('data-id') : null;
-      }).catch(() => null);
-      if (chave && vistos.has(chave)) continue;
-      if (chave) vistos.add(chave);
-      const rotulo = await item.evaluate((el) => {
-        const linha = el.closest('[data-id]') || el.parentElement;
-        return linha ? (linha.innerText || '').slice(0, 160) : '';
-      }).catch(() => '');
-      anexos.push({ localizador: item, chave: chave || `sem-id-${anexos.length}`, rotulo });
+  const vistos = new Set();
+  const coletar = async () => {
+    const achados = await pagina.evaluate((sel) => {
+      return [...document.querySelectorAll('#main [data-id]')]
+        .filter((linha) => linha.querySelector(sel))
+        .map((linha) => ({ chave: linha.getAttribute('data-id'), rotulo: (linha.innerText || '').slice(0, 160) }));
+    }, SELETOR_ANEXO).catch(() => []);
+    for (const a of achados) {
+      if (!a.chave || vistos.has(a.chave) || anexos.length >= limite) continue;
+      vistos.add(a.chave);
+      anexos.push(a);
     }
+  };
+  await painel.evaluate((el) => { el.scrollTop = el.scrollHeight; }).catch(() => {});
+  await pagina.waitForTimeout(1500);
+  await coletar();
+  for (let i = 0; i < vezes && anexos.length < limite; i++) {
+    const noTopo = await painel.evaluate((el) => {
+      el.scrollTop = Math.max(0, el.scrollTop - el.clientHeight * 0.85);
+      return el.scrollTop === 0;
+    }).catch(() => true);
+    await pagina.waitForTimeout(900);
+    await coletar();
+    if (noTopo) break;
   }
-  return anexos;
+  await painel.evaluate((el) => { el.scrollTop = el.scrollHeight; }).catch(() => {});
+  await pagina.waitForTimeout(800);
+  // Mais antigo primeiro, na ordem em que o cliente mandou.
+  return anexos.reverse();
+}
+
+// Reencontra o anexo pelo data-id, rolando a partir do fim se ele saiu do DOM.
+async function localizarAnexo(pagina, chave) {
+  const painel = painelMensagens(pagina);
+  const alvo = pagina.locator(`#main [data-id="${chave}"]`).locator(SELETOR_ANEXO).first();
+  if (await alvo.count()) return alvo;
+  await painel.evaluate((el) => { el.scrollTop = el.scrollHeight; }).catch(() => {});
+  await pagina.waitForTimeout(900);
+  for (let i = 0; i < 40; i++) {
+    if (await alvo.count()) return alvo;
+    const noTopo = await painel.evaluate((el) => {
+      el.scrollTop = Math.max(0, el.scrollTop - el.clientHeight * 0.85);
+      return el.scrollTop === 0;
+    }).catch(() => true);
+    await pagina.waitForTimeout(700);
+    if (noTopo) break;
+  }
+  return (await alvo.count()) ? alvo : null;
 }
 
 function nomeSeguro(nome, indice) {
@@ -270,7 +298,10 @@ async function fecharVisualizador(pagina) {
 async function baixarAnexo(pagina, anexo, destino, indice, downloads) {
   const antes = downloads.vistos();
   await fecharVisualizador(pagina);
-  await anexo.localizador.click({ timeout: 8000 }).catch(() => null);
+  const item = await localizarAnexo(pagina, anexo.chave);
+  if (!item) return null;
+  await item.scrollIntoViewIfNeeded().catch(() => {});
+  await item.click({ timeout: 8000 }).catch(() => null);
   // Visualizador aberto? então o download sai pelo botão "Baixar" dele.
   const baixar = pagina.locator('button[aria-label="Baixar"]').first();
   for (let t = 0; t < 16; t++) {
@@ -341,8 +372,7 @@ Baixa os documentos de um cliente no WhatsApp Web (somente leitura).
   const conversa = await abrirConversa(pagina, args.contato);
   console.log(`Conversa aberta: ${conversa}`);
 
-  await rolarHistorico(pagina, args.rolagens);
-  const anexos = await coletarAnexos(pagina, args.limite);
+  const anexos = await varrerConversa(pagina, args.rolagens, args.limite);
 
   if (anexos.length === 0) {
     encerrar(
