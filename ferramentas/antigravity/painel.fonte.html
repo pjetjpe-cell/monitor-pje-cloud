@@ -6,28 +6,42 @@
 <style>
 /* Mesa de despacho: à esquerda a pauta de tarefas na ordem da esteira, à direita a ficha do pedido e o texto exato que o agente recebe. */
 :root {
-  --paper: #f4f5f8; --surface: #ffffff; --ink: #15213b; --muted: #5a6479; --line: #d8dce6;
-  --brass: #94701f; --brass-ink: #ffffff; --brass-soft: #f3ead6; --ok: #1d7448; --warn: #9a5507; --code-bg: #f8f6f0;
+  --paper: #f6f6fb; --surface: #ffffff; --ink: #15213b; --muted: #5a6479; --line: #d8dce6;
+  --brass: #7c3aed; --brass-ink: #ffffff; --brass-soft: #f1ebfe; --ok: #1d7448; --warn: #9a5507; --code-bg: #f7f6fb;
+  --h1: #2563eb; --h2: #7c3aed; --h3: #db2777; --h4: #ea580c; --h5: #a16207; --h6: #15803d; --h7: #0e7490; --h8: #4f46e5; --h9: #be123c;
+  --arco: linear-gradient(90deg, #4285f4, #8b5cf6, #ec4899, #f97316, #eab308, #22c55e, #06b6d4);
+  --arco-texto: linear-gradient(90deg, #2563eb, #7c3aed, #db2777, #ea580c);
+  --arco-btn: linear-gradient(100deg, #2f6fe4, #7c4dea, #d63a8a, #e0581f);
   --f-display: "Spectral", Georgia, "Times New Roman", serif;
   --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --f-mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --paper: #0d1424; --surface: #141d31; --ink: #e6e9f0; --muted: #9ba4b6; --line: #27324b;
-  --brass: #d5ad5c; --brass-ink: #14100a; --brass-soft: #2a2417; --ok: #57c28d; --warn: #e3a447; --code-bg: #10182a; color-scheme: dark } }
+  --paper: #0c1222; --surface: #141d31; --ink: #e6e9f0; --muted: #9ba4b6; --line: #27324b;
+  --brass: #a78bfa; --brass-ink: #ffffff; --brass-soft: #241d3d; --ok: #57c28d; --warn: #e3a447; --code-bg: #10182a;
+  --h1: #60a5fa; --h2: #a78bfa; --h3: #f472b6; --h4: #fb923c; --h5: #facc15; --h6: #4ade80; --h7: #22d3ee; --h8: #818cf8; --h9: #fb7185;
+  --arco-texto: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6, #fb923c, #facc15); color-scheme: dark } }
 :root[data-theme="dark"] {
   --paper: #0d1424; --surface: #141d31; --ink: #e6e9f0; --muted: #9ba4b6; --line: #27324b;
-  --brass: #d5ad5c; --brass-ink: #14100a; --brass-soft: #2a2417; --ok: #57c28d; --warn: #e3a447; --code-bg: #10182a; color-scheme: dark }
+  --brass: #a78bfa; --brass-ink: #ffffff; --brass-soft: #241d3d; --ok: #57c28d; --warn: #e3a447; --code-bg: #10182a;
+  --h1: #60a5fa; --h2: #a78bfa; --h3: #f472b6; --h4: #fb923c; --h5: #facc15; --h6: #4ade80; --h7: #22d3ee; --h8: #818cf8; --h9: #fb7185;
+  --arco-texto: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6, #fb923c, #facc15); color-scheme: dark }
 
 * { box-sizing: border-box }
-body { background: var(--paper); color: var(--ink); font: 15px/1.5 var(--f-body); }
+body { color: var(--ink); font: 15px/1.5 var(--f-body);
+  background: radial-gradient(48rem 26rem at -5% -8%, color-mix(in srgb, var(--h2) 16%, transparent), transparent 70%),
+    radial-gradient(42rem 24rem at 105% -5%, color-mix(in srgb, var(--h7) 16%, transparent), transparent 70%),
+    radial-gradient(40rem 26rem at 50% 110%, color-mix(in srgb, var(--h3) 10%, transparent), transparent 70%), var(--paper);
+  min-height: 100%; }
 .wrap { max-width: 1120px; margin: 0 auto; padding-block: 24px 48px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: grid; gap: 20px }
 header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px;
-  border-bottom: 2px solid var(--ink); padding-bottom: 14px }
+  padding-bottom: 16px; position: relative }
+header::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 5px; border-radius: 5px; background: var(--arco) }
 .eyebrow { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--brass); font-weight: 600 }
-h1 { font: 600 clamp(26px, 4vw, 34px)/1.1 var(--f-display); margin: 4px 0 0; text-wrap: balance }
+h1 { font: 600 clamp(28px, 4.4vw, 38px)/1.1 var(--f-display); margin: 4px 0 0; text-wrap: balance;
+  background: var(--arco-texto); -webkit-background-clip: text; background-clip: text; color: transparent }
 h2 { font: 600 19px/1.25 var(--f-display); margin: 0; text-wrap: balance }
 .sub { color: var(--muted); margin: 6px 0 0; max-width: 62ch }
 label, .lbl { font-size: 12px; font-weight: 600; letter-spacing: .04em; color: var(--muted) }
@@ -44,7 +58,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .chip.ok { color: var(--ok) } .chip.warn { color: var(--warn) }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; background: var(--surface) }
 .seg button { border: 0; background: transparent; color: var(--muted); padding: 9px 14px; font: 500 14px var(--f-body); cursor: pointer }
-.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper) }
+.seg button[aria-pressed="true"] { background: var(--arco-btn); color: #fff }
 
 .mesa { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 20px; align-items: start }
 .pauta { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); overflow: hidden }
@@ -52,14 +66,16 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
   font: 400 15px/1.45 var(--f-body); letter-spacing: normal; color: var(--ink) }
 .task:first-child { border-top: 0 }
 .task input { position: absolute; opacity: 0; pointer-events: none }
-.task .et { font: 500 11px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted) }
+.task .et { font: 600 11px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--c) }
+.task .et::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c); margin-right: 7px; vertical-align: 1px }
 .task .nm { font-weight: 600 }
 .task .rs { font-size: 13px; color: var(--muted); line-height: 1.4 }
-.task:hover { background: var(--brass-soft) }
-.task.sel { background: var(--brass-soft); box-shadow: inset 3px 0 0 var(--brass) }
-.task.sel .et { color: var(--brass) }
+.task:hover { background: color-mix(in srgb, var(--c) 7%, var(--surface)) }
+.task.sel { background: color-mix(in srgb, var(--c) 14%, var(--surface)); box-shadow: inset 5px 0 0 var(--c) }
 
-.ficha { display: grid; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; min-width: 0 }
+.ficha { display: grid; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-top: 5px solid var(--c, var(--h2));
+  border-radius: 8px; padding: 18px; min-width: 0 }
+.ficha .eyebrow { color: var(--c, var(--h2)) }
 .campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px }
 .campos .full { grid-column: 1 / -1 }
 .req { color: var(--brass) }
@@ -69,17 +85,20 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .acoes { display: flex; flex-wrap: wrap; gap: 10px }
 .btn { font: 600 14px var(--f-body); border-radius: 7px; padding: 11px 16px; cursor: pointer; border: 1px solid var(--line);
   background: var(--surface); color: var(--ink) }
-.btn.pri { background: var(--brass); border-color: var(--brass); color: var(--brass-ink) }
+.btn.pri { background: var(--arco-btn); border-color: transparent; color: #fff; box-shadow: 0 4px 14px color-mix(in srgb, var(--h2) 30%, transparent) }
 .btn:disabled { opacity: .45; cursor: not-allowed }
 .aviso { font-size: 13px; color: var(--muted); margin: 0 }
 .toast { font-size: 14px; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--ok); color: var(--ok) }
 .toast.warn { border-color: var(--warn); color: var(--warn) }
 .manual { width: 100%; font: 12px var(--f-mono) }
 
-.guia { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; display: grid; gap: 14px }
+.guia { border: 1px solid transparent; border-top-width: 5px; border-radius: 10px; padding: 18px; display: grid; gap: 14px;
+  background: linear-gradient(var(--surface), var(--surface)) padding-box, var(--arco) border-box }
 .passos { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: p }
 .passos li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; counter-increment: p }
-.passos li::before { content: counter(p); font: 600 15px var(--f-display); color: var(--brass); border: 1px solid var(--brass);
+.passos li:nth-child(1) { --c: var(--h1) } .passos li:nth-child(2) { --c: var(--h2) } .passos li:nth-child(3) { --c: var(--h3) } .passos li:nth-child(4) { --c: var(--h4) }
+.passos li::before { content: counter(p); font: 600 15px var(--f-display); color: var(--c); border: 1.5px solid var(--c);
+  background: color-mix(in srgb, var(--c) 12%, transparent);
   border-radius: 50%; width: 26px; height: 26px; display: grid; place-items: center }
 .passos p { margin: 2px 0 6px }
 .cmd { display: flex; gap: 8px; align-items: stretch; min-width: 0 }
@@ -183,8 +202,9 @@ function tarefaAtual() { return CATALOGO.tarefas.find((t) => t.id === estado.tar
 
 function desenharPauta() {
   const p = $('pauta'); p.textContent = '';
-  for (const t of CATALOGO.tarefas) {
+  CATALOGO.tarefas.forEach((t, i) => {
     const l = document.createElement('label');
+    l.style.setProperty('--c', `var(--h${i % 9 + 1})`);
     l.className = 'task' + (t.id === estado.tarefa ? ' sel' : '');
     l.innerHTML = `<input type="radio" name="tarefa" value="${t.id}" ${t.id === estado.tarefa ? 'checked' : ''}>
       <span class="et"></span><span class="nm"></span><span class="rs"></span>`;
@@ -193,13 +213,14 @@ function desenharPauta() {
     l.querySelector('.rs').textContent = t.resumo;
     l.querySelector('input').addEventListener('change', () => { estado.tarefa = t.id; guarda.gravar('gav-agy-tarefa', t.id); desenharPauta(); desenharFicha(); });
     p.appendChild(l);
-  }
+  });
 }
 
 function desenharFicha() {
   const t = tarefaAtual();
   $('ficha-etapa').textContent = /^\d+$/.test(t.etapa) ? `Etapa ${t.etapa} da esteira` : t.etapa;
   $('ficha-titulo').textContent = t.rotulo;
+  $('ficha').style.setProperty('--c', `var(--h${CATALOGO.tarefas.indexOf(t) % 9 + 1})`);
   $('ficha-resumo').textContent = t.resumo;
   $('retorno').hidden = true;
   const box = $('campos'); box.textContent = '';
