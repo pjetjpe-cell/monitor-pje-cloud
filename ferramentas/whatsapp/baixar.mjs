@@ -223,21 +223,76 @@ function nomeSeguro(nome, indice) {
   return limpo.slice(0, 120);
 }
 
-async function baixarAnexo(pagina, anexo, destino, indice) {
-  const espera = pagina.waitForEvent('download', { timeout: 20000 }).catch(() => null);
-  await anexo.localizador.click({ timeout: 8000 }).catch(() => null);
-  const download = await espera;
-  if (!download) return null;
+// Conectado por CDP a um Chrome já aberto, o Playwright não recebe o evento de
+// download. Pede-se ao próprio Chrome que grave na pasta de destino e avise
+// (Browser.setDownloadBehavior); no fim, devolve-se o comportamento padrão.
+async function prepararDownloads(navegador, destino) {
+  const cdp = await navegador.newBrowserCDPSession();
+  const inicios = new Map();
+  const concluidos = new Map();
+  cdp.on('Browser.downloadWillBegin', (ev) => inicios.set(ev.guid, ev.suggestedFilename));
+  cdp.on('Browser.downloadProgress', (ev) => {
+    if (ev.state === 'completed' || ev.state === 'canceled') concluidos.set(ev.guid, ev.state);
+  });
+  await cdp.send('Browser.setDownloadBehavior', {
+    behavior: 'allowAndName', downloadPath: path.resolve(destino), eventsEnabled: true,
+  });
+  return {
+    async esperar(antes, ms) {
+      const fim = Date.now() + ms;
+      let guid = null;
+      while (Date.now() < fim) {
+        if (!guid) guid = [...inicios.keys()].find((g) => !antes.has(g)) || null;
+        if (guid && concluidos.has(guid)) {
+          return concluidos.get(guid) === 'completed' ? { guid, sugerido: inicios.get(guid) } : null;
+        }
+        await new Promise((r) => setTimeout(r, 300));
+      }
+      return null;
+    },
+    vistos() { return new Set(inicios.keys()); },
+    async restaurar() {
+      await cdp.send('Browser.setDownloadBehavior', { behavior: 'default' }).catch(() => {});
+    },
+  };
+}
 
-  const sugerido = download.suggestedFilename() || '';
-  const nome = nomeSeguro(sugerido, indice);
+// O WhatsApp Web de 2026 abre PDF num visualizador (iframe pdf-viewer) com
+// botões "Baixar" e "Fechar"; o Esc não fecha. Fecha o que estiver aberto.
+async function fecharVisualizador(pagina) {
+  const fechar = pagina.locator('button[aria-label="Fechar"]').first();
+  if (await pagina.locator('[data-testid="pdf-viewer-iframe"]').count() && await fechar.count()) {
+    await fechar.click({ timeout: 4000 }).catch(() => {});
+    await pagina.waitForTimeout(700);
+  }
+}
+
+async function baixarAnexo(pagina, anexo, destino, indice, downloads) {
+  const antes = downloads.vistos();
+  await fecharVisualizador(pagina);
+  await anexo.localizador.click({ timeout: 8000 }).catch(() => null);
+  // Visualizador aberto? então o download sai pelo botão "Baixar" dele.
+  const baixar = pagina.locator('button[aria-label="Baixar"]').first();
+  for (let t = 0; t < 16; t++) {
+    if (await baixar.count() && await baixar.isVisible().catch(() => false)) {
+      await baixar.click({ timeout: 6000 }).catch(() => null);
+      break;
+    }
+    if (downloads.vistos().size > antes.size) break;   // baixou direto, sem visualizador
+    await pagina.waitForTimeout(500);
+  }
+  const feito = await downloads.esperar(antes, 180000);
+  await fecharVisualizador(pagina);
+  if (!feito) return null;
+
+  const nome = nomeSeguro(feito.sugerido, indice);
   let caminho = path.join(destino, nome);
   let n = 1;
   while (await fs.access(caminho).then(() => true).catch(() => false)) {
     const ext = path.extname(nome);
     caminho = path.join(destino, `${path.basename(nome, ext)} (${n++})${ext}`);
   }
-  await download.saveAs(caminho);
+  await fs.rename(path.join(path.resolve(destino), feito.guid), caminho);
   const bytes = await fs.readFile(caminho);
   return {
     arquivo: caminho,
@@ -282,6 +337,7 @@ Baixa os documentos de um cliente no WhatsApp Web (somente leitura).
   }
 
   const { pagina } = await acharPaginaWhatsApp(navegador);
+  await fecharVisualizador(pagina);
   const conversa = await abrirConversa(pagina, args.contato);
   console.log(`Conversa aberta: ${conversa}`);
 
@@ -304,10 +360,12 @@ Baixa os documentos de um cliente no WhatsApp Web (somente leitura).
   }
 
   await fs.mkdir(args.destino, { recursive: true });
+  const downloads = await prepararDownloads(navegador, args.destino);
   const baixados = [];
   const falhas = [];
   for (let i = 0; i < anexos.length; i++) {
-    const resultado = await baixarAnexo(pagina, anexos[i], args.destino, i + 1);
+    const resultado = await baixarAnexo(pagina, anexos[i], args.destino, i + 1, downloads)
+      .catch((e) => { console.log(`  erro no anexo ${i + 1}: ${e.message.split('\n')[0]}`); return null; });
     if (resultado) {
       baixados.push(resultado);
       console.log(`  [${i + 1}/${anexos.length}] ${resultado.nome} (${(resultado.bytes / 1024).toFixed(0)} KB)`);
@@ -317,6 +375,8 @@ Baixa os documentos de um cliente no WhatsApp Web (somente leitura).
     }
     await pagina.waitForTimeout(600);
   }
+  await downloads.restaurar();   // Chrome volta a baixar na pasta de sempre
+  await fecharVisualizador(pagina);
 
   const relatorio = {
     contato_pedido: args.contato,
