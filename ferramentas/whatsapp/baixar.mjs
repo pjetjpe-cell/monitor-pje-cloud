@@ -266,11 +266,13 @@ async function prepararDownloads(navegador, destino) {
     behavior: 'allowAndName', downloadPath: path.resolve(destino), eventsEnabled: true,
   });
   return {
-    async esperar(antes, ms) {
+    async esperar(antes, ms, inicioMs = 25000, abortar = async () => false) {
       const fim = Date.now() + ms;
+      const limiteInicio = Date.now() + inicioMs;
       let guid = null;
       while (Date.now() < fim) {
         if (!guid) guid = [...inicios.keys()].find((g) => !antes.has(g)) || null;
+        if (!guid && (Date.now() > limiteInicio || await abortar())) return null;
         if (guid && concluidos.has(guid)) {
           return concluidos.get(guid) === 'completed' ? { guid, sugerido: inicios.get(guid) } : null;
         }
@@ -287,7 +289,17 @@ async function prepararDownloads(navegador, destino) {
 
 // O WhatsApp Web de 2026 abre PDF num visualizador (iframe pdf-viewer) com
 // botões "Baixar" e "Fechar"; o Esc não fecha. Fecha o que estiver aberto.
+// Mídia antiga some do celular; o WhatsApp avisa num diálogo com botão OK.
+async function documentoIndisponivel(pagina) {
+  const aviso = pagina.locator('[role="dialog"]').filter({ hasText: /indispon[ií]vel|n[ãa]o est[áa] mais no seu celular|no longer|unavailable/i }).first();
+  if (!(await aviso.count())) return false;
+  await aviso.getByRole('button').last().click({ timeout: 4000 }).catch(() => {});
+  await pagina.waitForTimeout(500);
+  return true;
+}
+
 async function fecharVisualizador(pagina) {
+  await documentoIndisponivel(pagina);
   const fechar = pagina.locator('button[aria-label="Fechar"]').first();
   if (await pagina.locator('[data-testid="pdf-viewer-iframe"]').count() && await fechar.count()) {
     await fechar.click({ timeout: 4000 }).catch(() => {});
@@ -312,8 +324,13 @@ async function baixarAnexo(pagina, anexo, destino, indice, downloads) {
     if (downloads.vistos().size > antes.size) break;   // baixou direto, sem visualizador
     await pagina.waitForTimeout(500);
   }
-  const feito = await downloads.esperar(antes, 180000);
+  let indisponivel = false;
+  const feito = await downloads.esperar(antes, 180000, 25000, async () => {
+    if (await documentoIndisponivel(pagina)) indisponivel = true;
+    return indisponivel;
+  });
   await fecharVisualizador(pagina);
+  if (indisponivel) return { indisponivel: true };
   if (!feito) return null;
 
   const nome = nomeSeguro(feito.sugerido, indice);
@@ -396,12 +413,15 @@ Baixa os documentos de um cliente no WhatsApp Web (somente leitura).
   for (let i = 0; i < anexos.length; i++) {
     const resultado = await baixarAnexo(pagina, anexos[i], args.destino, i + 1, downloads)
       .catch((e) => { console.log(`  erro no anexo ${i + 1}: ${e.message.split('\n')[0]}`); return null; });
-    if (resultado) {
+    if (resultado && resultado.indisponivel) {
+      falhas.push({ indice: i + 1, motivo: 'documento indisponível (não está mais no celular)', rotulo: anexos[i].rotulo.slice(0, 120) });
+      console.log(`  [${i + 1}/${anexos.length}] indisponivel no celular (antigo) — pulado: ${anexos[i].rotulo.replace(/\n/g, ' | ').slice(0, 80)}`);
+    } else if (resultado) {
       baixados.push(resultado);
       console.log(`  [${i + 1}/${anexos.length}] ${resultado.nome} (${(resultado.bytes / 1024).toFixed(0)} KB)`);
     } else {
       falhas.push({ indice: i + 1, rotulo: anexos[i].rotulo.slice(0, 120) });
-      console.log(`  [${i + 1}/${anexos.length}] nao baixou`);
+      console.log(`  [${i + 1}/${anexos.length}] nao baixou: ${anexos[i].rotulo.replace(/\n/g, " | ").slice(0, 80)}`);
     }
     await pagina.waitForTimeout(600);
   }
