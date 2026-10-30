@@ -82,7 +82,7 @@ python3 -m gav.esteira campo --dossie d.json --nome contrato_origem \
 ## Cliente novo
 
 Cliente que ainda não tem pasta: crie a pasta na pasta-mãe
-`1ws13n0Jc5c2iX_0TSEMLun2xn08EUemD`, no padrão de nome de
+`CLIENTES` (`1bDtqIX13hy3_apk2yDeOjy_4yB2f7s02`), no padrão de nome de
 `gav-esteira/references/drive.md`.
 
 **Confirme com o usuário o número e os dados antes de criar** — número de pasta

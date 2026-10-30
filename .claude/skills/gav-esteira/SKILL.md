@@ -37,15 +37,24 @@ Pergunte ao usuário **qual cliente** se ele não disse. Nunca escolha um.
 
 ## Etapa 1 — Localizar o cliente no Drive
 
-A pasta-mãe dos processos é `1ws13n0Jc5c2iX_0TSEMLun2xn08EUemD`. Busque:
+**O organizador trabalha só dentro de `CLIENTES`**
+(`1bDtqIX13hy3_apk2yDeOjy_4yB2f7s02`, em PROCESSOS DISTRATO). As outras pastas
+de processos — protocolados, em andamento, antigos (ex.:
+`1ws13n0Jc5c2iX_0TSEMLun2xn08EUemD`) — **não são missão do organizador**: não
+busque nelas, não leia, não renomeie, não cite. Cliente antigo com nome
+parecido (ex.: "24. WASHINGTON", já protocolado) é outro caso, não o cliente
+novo de `CLIENTES`. Busque sempre com o `parentId`:
 
 ```
 mcp__Google_Drive__search_files
-  query: parentId = '1ws13n0Jc5c2iX_0TSEMLun2xn08EUemD' and title contains 'SOBRENOME'
+  query: parentId = '1bDtqIX13hy3_apk2yDeOjy_4yB2f7s02' and title contains 'NOME'
 ```
 
-- **Nenhum resultado** → busque sem o `parentId` (a pasta pode estar fora).
-  Continuou vazio: pergunte. Não crie pasta nova presumindo cliente novo.
+- **Nenhum resultado** → pergunte. Não busque no Drive inteiro e não crie pasta
+  nova presumindo cliente novo.
+- **Pasta vazia** → os documentos ainda não subiram (costumam estar no
+  WhatsApp, conversa "GAV ... Falta"). Diga isso e ofereça a skill
+  `gav-whatsapp`; não preencha a pasta com dado de outro lugar.
 - **Mais de um resultado** → mostre os candidatos e **pergunte qual**. Há números
   repetidos no Drive (três pastas "83.", duas "02.") — escolher sozinho erra.
 

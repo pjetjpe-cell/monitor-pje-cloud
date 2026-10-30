@@ -1,10 +1,14 @@
 # Estrutura no Google Drive
 
-## Pasta-mãe
+## Pasta de trabalho do organizador
 
-`1ws13n0Jc5c2iX_0TSEMLun2xn08EUemD` — contém as pastas numeradas de cliente.
-Existe também `PROCESSOS DISTRATO` (`1bCzt8Qi0TDWbTtwQIVN7kHDWrh6lfw68`) e uma
-`PENDENCIAS`.
+`CLIENTES` (`1bDtqIX13hy3_apk2yDeOjy_4yB2f7s02`), dentro de `PROCESSOS DISTRATO`
+(`1bCzt8Qi0TDWbTtwQIVN7kHDWrh6lfw68`). É aqui que chegam os clientes novos
+(105, 106, 107...) e é **só aqui** que o organizador atua.
+
+Fora do escopo: `1ws13n0Jc5c2iX_0TSEMLun2xn08EUemD` e as demais pastas de
+processos já protocolados ou antigos. Não buscar, não ler, não mexer — nome
+parecido lá é outro cliente/caso.
 
 ## Padrão do nome
 
