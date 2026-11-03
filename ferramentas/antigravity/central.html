@@ -150,7 +150,7 @@ details.guia-mini summary { cursor: pointer; font-weight: 600; font-size: 14px }
 details.guia-mini ol { margin: 10px 0 0; padding-left: 20px; display: grid; gap: 8px; font-size: 14px }
 /* Pauta em grade compacta no alto, para as duas metades subirem na tela. */
 .mesa { grid-template-columns: minmax(0, 1fr) }
-.pauta { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0 }
+.pauta { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0; border-right: 0; border-bottom: 0 }
 .task { border-top: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 10px 14px }
 .task .rs { font-size: 12.5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
 @media (max-width: 900px) { .metades { grid-template-columns: minmax(0, 1fr) } }
@@ -174,7 +174,6 @@ details.guia-mini ol { margin: 10px 0 0; padding-left: 20px; display: grid; gap:
         <p class="aviso" id="ficha-resumo"></p>
       </div>
       <div class="campos" id="campos"></div>
-      <p class="aviso" id="falta" hidden></p>
     </form>
   </section>
 
