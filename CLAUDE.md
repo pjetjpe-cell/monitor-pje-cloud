@@ -30,7 +30,7 @@ Este projeto inclui 10 skills especializadas. Use `/nome-da-skill` para invocar:
 | `/gav-esteira` | Organizador de pastas no Drive, ponta a ponta: localiza o cliente, normaliza a pasta, cria NÃO USAR, limpa a procuração, comprime o contrato, extrai o RG, notifica a GAV |
 | `/gav-whatsapp` | Baixa os documentos do cliente no WhatsApp Web e arquiva no Drive |
 | `/gav-peticao` | Monta a inicial pelo PREENCHEDOR DE PETIÇÃO INTERATIVO |
-| `/pje-consulta` | Consulta os processos no PJe/TJPE por advogado e diz se estão atualizados (última movimentação) |
+| `/pje-consulta` | Consulta os processos na Consulta Pública do PJe/TJPE (sem login) por advogado e diz se estão atualizados (última movimentação) |
 | `/gav-missao` | Missão completa de um cliente (WhatsApp → pasta → procuração → petição → distrato → upload → compartilhar), ou uma etapa, acionando os agentes |
 
 Agentes (`.claude/agents/`): `gav-orquestrador` (conduz e confere), `gav-coletor-whatsapp`,

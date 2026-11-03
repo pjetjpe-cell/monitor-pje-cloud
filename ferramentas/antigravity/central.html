@@ -210,7 +210,7 @@ details.guia-mini ol { margin: 10px 0 0; padding-left: 20px; display: grid; gap:
       <details class="guia-mini">
         <summary>Acordar o Antigravity</summary>
         <ol>
-          <li>Primeira vez: no PowerShell do PC, cole <span class="cmd"><code id="cmd-instalar">irm https://raw.githubusercontent.com/pjetjpe-cell/monitor-pje-cloud/5a70ba200d4a8197916b82458f513e8cfb27a374/ferramentas/antigravity/instalar.ps1 | iex</code><button type="button" class="btn peq" data-copiar="cmd-instalar">Copiar</button></span></li>
+          <li>Primeira vez: no PowerShell do PC, cole <span class="cmd"><code id="cmd-instalar">irm https://raw.githubusercontent.com/pjetjpe-cell/monitor-pje-cloud/a89df97f159f6e7a433439adab3f80479581bf83/ferramentas/antigravity/instalar.ps1 | iex</code><button type="button" class="btn peq" data-copiar="cmd-instalar">Copiar</button></span></li>
           <li>Digite <code>agy</code> uma vez e entre com a conta Google.</li>
           <li>Todo dia: clique duas vezes em <b>GAV Antigravity</b> na Área de Trabalho e deixe a janela aberta.</li>
           <li>Cole o token acima (uma vez) e clique <b>Enviar ao Antigravity</b>.</li>
@@ -399,7 +399,7 @@ const CATALOGO = {
       "id": "pje",
       "etapa": "Consulta",
       "rotulo": "Consultar processos no PJe",
-      "resumo": "PJe/TJPE por advogado, Ipojuca, última movimentação. Só leitura.",
+      "resumo": "Consulta Pública do PJe/TJPE por advogado (sem login), Ipojuca, última movimentação. Só leitura.",
       "workflow": "pje-consulta",
       "agente": null,
       "obrigatorios": [],
@@ -482,7 +482,10 @@ function montarPedidoClaude(catalogo, tarefaId, camposBrutos) {
     `Tarefa da esteira GAV: ${tarefa.rotulo}.`,
     `Use ${tarefa.claude}.`,
     ...linhasDosCampos(catalogo, permitidos, campos),
-    'Siga o passo a passo oficial (.claude/skills/gav-esteira/references/fluxo-video.md) e a seção Caminhos alternativos do agente.',
+    // Tarefa sem agente (consulta ao PJe) não segue o fluxo da esteira de documentos.
+    tarefa.agente
+      ? 'Siga o passo a passo oficial (.claude/skills/gav-esteira/references/fluxo-video.md) e a seção Caminhos alternativos do agente.'
+      : `Siga o passo a passo da skill ${tarefa.workflow}, na Consulta Pública do PJe/TJPE (não precisa de login). Se o navegador não alcançar o PJe, diga isso e entregue o passo a passo; não finja que consultou.`,
     'Não pule etapa, não invente dado, não escreva ao cliente e peça o pode antes de enviar e-mail, compartilhar, renomear pasta existente ou apagar.',
     'O computador do escritório é acessado pelo Desktop Commander; se estiver offline, diga isso e me entregue o comando pronto.',
     'Ao terminar, mostre a prova (conferências, arquivos com tamanho, IDs) e o que ficou pendente.',
