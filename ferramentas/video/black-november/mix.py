@@ -16,9 +16,12 @@ def por(buf, at, x, g=1.0):
 cena = {c['enquadramento']: c for c in C}
 # ---- voz ----
 voz = np.zeros(N)
-for c in C: por(voz, c['inicio'] + c['tFala'][0], ler(c['voz']))
+for c in C:
+    if c.get('voz'): por(voz, c['inicio'] + c['tFala'][0], ler(c['voz']))
 voz.astype('<f4').tofile('voz.f32')
-cadeia = ('highpass=f=75,equalizer=f=170:t=q:w=1.0:g=3,equalizer=f=3000:t=q:w=1.4:g=2,equalizer=f=6500:t=q:w=2:g=-2.5,'
+import os
+# Voz gravada (apresentador) entra quase sem tratamento; a sintética recebe EQ, compressão e sala
+cadeia = 'highpass=f=70,acompressor=threshold=-18dB:ratio=2:attack=8:release=150' if os.environ.get('VOZ_GRAVADA') else ('highpass=f=75,equalizer=f=170:t=q:w=1.0:g=3,equalizer=f=3000:t=q:w=1.4:g=2,equalizer=f=6500:t=q:w=2:g=-2.5,'
           'lowpass=f=11000,acompressor=threshold=-20dB:ratio=3:attack=6:release=120:makeup=2,aecho=0.85:0.7:20|33:0.08|0.05')
 voz = np.frombuffer(subprocess.run(['ffmpeg', '-v', 'error', '-f', 'f32le', '-ar', str(SR), '-ac', '1', '-i', 'voz.f32', '-af', cadeia, '-f', 'f32le', '-'],
                                    capture_output=True, check=True).stdout, np.float32).astype(np.float64)
@@ -77,7 +80,7 @@ subida(drop); impacto(drop, 1.1)
 e = cena['escada']; [sino(e['inicio'] + mk - 0.3 + 0.05, n) for mk, n in zip(e['marcas'], (88, 86, 84))]
 s = cena['sobe']; impacto(s['inicio'] + s['marcas'][0] - 0.1, 0.7); sino(s['inicio'] + s['marcas'][0] - 0.1, 91, 0.4)
 z = cena['zero']; impacto(z['inicio'] + z['marcas'][0] - 0.08, 0.9); sino(z['inicio'] + z['marcas'][2] - 0.2, 93, 0.35)
-r = cena['regra']; sino(r['inicio'] + r['marcas'][1] + 0.25, 96, 0.3)
+if 'regra' in cena: r = cena['regra']; sino(r['inicio'] + r['marcas'][1] + 0.25, 96, 0.3)
 ct = cena['cta']; impacto(ct['inicio'] + ct['marcas'][0] - 0.25, 0.6); sino(ct['inicio'] + ct['marcas'][0] - 0.2, 88, 0.4)
 # ---- mix ----
 envv = np.convolve(np.abs(voz), np.ones(int(0.2 * SR)) / int(0.2 * SR), 'same'); duck = 1 - 0.5 * np.clip(envv / 0.05, 0, 1)

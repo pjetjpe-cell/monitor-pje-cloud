@@ -89,10 +89,19 @@ function aviso(a) { tx(AVISO, W / 2, H * 0.955, { font: '500 23px Poppins, sans-
 
 // ---------- legenda palavra por palavra ----------
 function legenda(c, lt) {
-  const ws = String(c.fala || '').split(/\s+/).filter(Boolean); if (!ws.length || lt < c.tFala[0]) return;
-  const ini = c.tFala[0], fim = c.tFala[1], pes = ws.map(w => w.length + 2), soma = pes.reduce((a, b) => a + b, 0);
-  let idx = ws.length - 1, iniP = fim, dur = 0.2;
-  for (let i = 0, acc = ini; i < ws.length; i++) { const d = (fim - ini) * pes[i] / soma; if (lt < acc + d) { idx = i; iniP = acc; dur = d; break; } acc += d; }
+  let ws, idx, iniP, dur = 0.2;
+  if (c.palavras) {
+    // tempos reais de cada palavra (cena com fala gravada)
+    ws = c.palavras.map(p => p[0]); if (!ws.length || lt < c.palavras[0][1]) return;
+    idx = ws.length - 1; iniP = c.palavras[idx][1];
+    for (let i = 0; i < ws.length; i++) if (lt < (c.palavras[i + 1] ? c.palavras[i + 1][1] : Infinity)) { idx = i; iniP = c.palavras[i][1]; dur = c.palavras[i][2] - c.palavras[i][1]; break; }
+    if (lt > c.palavras[ws.length - 1][2] + 0.6) return;
+  } else {
+    ws = String(c.fala || '').split(/\s+/).filter(Boolean); if (!ws.length || lt < c.tFala[0]) return;
+    const ini = c.tFala[0], fim = c.tFala[1], pes = ws.map(w => w.length + 2), soma = pes.reduce((a, b) => a + b, 0);
+    idx = ws.length - 1; iniP = fim;
+    for (let i = 0, acc = ini; i < ws.length; i++) { const d = (fim - ini) * pes[i] / soma; if (lt < acc + d) { idx = i; iniP = acc; dur = d; break; } acc += d; }
+  }
   const g = Math.floor(idx / 3), grupo = ws.slice(g * 3, g * 3 + 3);
   let tam = 62; const fonte = () => `800 ${tam}px Poppins, sans-serif`;
   cx.save(); cx.font = fonte(); const sp = () => cx.measureText(' ').width;
@@ -222,7 +231,7 @@ function sobe(c, lt, t) {
 }
 function zero(c, lt, t) {
   const [mZero, mMeio, mDepois] = c.marcas;
-  let e = entra(lt, 0.05); tx('E TEM MAIS', W / 2, H * 0.24 + e.dy, { font: '700 38px Poppins, sans-serif', ls: 16, fill: '#e2c070', alpha: e.a });
+  let e = entra(lt, 0.05); tx(c.titulo || 'E TEM MAIS', W / 2, H * 0.24 + e.dy, { font: '700 38px Poppins, sans-serif', ls: 16, fill: '#e2c070', alpha: e.a });
   const q = lt - (mZero - 0.08);
   if (q > 0) {
     const s = 1 + 1.1 * (1 - eo(q / 0.28)), k = clamp(1 - q / 0.3), dx = Math.sin(q * 90) * 14 * k;
@@ -281,7 +290,21 @@ function cta(c, lt, t) {
   }
   aviso(eo((lt - 0.5) / 0.5));
 }
-const CENA = { gancho, black, regra, escada, sobe, zero, antes, cta };
+const QUADROS = new Map();
+const quadroUrl = (c, n) => `${c.quadros.pasta}/f_${String(n).padStart(5, '0')}.jpg`;
+const nQuadro = (c, lt) => Math.min(c.quadros.total, Math.max(1, Math.floor((c.quadros.ini + lt) * c.quadros.fps) + 1));
+function avatar(c, lt) {
+  const im = QUADROS.get(quadroUrl(c, nQuadro(c, lt)));
+  if (im && im.naturalWidth) cx.drawImage(im, 0, 0, W, H);
+  // esconde a marca e a barra do vídeo original no topo
+  const g = cx.createLinearGradient(0, 0, 0, 260); g.addColorStop(0, 'rgba(5,4,3,1)'); g.addColorStop(0.62, 'rgba(5,4,3,1)'); g.addColorStop(1, 'rgba(5,4,3,0)');
+  cx.fillStyle = g; cx.fillRect(0, 0, W, 240);
+}
+function preCarregar() {
+  const urls = []; CENAS.forEach(c => { if (c.quadros) for (let lt = 0; lt <= c.duracao + 0.05; lt += 1 / 30) urls.push(quadroUrl(c, nQuadro(c, lt))); });
+  return Promise.all([...new Set(urls)].map(u => new Promise(ok => { const im = new Image(); im.onload = im.onerror = () => ok(); im.src = u; QUADROS.set(u, im); })));
+}
+const CENA = { gancho, black, regra, escada, sobe, zero, antes, cta, avatar };
 
 function desenhar(t) {
   cx.setTransform(1, 0, 0, 1, 0, 0); cx.globalAlpha = 1;
@@ -292,7 +315,7 @@ function desenhar(t) {
   if (c.enquadramento === 'cta') forca = 1.2;
   fundo(t, forca, H * 0.44);
   // entrada de cena: leve aproximação
-  const q = eo(lt / 0.3), esc = 1.05 - 0.05 * q;
+  const q = c.enquadramento === 'avatar' ? 1 : eo(lt / 0.3), esc = 1.05 - 0.05 * q;
   cx.save(); cx.translate(W / 2, H / 2); cx.scale(esc, esc); cx.translate(-W / 2, -H / 2); cx.globalAlpha = s.i === 0 ? 1 : 0.25 + 0.75 * q;
   (CENA[c.enquadramento] || (() => {}))(c, lt, t);
   cx.restore();
@@ -305,7 +328,7 @@ function desenhar(t) {
 
 window.estudioRender = {
   desenhar, total: () => T, canvas: cv,
-  fontes: () => Promise.all(['120px Anton', '600 40px "Cormorant Garamond"', '700 40px "Cormorant Garamond"', '400 40px "Bodoni Moda"', '500 40px "Bodoni Moda"', '500 40px Poppins', '600 40px Poppins', '700 40px Poppins', '800 40px Poppins'].map(f => document.fonts.load(f, 'ÁÊÇÃ%½0123'))),
+  fontes: () => preCarregar().then(() => Promise.all(['120px Anton', '600 40px "Cormorant Garamond"', '700 40px "Cormorant Garamond"', '400 40px "Bodoni Moda"', '500 40px "Bodoni Moda"', '500 40px Poppins', '600 40px Poppins', '700 40px Poppins', '800 40px Poppins'].map(f => document.fonts.load(f, 'ÁÊÇÃ%½0123')))),
 };
 // Prévia ao abrir o arquivo no navegador
 if (CENAS.length && !navigator.webdriver) { const t0 = performance.now(); const loop = () => { desenhar(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); }; document.fonts.ready.then(loop); }

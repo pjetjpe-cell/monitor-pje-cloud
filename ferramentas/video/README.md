@@ -45,3 +45,16 @@ python3 srt.py projeto.json legenda.srt
 node render.mjs "$PWD/black-november.html" projeto.json mudo.mp4
 ffmpeg -i mudo.mp4 -i audio.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart final.mp4
 ```
+
+### Versão de 20 s com apresentador (`black-november/projeto20.json`)
+
+Aproveita só as falas corretas do vídeo do apresentador ("Você ainda paga taxas abusivas?
+A Black November chegou para mudar isso." e "Aproveite agora a entrada zero.") e cobre o
+meio com a escada 13/14/15%, o teto de 30% e o "EU QUERO". Os quadros do apresentador vão
+em `avatar/f_00001.jpg…` (extraídos com `ffmpeg -i apresentador.mp4 -t 2.95 -vsync 0 avatar/f_%05d.jpg`)
+e as falas em `voz20/fala1.wav` (0–3,917 s) e `voz20/fala2.wav` (8,40–10,0 s).
+
+```bash
+VOZ_GRAVADA=1 python3 mix.py projeto20.json audio20.wav
+node render.mjs "$PWD/black-november.html" projeto20.json mudo20.mp4
+```
