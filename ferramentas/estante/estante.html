@@ -1,0 +1,348 @@
+<title>Estante Multipropriedade e Estudos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:wght@500;600;700&display=swap">
+<style>
+/* Estante em duas alas: à esquerda o mar (multipropriedade, resorts GAV), à direita o palácio da memória (estudos); embaixo, a prateleira de outros. */
+:root {
+  --paper: #f4f6f9; --surface: #ffffff; --ink: #142033; --muted: #5b6577; --line: #d9dee7;
+  --mar: #0b6f8e; --mar-2: #0f9b8e; --mar-soft: #e3f3f6;
+  --est: #6a3fc1; --est-2: #c27d0e; --est-soft: #f0eafc;
+  --neutro: #5b6577; --neutro-soft: #eef1f5;
+  --novo: #1d7448; --parado: #9a5507;
+  --arco: linear-gradient(90deg, #0b6f8e, #0f9b8e, #4285f4, #8b5cf6, #c026d3, #ec4899, #f97316, #c27d0e);
+  --f-display: "Spectral", Georgia, "Times New Roman", serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #0d121b; --surface: #151c28; --ink: #e7eaf0; --muted: #9aa3b4; --line: #283246;
+  --mar: #4cc3dd; --mar-2: #3fd6c4; --mar-soft: #12313a;
+  --est: #b89bf5; --est-2: #f2b84b; --est-soft: #251d3b;
+  --neutro: #a3acbc; --neutro-soft: #1d2533; --novo: #5cc893; --parado: #e8a748; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #0d121b; --surface: #151c28; --ink: #e7eaf0; --muted: #9aa3b4; --line: #283246;
+  --mar: #4cc3dd; --mar-2: #3fd6c4; --mar-soft: #12313a;
+  --est: #b89bf5; --est-2: #f2b84b; --est-soft: #251d3b;
+  --neutro: #a3acbc; --neutro-soft: #1d2533; --novo: #5cc893; --parado: #e8a748; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { margin: 0; color: var(--ink); font: 15px/1.5 var(--f-body);
+  background: radial-gradient(46rem 24rem at -6% -10%, color-mix(in srgb, var(--mar) 14%, transparent), transparent 70%),
+    radial-gradient(46rem 24rem at 106% -10%, color-mix(in srgb, var(--est) 14%, transparent), transparent 70%), var(--paper); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 26px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 22px }
+a { color: inherit }
+
+header { display: grid; gap: 14px; padding-bottom: 18px; position: relative }
+header::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 5px; border-radius: 5px; background: var(--arco) }
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted) }
+h1 { font: 700 clamp(28px, 4.6vw, 40px)/1.08 var(--f-display); margin: 2px 0 0; text-wrap: balance }
+h1 .m { color: var(--mar) } h1 .e { color: var(--est) } h1 .amp { color: var(--muted); font-weight: 500 }
+.resumo { color: var(--muted); margin: 0; font-size: 14px }
+.resumo b { color: var(--ink); font-variant-numeric: tabular-nums }
+.barra { display: flex; flex-wrap: wrap; gap: 10px; align-items: center }
+.busca { flex: 1 1 260px; min-width: 0; position: relative }
+.busca input { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 8px; padding: 10px 12px 10px 36px }
+.busca svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; stroke: var(--muted); fill: none }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); flex-wrap: wrap }
+.seg button { border: 0; background: transparent; color: var(--muted); padding: 9px 14px; font: 500 14px var(--f-body); cursor: pointer }
+.seg button[aria-pressed="true"] { color: #fff; background: var(--ink) }
+.seg button[data-v="multipropriedade"][aria-pressed="true"] { background: var(--mar); color: var(--surface) }
+.seg button[data-v="estudos"][aria-pressed="true"] { background: var(--est); color: var(--surface) }
+input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--est-2); outline-offset: 2px }
+
+.atalhos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px }
+.atalho { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0 }
+.atalho h2 { font: 600 13px var(--f-body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px }
+.fichas { display: flex; flex-wrap: wrap; gap: 8px }
+.ficha { display: inline-flex; align-items: center; gap: 7px; max-width: 100%; text-decoration: none; font-size: 13px; font-weight: 500;
+  padding: 6px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--paper) }
+.ficha span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.ficha::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex: none }
+.ficha:hover { border-color: var(--c) }
+.vazio { color: var(--muted); font-size: 13px; margin: 0 }
+
+.alas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start }
+.alas.uma { grid-template-columns: minmax(0, 1fr) }
+.ala { border-radius: 14px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; min-width: 0 }
+.ala-topo { padding: 18px 18px 14px; background: var(--soft); border-bottom: 1px solid var(--line); display: grid; gap: 10px }
+.ala-topo .linha { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap }
+.ala h2 { font: 700 24px/1.15 var(--f-display); margin: 0; color: var(--c) }
+.ala .conta { font: 500 12px var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums }
+.ala .sub { margin: 0; font-size: 13px; color: var(--muted) }
+.ala.mar { --c: var(--mar); --c2: var(--mar-2); --soft: var(--mar-soft) }
+.ala.est { --c: var(--est); --c2: var(--est-2); --soft: var(--est-soft) }
+.ala.out { --c: var(--neutro); --c2: var(--neutro); --soft: var(--neutro-soft) }
+.chips { display: flex; flex-wrap: wrap; gap: 6px }
+.chips button { font: 500 12.5px var(--f-body); border: 1px solid color-mix(in srgb, var(--c) 40%, var(--line)); background: var(--surface);
+  color: var(--ink); border-radius: 99px; padding: 4px 11px; cursor: pointer }
+.chips button[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: var(--surface) }
+.chips button .n { font-family: var(--f-mono); opacity: .7; margin-left: 4px }
+
+.grupo { padding: 6px 0 4px }
+.grupo h3 { margin: 10px 18px 4px; font: 600 11px var(--f-body); letter-spacing: .12em; text-transform: uppercase; color: var(--c2) }
+.item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 10px 18px; border-top: 1px solid var(--line); align-items: start }
+.grupo .item:first-of-type { border-top: 0 }
+.item:hover { background: color-mix(in srgb, var(--c) 6%, var(--surface)) }
+.item a.nome { font-weight: 600; text-decoration: none; overflow-wrap: anywhere }
+.item a.nome:hover { color: var(--c); text-decoration: underline }
+.item .desc { grid-column: 1; font-size: 13px; color: var(--muted); line-height: 1.45 }
+.item .meta { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font: 12px var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums }
+.tag { font: 600 11px var(--f-body); padding: 1px 8px; border-radius: 99px; border: 1px solid currentColor }
+.tag.novo { color: var(--novo) } .tag.parado { color: var(--parado) }
+.estrela { grid-column: 2; grid-row: 1 / span 2; border: 0; background: transparent; cursor: pointer; padding: 4px; color: var(--line); line-height: 0 }
+.estrela svg { width: 20px; height: 20px; fill: none; stroke: var(--muted); stroke-width: 1.6 }
+.estrela[aria-pressed="true"] svg { fill: var(--est-2); stroke: var(--est-2) }
+.nada { padding: 16px 18px; color: var(--muted); font-size: 14px; margin: 0 }
+
+.rodape { color: var(--muted); font-size: 12.5px; margin: 0 }
+@media (max-width: 900px) { .alas, .atalhos { grid-template-columns: minmax(0, 1fr) } }
+@media (prefers-reduced-motion: no-preference) { .item, .ficha, .chips button { transition: background-color .15s, border-color .15s } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Meus artefatos no claude.ai</div>
+      <h1><span class="m">Multipropriedade</span> <span class="amp">&amp;</span> <span class="e">Estudos</span></h1>
+    </div>
+    <p class="resumo" id="resumo"></p>
+    <div class="barra">
+      <label class="busca" for="busca">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke-width="2"></circle><path d="M20 20l-4-4" stroke-width="2" stroke-linecap="round"></path></svg>
+        <input id="busca" type="search" placeholder="Buscar: peticionador, penal, Rilson, simulado…" autocomplete="off" aria-label="Buscar artefato">
+      </label>
+      <div class="seg" role="group" aria-label="Mostrar">
+        <button type="button" data-v="tudo" aria-pressed="true">Tudo</button>
+        <button type="button" data-v="multipropriedade" aria-pressed="false">Multipropriedade</button>
+        <button type="button" data-v="estudos" aria-pressed="false">Estudos</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="atalhos" aria-label="Atalhos">
+    <div class="atalho"><h2>Favoritos</h2><div class="fichas" id="favoritos"></div></div>
+    <div class="atalho"><h2>Abertos por último</h2><div class="fichas" id="recentes"></div></div>
+  </section>
+
+  <section class="alas" id="alas"></section>
+  <section id="outros"></section>
+
+  <p class="rodape">Lista conferida em 03/11/2026. Artefato novo ou apagado: peça ao Claude para atualizar a estante. Favoritos e “abertos por último” ficam só neste navegador.</p>
+</div>
+
+<script>
+const HOJE_LISTA = '2026-11-03';
+const A = (id) => `https://claude.ai/artifact/${id}`;
+const ITENS = [
+  // ---------- MULTIPROPRIEDADE ----------
+  { ala: 'mar', grupo: 'Esteira GAV', id: 'FXBNGP8XxZiM8enVXPxdvc', nome: 'Central Antigravity e Claude', data: '2026-11-03',
+    desc: 'Manda uma tarefa da esteira para o Antigravity no PC do escritório ou para uma sessão do Claude na nuvem.' },
+  { ala: 'mar', grupo: 'Esteira GAV', id: '7fNGicTt6UntK1Sf3jmdY1', nome: 'Contrato para o PJe', data: '2026-09-11',
+    desc: 'Divide, comprime e recorta o contrato abaixo de 3 MB sem o arquivo sair do computador.' },
+  { ala: 'mar', grupo: 'Esteira GAV', id: 'NfMMho5SAAYHUd2YU2ZS58', nome: 'Central de Comandos GAV', data: '2026-09-11',
+    desc: 'Gera os trechos da inicial e da justiça gratuita a partir do extrato. Plano B do peticionador.' },
+  { ala: 'mar', grupo: 'Petições e procurações', id: 'XQv5AgyBDJ71HvmcpazK5r', nome: 'Peticionador IA — Di Pallacio Enterprise', data: '2026-10-29',
+    desc: 'Formata peças com o timbre do advogado; acervo e prazos, leitor, varredura, termo de taxa e procuração.' },
+  { ala: 'mar', grupo: 'Petições e procurações', id: 'K1WnnhVt2Lw9fwPm1wf6YS', nome: 'Peticionador Di Pallacio', data: '2026-10-18',
+    desc: 'Multipropriedade GAV/Porto 2 Life: modelos de inicial, parcelamento e réplica, petição avulsa e radar de prazos.' },
+  { ala: 'mar', grupo: 'Petições e procurações', id: '6A5QLvn7Hfiv27ZPDxGrj8', nome: 'Réplica Rilson José de Sena', data: '2026-10-23',
+    desc: 'Réplica à contestação da GAV no caso Rilson.' },
+  { ala: 'mar', grupo: 'Petições e procurações', id: 'UykXrEgHBtUBSxcKoucb9R', nome: 'Procuração — Di PALLACIO | PETRUS HALLULI XAVIER DE QUEIROZ', data: '2026-10-29',
+    desc: 'Procuração interativa para o Petrus assinar na tela.' },
+  { ala: 'mar', grupo: 'Cobrança e honorários', id: '3SPd5wDK3CZ2bawH6WDEfk', nome: 'Termos de Taxa Operacional', data: '2026-10-06',
+    desc: 'Lê a decisão de suspensão e monta o termo de recebimento da taxa operacional.' },
+  { ala: 'mar', grupo: 'Cobrança e honorários', id: 'GtG4TxWUbX7NyjbiFc3hri', nome: 'Painel Jacson', data: '2026-10-09',
+    desc: 'Honorários e acompanhamento dos processos GAV.' },
+  { ala: 'mar', grupo: 'Divulgação', id: 'X4q7CFuEWX1UjkBT5r1GEk', nome: 'Di Pallacio Enterprise Site', data: '2026-10-24',
+    desc: 'Site do escritório.' },
+  { ala: 'mar', grupo: 'Divulgação', id: '8AYe7ikLoFySAcUnfVWMSw', nome: 'Vídeo Porto 2 Life', data: '2026-10-29',
+    desc: 'Vídeo sobre o empreendimento Porto 2 Life.' },
+
+  // ---------- ESTUDOS ----------
+  ...[
+    ['WizijCNdPKZ2ywqgd67KD4', 'Revisão Direito Administrativo — ENAMZEIRO (por tema)'],
+    ['9kGgdKfww7HFYfPPbeKpAi', 'Revisão Direito Constitucional (por tema)'],
+    ['9QYNPSPx262bqNQuZ1YaBe', 'Revisão Direito Civil (por tema)'],
+    ['G4pjuGqbWWSULfFfoZQpL5', 'Revisão Direito Processual Civil (por tema)'],
+    ['KVqHqRFa9fQ7jqiX785o48', 'Revisão Direito Penal (por tema)'],
+    ['REvHWeFCx7MxZ3DRVHjQyv', 'Revisão Direito Processual Penal (por tema)'],
+    ['YCTmRRt2Y9ohrwiGoKtdF4', 'Revisão Direito Tributário (por tema)'],
+    ['GNA14ajarwi7VCfTMtxTmc', 'Revisão Direito Empresarial (por tema)'],
+    ['9pdgcahwDWbdzj4xqpgWBK', 'Revisão Direito Ambiental (por tema)'],
+    ['FtQHMGsKwwEMc6FMGyAjok', 'Revisão Direitos Humanos (por tema)'],
+    ['JrweAJAk732MQyHjgvEguy', 'Revisão Medicina Legal (por tema)'],
+    ['QJokTmweF7LtBM7qn66cz2', 'Revisão Previdenciário e Financeiro (por tema)'],
+  ].map(([id, nome]) => ({ ala: 'est', grupo: 'Revisões por tema', id, nome, data: '2026-09-28', desc: 'Revisão da matéria organizada por tema.' })),
+  { ala: 'est', grupo: 'Simulados', id: '82fbE2YL7JJRxex9ZPteQz', nome: 'Direito Civil Simulados', data: '2026-10-14', desc: 'Questões de Direito Civil com gabarito comentado.' },
+  { ala: 'est', grupo: 'Simulados', id: 'B1fvDW6doAGSSWL8mszyM3', nome: 'Processual Civil Simulados', data: '2026-10-14', desc: 'Questões de Processo Civil com gabarito comentado.' },
+  { ala: 'est', grupo: 'Simulados', id: 'EwQWSW8HdvHo4sdmbRzK7o', nome: 'Ambiental Simulados', data: '2026-10-14', desc: 'Questões de Direito Ambiental com gabarito comentado.' },
+  { ala: 'est', grupo: 'Simulados', id: 'KWfu44f3ezE9m7K8UnpN1F', nome: 'Direitos Humanos Simulados', data: '2026-10-14', desc: 'Questões de Direitos Humanos com gabarito comentado.' },
+  { ala: 'est', grupo: 'Simulados', id: '5bnWa4ZhGUuZTVMw9dK7SR', nome: 'DPC-MA Simulado 1: Índice Consolidado (100 Questões)', data: '2026-10-03', desc: 'Índice das 100 questões do simulado de Delegado do Maranhão, por bloco e tema.' },
+  { ala: 'est', grupo: 'Simulados', id: '1de37gQizch8936YMzpcAC', nome: 'BLOCO 1: Civil, Processual e Ambiental (Q1-Q33)', data: '2026-10-03', desc: 'DPC-MA Simulado 1, questões 1 a 33, pelo método Palácio da Memória.' },
+  { ala: 'est', grupo: 'Ferramentas de estudo', id: '7RShi23MZKYUf3cxYoGs4h', nome: 'Usina de Fontes NLM', data: '2026-10-25', desc: 'Gera prompts e textos com IA e baixa HTML ou .md como fonte para o NotebookLM.' },
+  { ala: 'est', grupo: 'Ferramentas de estudo', id: 'QPyUyBiMniMxP3Dd6PXJQy', nome: 'Dossiê MATÉRIAS', data: '2026-09-13', desc: 'Dossiê das matérias do edital.' },
+
+  // ---------- OUTROS ----------
+  { ala: 'out', grupo: 'Trabalho', id: '4snfDyHyUWbANvfhHmxqEL', nome: 'Peças do Júri — 1ª Vara', data: '2026-10-29', desc: 'Peças do Tribunal do Júri da 1ª Vara.' },
+  { ala: 'out', grupo: 'Trabalho', id: '7tYHWwsKzW9F9tQ7LNtMR1', nome: 'Relatório de Diárias - Segunda Quinzena Outubro/2026', data: '2026-10-31', desc: 'Relatório de diárias da 2ª quinzena de outubro.' },
+  { ala: 'out', grupo: 'Trabalho', id: 'URL6kr4GG9MJUmQ4KtDEPZ', nome: 'Relatório de Atividades Cartorárias — Jun/Jul/Ago 2026', data: '2026-09-25', desc: 'Atividades cartorárias de junho a agosto.' },
+  { ala: 'out', grupo: 'Trabalho', id: 'BEPbXxuYyZzREXDoRNbNfE', nome: 'Painel de Certidões — PJe', data: '2026-09-15', desc: 'Certidões do PJe.' },
+  { ala: 'out', grupo: 'Criação', id: 'BayMkHnhaoRtq3pU6pyRNh', nome: 'Estúdio de Vídeo IA', data: '2026-10-28', desc: 'Criação de vídeos com IA.' },
+  { ala: 'out', grupo: 'Criação', id: 'NsZ1TCD5AHzLKyeHZLcrbk', nome: 'Sara Maísa Estética — Logo', data: '2026-09-25', desc: 'Logo da Sara Maísa Estética.' },
+  { ala: 'out', grupo: 'Rascunho', id: 'BjL3VVKmLf4xGJG1CjfP3S', nome: 'Untitled', data: '2026-10-20', desc: 'Documento sem título com uma frase sobre modelo de alvará. Candidato a apagar.' },
+];
+const ALAS = {
+  mar: { titulo: 'Multipropriedade', sub: 'Distratos GAV, Porto 2 Life e escritório Di Pallacio' },
+  est: { titulo: 'Estudos', sub: 'Concursos: revisões por tema, simulados e ferramentas' },
+  out: { titulo: 'Outros', sub: 'Trabalho na vara, criação e rascunhos' },
+};
+const COR = { mar: 'var(--mar)', est: 'var(--est)', out: 'var(--neutro)' };
+
+const $ = (id) => document.getElementById(id);
+const guarda = {
+  ler(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  gravar(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+const estado = { busca: '', vista: 'tudo', filtro: { mar: null, est: null, out: null },
+  fav: new Set(guarda.ler('estante-fav', [])), rec: guarda.ler('estante-rec', []) };
+
+const semAcento = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const dataBR = (iso) => iso.split('-').reverse().slice(0, 2).join('/');
+function dias(iso) { return Math.max(0, Math.floor((Date.now() - new Date(iso + 'T12:00:00').getTime()) / 864e5)); }
+const ESTRELA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z" stroke-linejoin="round"></path></svg>';
+
+function passa(it) {
+  if (!estado.busca) return true;
+  const q = semAcento(estado.busca);
+  return semAcento(`${it.nome} ${it.desc} ${it.grupo} ${ALAS[it.ala].titulo}`).includes(q);
+}
+
+function abrir(it) {
+  estado.rec = [it.id, ...estado.rec.filter((x) => x !== it.id)].slice(0, 6);
+  guarda.gravar('estante-rec', estado.rec);
+  desenharAtalhos();
+}
+
+function linkPara(it, cls) {
+  const a = document.createElement('a');
+  a.href = A(it.id); a.target = '_blank'; a.rel = 'noopener'; a.className = cls;
+  a.addEventListener('click', () => abrir(it));
+  return a;
+}
+
+function desenharAtalhos() {
+  for (const [alvo, ids, vazio] of [
+    ['favoritos', [...estado.fav], 'Toque na estrela de um artefato para fixar aqui.'],
+    ['recentes', estado.rec, 'Os artefatos que você abrir por aqui aparecem nesta linha.'],
+  ]) {
+    const box = $(alvo); box.textContent = '';
+    const lista = ids.map((id) => ITENS.find((i) => i.id === id)).filter(Boolean);
+    if (!lista.length) { const p = document.createElement('p'); p.className = 'vazio'; p.textContent = vazio; box.appendChild(p); continue; }
+    for (const it of lista) {
+      const a = linkPara(it, 'ficha'); a.style.setProperty('--c', COR[it.ala]);
+      const s = document.createElement('span'); s.textContent = it.nome; a.appendChild(s); a.title = it.nome;
+      box.appendChild(a);
+    }
+  }
+}
+
+function itemEl(it) {
+  const d = document.createElement('div'); d.className = 'item';
+  const a = linkPara(it, 'nome'); a.textContent = it.nome; d.appendChild(a);
+  const st = document.createElement('button'); st.type = 'button'; st.className = 'estrela'; st.innerHTML = ESTRELA;
+  st.setAttribute('aria-pressed', String(estado.fav.has(it.id)));
+  st.setAttribute('aria-label', (estado.fav.has(it.id) ? 'Tirar dos favoritos: ' : 'Fixar nos favoritos: ') + it.nome);
+  st.addEventListener('click', () => {
+    estado.fav.has(it.id) ? estado.fav.delete(it.id) : estado.fav.add(it.id);
+    guarda.gravar('estante-fav', [...estado.fav]); desenhar();
+  });
+  d.appendChild(st);
+  const p = document.createElement('div'); p.className = 'desc'; p.textContent = it.desc; d.appendChild(p);
+  const m = document.createElement('div'); m.className = 'meta';
+  const n = dias(it.data);
+  m.textContent = `atualizado em ${dataBR(it.data)}`;
+  if (n <= 7) { const t = document.createElement('span'); t.className = 'tag novo'; t.textContent = n === 0 ? 'hoje' : `há ${n} ${n === 1 ? 'dia' : 'dias'}`; m.appendChild(t); }
+  else if (n > 30) { const t = document.createElement('span'); t.className = 'tag parado'; t.textContent = `parado há ${n} dias`; m.appendChild(t); }
+  d.appendChild(m);
+  return d;
+}
+
+function alaEl(chave) {
+  const todos = ITENS.filter((i) => i.ala === chave);
+  const visiveis = todos.filter(passa);
+  const grupos = [...new Set(todos.map((i) => i.grupo))];
+  const filtro = estado.filtro[chave];
+  const sec = document.createElement('div'); sec.className = `ala ${chave}`;
+  const topo = document.createElement('div'); topo.className = 'ala-topo';
+  topo.innerHTML = '<div class="linha"><h2></h2><span class="conta"></span></div><p class="sub"></p><div class="chips" role="group"></div>';
+  topo.querySelector('h2').textContent = ALAS[chave].titulo;
+  topo.querySelector('.conta').textContent = `${todos.length} artefatos`;
+  topo.querySelector('.sub').textContent = ALAS[chave].sub;
+  const chips = topo.querySelector('.chips'); chips.setAttribute('aria-label', `Filtrar ${ALAS[chave].titulo}`);
+  for (const g of [null, ...grupos]) {
+    const b = document.createElement('button'); b.type = 'button';
+    const qtd = visiveis.filter((i) => !g || i.grupo === g).length;
+    b.innerHTML = '<span></span><span class="n"></span>';
+    b.firstChild.textContent = g || 'Todos'; b.lastChild.textContent = qtd;
+    b.setAttribute('aria-pressed', String(filtro === g));
+    b.addEventListener('click', () => { estado.filtro[chave] = g; desenhar(); });
+    chips.appendChild(b);
+  }
+  sec.appendChild(topo);
+  const mostrar = visiveis.filter((i) => !filtro || i.grupo === filtro);
+  if (!mostrar.length) {
+    const p = document.createElement('p'); p.className = 'nada';
+    p.textContent = estado.busca ? `Nada com “${estado.busca}” aqui.` : 'Nenhum artefato neste grupo.';
+    sec.appendChild(p); return sec;
+  }
+  for (const g of grupos) {
+    const doGrupo = mostrar.filter((i) => i.grupo === g);
+    if (!doGrupo.length) continue;
+    const gr = document.createElement('div'); gr.className = 'grupo';
+    const h = document.createElement('h3'); h.textContent = g; gr.appendChild(h);
+    for (const it of doGrupo) gr.appendChild(itemEl(it));
+    sec.appendChild(gr);
+  }
+  return sec;
+}
+
+function desenhar() {
+  const alas = $('alas'); alas.textContent = '';
+  const v = estado.vista;
+  const quais = v === 'multipropriedade' ? ['mar'] : v === 'estudos' ? ['est'] : ['mar', 'est'];
+  alas.classList.toggle('uma', quais.length === 1);
+  for (const k of quais) alas.appendChild(alaEl(k));
+  const out = $('outros'); out.textContent = '';
+  if (v === 'tudo') out.appendChild(alaEl('out'));
+  const cont = (k) => ITENS.filter((i) => i.ala === k).length;
+  const parados = ITENS.filter((i) => dias(i.data) > 30).length;
+  $('resumo').innerHTML = '';
+  $('resumo').append(
+    'São ', Object.assign(document.createElement('b'), { textContent: ITENS.length }), ' artefatos: ',
+    Object.assign(document.createElement('b'), { textContent: cont('mar') }), ' de multipropriedade, ',
+    Object.assign(document.createElement('b'), { textContent: cont('est') }), ' de estudos e ',
+    Object.assign(document.createElement('b'), { textContent: cont('out') }), ' outros. ',
+    Object.assign(document.createElement('b'), { textContent: parados }), ' sem atualização há mais de 30 dias.');
+  for (const b of document.querySelectorAll('.seg button')) b.setAttribute('aria-pressed', String(b.dataset.v === v));
+  desenharAtalhos();
+}
+
+function lerHash() {
+  const h = location.hash.replace('#', '');
+  estado.vista = ['multipropriedade', 'estudos'].includes(h) ? h : 'tudo';
+  desenhar();
+}
+for (const b of document.querySelectorAll('.seg button')) b.addEventListener('click', () => {
+  const v = b.dataset.v;
+  if (v === 'tudo') { try { history.replaceState(null, '', location.pathname + location.search); } catch {} lerHash(); }
+  else location.hash = v;
+});
+window.addEventListener('hashchange', lerHash);
+$('busca').addEventListener('input', (e) => { estado.busca = e.target.value.trim(); desenhar(); });
+lerHash();
+</script>
