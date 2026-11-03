@@ -30,3 +30,18 @@ Para trocar a voz sintética por uma gravação humana, substitua os arquivos `v
 (um por cena, na ordem de `cenas.py`) e rode de `gerar.py` em diante sem a etapa do Piper.
 
 Edge-TTS não funciona no ambiente de nuvem (usa WebSocket); no PC funciona e soa melhor.
+
+## Black November (`black-november/`)
+
+Reels de campanha com renderizador próprio (`black-november.html`) no visual do cartaz:
+raios dourados, escada 13% → 14% → 15%, gráfico até o teto de 30% e "EU QUERO".
+
+```bash
+cd black-november
+python3 gerar.py ../pt_BR-cadu-medium.onnx   # narração por cena → projeto.json
+python3 alinhar.py                            # move as animações para o instante real de cada palavra
+python3 mix.py                                # batida 118 BPM, subida, sinos e impactos → audio.wav
+python3 srt.py projeto.json legenda.srt
+node render.mjs "$PWD/black-november.html" projeto.json mudo.mp4
+ffmpeg -i mudo.mp4 -i audio.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart final.mp4
+```

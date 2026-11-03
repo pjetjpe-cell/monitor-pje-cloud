@@ -1,0 +1,313 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Black November DI PALLACIO · render</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Cormorant+Garamond:wght@600;700&family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=Poppins:wght@500;600;700;800&display=swap">
+<style>html, body { margin: 0; background: #000; } canvas { display: block; max-height: 100vh; max-width: 100vw; margin: auto; }</style>
+<canvas id="tela" width="1080" height="1920"></canvas>
+<script>
+// Renderizador do Reels "Black November" da DI PALLACIO, no visual do cartaz da campanha.
+// Lê o roteiro (cenas, tempos da fala e marcas) que o render.mjs grava no localStorage
+// e expõe window.estudioRender para ser renderizado quadro a quadro.
+(() => {
+'use strict';
+const cv = document.getElementById('tela'), cx = cv.getContext('2d');
+const W = 1080, H = 1920;
+let P = null;
+try { const d = JSON.parse(localStorage.getItem('estudio-video-v1')); P = d.projetos[d.ativo]; } catch (e) {}
+const CENAS = P ? P.cenas : [];
+const T = CENAS.reduce((a, c) => a + c.duracao, 0);
+
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const eo = x => 1 - Math.pow(1 - clamp(x), 3);
+const eback = x => { x = clamp(x); const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const ESCURO = '#1a1206', BRANCO = '#ffffff', CREME = 'rgba(236,214,160,0.85)';
+const AVISO = 'Percentual válido somente com a documentação completa enviada na data indicada.';
+
+function cenaEm(t) {
+  for (let i = 0; i < CENAS.length; i++) { const c = CENAS[i]; if (t < c.inicio + c.duracao || i === CENAS.length - 1) return { i, c, lt: Math.max(0, t - c.inicio) }; }
+  return null;
+}
+// Dourado com brilho que passa pela letra
+function ouro(x0, y0, x1, y1, t) {
+  const g = cx.createLinearGradient(x0, y0, x1, y1); const s = ((t * 0.45) % 1.8) - 0.4;
+  g.addColorStop(0, '#9a6c25'); g.addColorStop(clamp(s - 0.18), '#d8b25c'); g.addColorStop(clamp(s), '#fff4d2');
+  g.addColorStop(clamp(s + 0.18), '#d8b25c'); g.addColorStop(1, '#a37632'); return g;
+}
+function rr(x, y, w, h, r) { cx.beginPath(); cx.moveTo(x + r, y); cx.arcTo(x + w, y, x + w, y + h, r); cx.arcTo(x + w, y + h, x, y + h, r); cx.arcTo(x, y + h, x, y, r); cx.arcTo(x, y, x + w, y, r); cx.closePath(); }
+// Texto com fonte, alinhamento, espaçamento e preenchimento (cor ou "ouro")
+function tx(s, x, y, o) {
+  cx.save(); cx.font = o.font; cx.textAlign = o.align || 'center'; cx.textBaseline = o.base || 'alphabetic';
+  cx.letterSpacing = (o.ls || 0) + 'px'; cx.globalAlpha *= o.alpha == null ? 1 : o.alpha;
+  if (o.ouro) { const w = cx.measureText(s).width, x0 = cx.textAlign === 'center' ? x - w / 2 : cx.textAlign === 'right' ? x - w : x; cx.fillStyle = ouro(x0, y - 100, x0 + w, y, o.t || 0); }
+  else cx.fillStyle = o.fill || BRANCO;
+  if (o.sombra) { cx.shadowColor = o.sombra; cx.shadowBlur = o.blur || 30; }
+  cx.fillText(s, x, y); cx.restore();
+}
+function largura(s, font, ls = 0) { cx.save(); cx.font = font; cx.letterSpacing = ls + 'px'; const w = cx.measureText(s).width; cx.restore(); return w; }
+// Entrada de um elemento: opacidade e subida com leve sobra
+function entra(lt, t0, dur = 0.38) { const q = (lt - t0) / dur; return { a: eo(q * 1.4), dy: (1 - eback(q)) * 70 }; }
+
+// ---------- fundo: raios, brilho central, partículas e vinheta ----------
+const PART = Array.from({ length: 95 }, (_, i) => { const r = n => { const v = Math.sin(i * 127.1 + n * 311.7) * 43758.5453; return v - Math.floor(v); }; return { x: r(1) * W, y: r(2) * H, s: 0.8 + r(3) * 2.6, v: 10 + r(4) * 34, f: r(5) * 6.28 }; });
+let raioGrad = null;
+function fundo(t, forca, cy) {
+  cx.fillStyle = '#070504'; cx.fillRect(0, 0, W, H);
+  let g = cx.createRadialGradient(W / 2, cy, 0, W / 2, cy, H * 0.75);
+  g.addColorStop(0, `rgba(125,86,32,${0.5 * Math.min(1.6, forca)})`); g.addColorStop(0.45, 'rgba(52,35,14,0.35)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+  if (!raioGrad) { raioGrad = cx.createRadialGradient(0, 0, 0, 0, 0, H * 1.1); raioGrad.addColorStop(0, 'rgba(255,214,130,0.11)'); raioGrad.addColorStop(0.55, 'rgba(255,200,110,0.035)'); raioGrad.addColorStop(1, 'rgba(255,200,110,0)'); }
+  cx.save(); cx.translate(W / 2, cy); cx.rotate(t * 0.035); cx.globalAlpha = Math.min(1, forca); cx.fillStyle = raioGrad;
+  const n = 30; for (let i = 0; i < n; i++) { const a0 = i / n * Math.PI * 2; cx.beginPath(); cx.moveTo(0, 0); cx.arc(0, 0, H * 1.2, a0, a0 + Math.PI / n * 0.55); cx.closePath(); cx.fill(); }
+  if (forca > 1) { cx.globalAlpha = forca - 1; for (let i = 0; i < n; i++) { const a0 = i / n * Math.PI * 2; cx.beginPath(); cx.moveTo(0, 0); cx.arc(0, 0, H * 1.2, a0, a0 + Math.PI / n * 0.55); cx.closePath(); cx.fill(); } }
+  cx.restore();
+  for (const p of PART) {
+    const y = ((p.y - t * p.v) % H + H) % H, a = 0.18 + 0.32 * (0.5 + 0.5 * Math.sin(t * 1.7 + p.f));
+    cx.fillStyle = `rgba(240,205,130,${a})`; cx.beginPath(); cx.arc(p.x + Math.sin(t * 0.6 + p.f) * 10, y, p.s, 0, Math.PI * 2); cx.fill();
+  }
+  g = cx.createRadialGradient(W / 2, H / 2, H * 0.28, W / 2, H / 2, H * 0.82); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.78)');
+  cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+}
+
+// ---------- marca: balança + DI PALLACIO / ENTERPRISE · FILIAL PERNAMBUCO ----------
+function logo(a, y = 150, esc = 1) {
+  const f1 = `700 ${50 * esc}px "Cormorant Garamond", serif`, f2 = `500 ${18 * esc}px Poppins, sans-serif`;
+  const w1 = largura('DI PALLACIO', f1, 10 * esc), w2 = largura('ENTERPRISE · FILIAL PERNAMBUCO', f2, 6 * esc);
+  const total = 84 * esc + Math.max(w1, w2), x0 = (W - total) / 2, ix = x0 + 34 * esc, iy = y;
+  cx.save(); cx.globalAlpha = a; cx.strokeStyle = '#c9a24f'; cx.lineWidth = 3 * esc; cx.lineCap = 'round';
+  cx.beginPath(); cx.arc(ix, iy, 34 * esc, 0, Math.PI * 2); cx.stroke();
+  const s = esc; cx.lineWidth = 2.4 * s; cx.beginPath();
+  cx.moveTo(ix, iy - 19 * s); cx.lineTo(ix, iy + 15 * s); cx.moveTo(ix - 21 * s, iy - 11 * s); cx.lineTo(ix + 21 * s, iy - 11 * s);
+  cx.moveTo(ix - 9 * s, iy + 16 * s); cx.lineTo(ix + 9 * s, iy + 16 * s);
+  cx.moveTo(ix - 21 * s, iy - 11 * s); cx.lineTo(ix - 27 * s, iy + 3 * s); cx.moveTo(ix - 21 * s, iy - 11 * s); cx.lineTo(ix - 15 * s, iy + 3 * s);
+  cx.moveTo(ix + 21 * s, iy - 11 * s); cx.lineTo(ix + 15 * s, iy + 3 * s); cx.moveTo(ix + 21 * s, iy - 11 * s); cx.lineTo(ix + 27 * s, iy + 3 * s); cx.stroke();
+  cx.beginPath(); cx.arc(ix - 21 * s, iy + 3 * s, 7 * s, 0, Math.PI); cx.stroke(); cx.beginPath(); cx.arc(ix + 21 * s, iy + 3 * s, 7 * s, 0, Math.PI); cx.stroke();
+  cx.restore();
+  tx('DI PALLACIO', x0 + 84 * esc, iy + 6 * esc, { font: f1, align: 'left', ls: 10 * esc, fill: '#e2c070', alpha: a });
+  tx('ENTERPRISE · FILIAL PERNAMBUCO', x0 + 86 * esc, iy + 38 * esc, { font: f2, align: 'left', ls: 6 * esc, fill: 'rgba(228,204,150,0.8)', alpha: a });
+}
+function aviso(a) { tx(AVISO, W / 2, H * 0.955, { font: '500 23px Poppins, sans-serif', fill: 'rgba(255,255,255,0.55)', alpha: a }); }
+
+// ---------- legenda palavra por palavra ----------
+function legenda(c, lt) {
+  const ws = String(c.fala || '').split(/\s+/).filter(Boolean); if (!ws.length || lt < c.tFala[0]) return;
+  const ini = c.tFala[0], fim = c.tFala[1], pes = ws.map(w => w.length + 2), soma = pes.reduce((a, b) => a + b, 0);
+  let idx = ws.length - 1, iniP = fim, dur = 0.2;
+  for (let i = 0, acc = ini; i < ws.length; i++) { const d = (fim - ini) * pes[i] / soma; if (lt < acc + d) { idx = i; iniP = acc; dur = d; break; } acc += d; }
+  const g = Math.floor(idx / 3), grupo = ws.slice(g * 3, g * 3 + 3);
+  let tam = 62; const fonte = () => `800 ${tam}px Poppins, sans-serif`;
+  cx.save(); cx.font = fonte(); const sp = () => cx.measureText(' ').width;
+  let L = grupo.reduce((s, w) => s + cx.measureText(w).width, 0) + sp() * (grupo.length - 1);
+  while (L > W * 0.88 && tam > 34) { tam -= 4; cx.font = fonte(); L = grupo.reduce((s, w) => s + cx.measureText(w).width, 0) + sp() * (grupo.length - 1); }
+  let x = (W - L) / 2; const y = H * 0.865;
+  cx.textBaseline = 'middle'; cx.lineJoin = 'round'; cx.lineWidth = tam * 0.17; cx.strokeStyle = 'rgba(0,0,0,0.85)';
+  grupo.forEach((w, j) => {
+    const at = g * 3 + j === idx, wd = cx.measureText(w).width, pop = at ? 1 + 0.08 * (1 - eo((lt - iniP) / Math.min(dur, 0.18))) : 1;
+    cx.save(); cx.translate(x + wd / 2, y); cx.scale(pop, pop); cx.strokeText(w, -wd / 2, 0);
+    cx.fillStyle = at ? ouro(-wd / 2, -40, wd / 2, 40, lt) : BRANCO; cx.fillText(w, -wd / 2, 0); cx.restore();
+    x += wd + sp();
+  });
+  cx.restore();
+}
+
+// ---------- cenas ----------
+function gancho(c, lt, t) {
+  const [mCota, mNao] = c.marcas, y = H * 0.38;
+  let e = entra(lt, 0.12); tx('VOCÊ AINDA PAGA', W / 2, y + e.dy, { font: '118px Anton, sans-serif', alpha: e.a });
+  e = entra(lt, mCota - 0.18);
+  tx('COTA DE RESORT', W / 2, y + 165 + e.dy, { font: '156px Anton, sans-serif', ouro: true, t, alpha: e.a, sombra: 'rgba(230,180,80,0.35)' });
+  cx.fillStyle = ouro(W * 0.2, 0, W * 0.8, 0, t); cx.fillRect(W / 2 - 360 * eo((lt - mCota) / 0.5), y + 200, 720 * eo((lt - mCota) / 0.5), 5);
+  e = entra(lt, mNao - 0.12); const k = 1 - eo((lt - mNao) / 0.4), sh = Math.sin(lt * 70) * 10 * k;
+  tx('QUE NÃO USA?', W / 2 + sh, y + 345 + e.dy, { font: '124px Anton, sans-serif', alpha: e.a });
+}
+function black(c, lt, t) {
+  const tb = c.marcas[0] - 0.22, q = lt - tb;
+  let e = entra(lt, 0.1); tx('CHEGOU A', W / 2, H * 0.31 + e.dy, { font: '700 42px Poppins, sans-serif', ls: 16, fill: '#e2c070', alpha: e.a * (q > 0 ? 1 - eo(q / 0.3) * 0.4 : 1) });
+  if (q > 0) {
+    const s = 1 + 0.55 * (1 - eo(q / 0.32)), a = eo(q / 0.16), k = clamp(1 - q / 0.32), dx = Math.sin(q * 95) * 16 * k, dy = Math.cos(q * 80) * 12 * k;
+    cx.save(); cx.translate(W / 2 + dx, H * 0.47 + dy); cx.scale(s, s);
+    tx('BLACK', 0, 0, { font: '330px Anton, sans-serif', alpha: a, sombra: 'rgba(255,255,255,0.25)', blur: 40 });
+    tx('NOVEMBER', 0, 220, { font: '214px Anton, sans-serif', ouro: true, t, alpha: a, sombra: 'rgba(230,180,80,0.45)', blur: 50 });
+    cx.restore();
+    tx('DISTRATO DE MULTIPROPRIEDADE', W / 2, H * 0.47 + 320, { font: '600 26px Poppins, sans-serif', ls: 9, fill: CREME, alpha: eo((q - 0.6) / 0.4) });
+    if (q < 0.22) { cx.fillStyle = `rgba(255,236,190,${0.6 * (1 - q / 0.22)})`; cx.fillRect(0, 0, W, H); }
+  }
+}
+function papel(x, y, w, h, ang) {
+  cx.save(); cx.translate(x + w / 2, y + h / 2); cx.rotate(ang); cx.shadowColor = 'rgba(0,0,0,0.6)'; cx.shadowBlur = 40; cx.shadowOffsetY = 18;
+  cx.fillStyle = '#f4eddc'; rr(-w / 2, -h / 2, w, h, 12); cx.fill(); cx.shadowColor = 'transparent';
+  cx.fillStyle = '#cdbf9f'; for (let i = 0; i < 8; i++) cx.fillRect(-w / 2 + 40, -h / 2 + 60 + i * 44, (w - 80) * (i % 3 === 2 ? 0.55 : 0.9), 12);
+  cx.fillStyle = '#b8892e'; cx.fillRect(-w / 2 + 40, -h / 2 + 30, 120, 10); cx.restore();
+}
+function regra(c, lt, t) {
+  const [mData, mDoc] = c.marcas;
+  let e = entra(lt, 0.1); tx('HONORÁRIOS DE ÊXITO', W / 2, H * 0.24 + e.dy, { font: '700 52px Poppins, sans-serif', ls: 14, ouro: true, t, alpha: e.a });
+  e = entra(lt, mData - 0.25); tx('pela data de envio da', W / 2, H * 0.24 + 92 + e.dy, { font: '500 48px Poppins, sans-serif', fill: 'rgba(255,255,255,0.88)', alpha: e.a });
+  e = entra(lt, mDoc - 0.25); tx('documentação completa', W / 2, H * 0.24 + 168 + e.dy, { font: '800 60px Poppins, sans-serif', alpha: e.a });
+  cx.fillStyle = ouro(0, 0, W, 0, t); const u = eo((lt - mDoc) / 0.5); cx.fillRect(W / 2 - 330 * u, H * 0.24 + 192, 660 * u, 5);
+  // pilha de documentos com selo de conferido
+  const a = eo((lt - 0.4) / 0.5), base = H * 0.44 + (1 - a) * 80;
+  cx.save(); cx.globalAlpha = a; papel(W / 2 - 250, base + 20, 380, 470, -0.09); papel(W / 2 - 150, base, 380, 470, 0.06); papel(W / 2 - 200, base + 10, 380, 470, -0.01); cx.restore();
+  const sq = (lt - mDoc - 0.25) / 0.4;
+  if (sq > 0) {
+    const s = 1 + 0.9 * (1 - eback(sq)), sx = W / 2 + 150, sy = base + 400;
+    cx.save(); cx.translate(sx, sy); cx.scale(s, s); cx.globalAlpha = eo(sq * 2);
+    cx.fillStyle = ouro(-90, -90, 90, 90, t); cx.beginPath(); cx.arc(0, 0, 92, 0, Math.PI * 2); cx.fill();
+    cx.strokeStyle = ESCURO; cx.lineWidth = 16; cx.lineCap = 'round'; cx.lineJoin = 'round';
+    cx.beginPath(); cx.moveTo(-40, 2); cx.lineTo(-10, 34); cx.lineTo(44, -30); cx.stroke(); cx.restore();
+  }
+}
+const ESCADA = [['03/11', 'TERÇA', 13], ['04/11', 'QUARTA', 14], ['05/11', 'QUINTA', 15]];
+function cartao(i, lt, t, r) {
+  const x0 = 90, w = W - 180, h = 200, y = H * 0.285 + i * 232, q = lt - r; if (q < 0) return;
+  const a = eo(q / 0.35), dx = (1 - eo(q / 0.45)) * 160;
+  cx.save(); cx.globalAlpha = a; cx.translate(dx, 0);
+  cx.fillStyle = 'rgba(28,21,12,0.93)'; rr(x0, y, w, h, 22);
+  if (i === 0) { cx.shadowColor = `rgba(236,196,104,${0.45 + 0.2 * Math.sin(t * 4)})`; cx.shadowBlur = 50; }
+  cx.fill(); cx.shadowColor = 'transparent';
+  cx.lineWidth = i === 0 ? 4 : 2.5; cx.strokeStyle = i === 0 ? ouro(x0, y, x0 + w, y + h, t) : 'rgba(201,162,79,0.6)'; cx.stroke();
+  cx.restore();
+  const [d, dia, v] = ESCADA[i];
+  tx(d, x0 + 50 + dx, y + 122, { font: '106px Anton, sans-serif', align: 'left', alpha: a });
+  tx(dia, x0 + 54 + dx, y + 166, { font: '600 26px Poppins, sans-serif', align: 'left', ls: 9, fill: CREME, alpha: a });
+  cx.save(); cx.globalAlpha = a; cx.strokeStyle = '#d6ad55'; cx.lineWidth = 7; cx.lineCap = 'round'; cx.lineJoin = 'round';
+  const ax = x0 + w * 0.4 + dx, ay = y + 100; cx.beginPath(); cx.moveTo(ax, ay); cx.lineTo(ax + 64, ay); cx.moveTo(ax + 40, ay - 22); cx.lineTo(ax + 66, ay); cx.lineTo(ax + 40, ay + 22); cx.stroke(); cx.restore();
+  const n = Math.round(v * eo((q - 0.1) / 0.55));
+  tx(n + '%', x0 + w - 44 + dx, y + 160, { font: '500 150px "Bodoni Moda", serif', align: 'right', ouro: true, t, alpha: a });
+  if (i === 0 && q > 0.55) {
+    const s = eback((q - 0.55) / 0.35); cx.save(); cx.translate(x0 + w - 150, y - 6); cx.rotate(0.06); cx.scale(s, s);
+    cx.fillStyle = ouro(-130, -30, 130, 30, t); rr(-130, -30, 260, 60, 10); cx.fill();
+    cx.restore();
+    cx.save(); cx.translate(x0 + w - 150, y - 6); cx.rotate(0.06); cx.scale(s, s);
+    tx('MENOR TAXA', 0, 10, { font: '800 27px Poppins, sans-serif', ls: 4, fill: ESCURO }); cx.restore();
+  }
+}
+function escada(c, lt, t) {
+  let e = entra(lt, 0.05); tx('HONORÁRIOS DE ÊXITO', W / 2, H * 0.2 + e.dy, { font: '700 38px Poppins, sans-serif', ls: 13, ouro: true, t, alpha: e.a });
+  tx('pela data de envio da documentação completa', W / 2, H * 0.2 + 56 + e.dy, { font: '500 32px Poppins, sans-serif', fill: 'rgba(255,255,255,0.85)', alpha: e.a });
+  c.marcas.forEach((m, i) => cartao(i, lt, t, m - 0.3));
+  aviso(eo((lt - 1) / 0.5));
+}
+function sobe(c, lt, t) {
+  const mTeto = c.marcas[0];
+  let e = entra(lt, 0.05);
+  const w1 = largura('+1%', '150px Anton, sans-serif'), w2 = largura(' AO DIA', '150px Anton, sans-serif'), x0 = (W - w1 - w2) / 2;
+  tx('+1%', x0, H * 0.25 + e.dy, { font: '150px Anton, sans-serif', align: 'left', ouro: true, t, alpha: e.a });
+  tx(' AO DIA', x0 + w1, H * 0.25 + e.dy, { font: '150px Anton, sans-serif', align: 'left', alpha: e.a });
+  // gráfico em degraus: 13% em 03/11, +1 por dia até 30% em 20/11, teto até 30/11
+  const L = 150, R = W - 110, TOP = H * 0.34, BOT = H * 0.63, X = d => L + (d - 3) / 27 * (R - L), Y = p => BOT - (p - 13) / 17 * (BOT - TOP);
+  const ga = eo((lt - 0.2) / 0.4); cx.save(); cx.globalAlpha = ga;
+  cx.strokeStyle = 'rgba(255,255,255,0.12)'; cx.lineWidth = 2; [13, 20, 30].forEach(p => { cx.beginPath(); cx.moveTo(L, Y(p)); cx.lineTo(R, Y(p)); cx.stroke(); });
+  cx.restore();
+  [13, 20, 30].forEach(p => tx(p + '%', L - 18, Y(p) + 10, { font: '600 28px Poppins, sans-serif', align: 'right', fill: 'rgba(255,255,255,0.6)', alpha: ga }));
+  [[3, '03/11'], [20, '20/11'], [30, '30/11']].forEach(([d, s]) => tx(s, X(d), BOT + 56, { font: '600 28px Poppins, sans-serif', fill: CREME, alpha: ga }));
+  const dFim = 3 + 17 * eo((lt - 0.4) / Math.max(0.6, mTeto - 0.3)) + 10 * eo((lt - mTeto) / 0.9);
+  const pct = d => (d <= 20 ? 13 + Math.floor(d - 3) : 30);
+  cx.beginPath(); cx.moveTo(X(3), Y(13));
+  for (let d = 3; d < dFim; d += 1) { const dn = Math.min(dFim, d + 1); cx.lineTo(X(dn), Y(pct(d))); if (dn < dFim && d + 1 <= 20) cx.lineTo(X(dn), Y(pct(d + 1))); }
+  const hx = X(dFim), hy = Y(pct(Math.min(dFim, 20)));
+  cx.save(); cx.lineTo(hx, BOT); cx.lineTo(X(3), BOT); cx.closePath(); cx.fillStyle = 'rgba(214,173,85,0.13)'; cx.fill(); cx.restore();
+  cx.beginPath(); cx.moveTo(X(3), Y(13));
+  for (let d = 3; d < dFim; d += 1) { const dn = Math.min(dFim, d + 1); cx.lineTo(X(dn), Y(pct(d))); if (dn < dFim && d + 1 <= 20) cx.lineTo(X(dn), Y(pct(d + 1))); }
+  cx.strokeStyle = ouro(L, 0, R, 0, t); cx.lineWidth = 8; cx.lineJoin = 'round'; cx.stroke();
+  if (lt > 0.4) {
+    cx.fillStyle = '#fff2cc'; cx.shadowColor = 'rgba(255,220,140,0.9)'; cx.shadowBlur = 30; cx.beginPath(); cx.arc(hx, hy, 14, 0, Math.PI * 2); cx.fill(); cx.shadowColor = 'transparent';
+    tx(pct(Math.min(dFim, 20)) + '%', Math.min(hx, R - 70), hy - 34, { font: '500 66px "Bodoni Moda", serif', ouro: true, t });
+  }
+  const s = (lt - mTeto + 0.1) / 0.4;
+  if (s > 0) {
+    cx.save(); cx.translate(W / 2, H * 0.735); const k = eback(s); cx.scale(k, k); cx.globalAlpha = eo(s * 2);
+    tx('TETO 30%', 0, 0, { font: '130px Anton, sans-serif', ouro: true, t, sombra: 'rgba(230,180,80,0.4)' });
+    tx('de 20/11 a 30/11', 0, 64, { font: '500 40px Poppins, sans-serif' }); cx.restore();
+  }
+}
+function zero(c, lt, t) {
+  const [mZero, mMeio, mDepois] = c.marcas;
+  let e = entra(lt, 0.05); tx('E TEM MAIS', W / 2, H * 0.24 + e.dy, { font: '700 38px Poppins, sans-serif', ls: 16, fill: '#e2c070', alpha: e.a });
+  const q = lt - (mZero - 0.08);
+  if (q > 0) {
+    const s = 1 + 1.1 * (1 - eo(q / 0.28)), k = clamp(1 - q / 0.3), dx = Math.sin(q * 90) * 14 * k;
+    cx.save(); cx.translate(W / 2 + dx, H * 0.45); cx.scale(s, s);
+    tx('ZERO', 0, 0, { font: '340px Anton, sans-serif', ouro: true, t, alpha: eo(q / 0.15), sombra: 'rgba(230,180,80,0.5)', blur: 50 }); cx.restore();
+    if (q < 0.7) { cx.save(); cx.globalAlpha = 1 - q / 0.7; cx.strokeStyle = '#e8c779'; cx.lineWidth = 10 * (1 - q / 0.7) + 1; cx.beginPath(); cx.arc(W / 2, H * 0.39, 200 + q * 700, 0, Math.PI * 2); cx.stroke(); cx.restore(); }
+    tx('DE ENTRADA', W / 2, H * 0.45 + 120, { font: '100px Anton, sans-serif', alpha: eo((q - 0.25) / 0.3) });
+  }
+  const b = eo((lt - mMeio + 0.25) / 0.4);
+  if (b > 0) {
+    const y = H * 0.575 + (1 - b) * 40, x0 = 90, w = W - 180, h = 300;
+    cx.save(); cx.globalAlpha = b; cx.fillStyle = 'rgba(28,21,12,0.93)'; rr(x0, y, w, h, 24); cx.fill(); cx.lineWidth = 2.5; cx.strokeStyle = 'rgba(201,162,79,0.75)'; cx.stroke(); cx.restore();
+    const f1 = '800 48px Poppins, sans-serif', f2 = '500 48px Poppins, sans-serif', a1 = largura('+ ½ salário mínimo', f1), a2 = largura(', pago', f2), xs = (W - a1 - a2) / 2;
+    tx('+ ½ salário mínimo', xs, y + 84, { font: f1, align: 'left', alpha: b }); tx(', pago', xs + a1, y + 84, { font: f2, align: 'left', alpha: b });
+    const p = (lt - mDepois + 0.2) / 0.35;
+    if (p > 0) {
+      const k = eback(p); cx.save(); cx.translate(W / 2, y + 160); cx.scale(k, k); cx.fillStyle = ouro(-200, -40, 200, 40, t); rr(-200, -42, 400, 84, 12); cx.fill(); cx.restore();
+      cx.save(); cx.translate(W / 2, y + 160); cx.scale(k, k); tx('APENAS APÓS', 0, 17, { font: '800 48px Poppins, sans-serif', ls: 4, fill: ESCURO }); cx.restore();
+      tx('a suspensão das parcelas', W / 2, y + 258, { font: '500 48px Poppins, sans-serif', alpha: eo(p) });
+    }
+  }
+}
+function antes(c, lt, t) {
+  const mMenor = c.marcas[0];
+  tx('13%', W / 2, H * 0.62, { font: '500 600px "Bodoni Moda", serif', fill: 'rgba(214,173,85,0.09)' });
+  ['15%', '14%', '13%'].forEach((s, i) => {
+    const a = eo((lt - 0.1 - i * 0.28) / 0.3), x = W / 2 + (i - 1) * 300, y = H * 0.27;
+    cx.save(); cx.globalAlpha = a; if (i === 2) { cx.fillStyle = ouro(x - 110, y - 60, x + 110, y + 60, t); rr(x - 110, y - 62, 220, 110, 55); cx.fill(); }
+    else { cx.strokeStyle = 'rgba(201,162,79,0.7)'; cx.lineWidth = 3; rr(x - 110, y - 62, 220, 110, 55); cx.stroke(); } cx.restore();
+    tx(s, x, y + 22, { font: '500 66px "Bodoni Moda", serif', fill: i === 2 ? ESCURO : 'rgba(255,255,255,0.75)', alpha: a });
+    if (i < 2) { cx.save(); cx.globalAlpha = a * 0.8; cx.strokeStyle = '#d6ad55'; cx.lineWidth = 5; cx.lineCap = 'round'; const ax = x + 125; cx.beginPath(); cx.moveTo(ax, y - 8); cx.lineTo(ax + 40, y - 8); cx.moveTo(ax + 26, y - 22); cx.lineTo(ax + 42, y - 8); cx.lineTo(ax + 26, y + 6); cx.stroke(); cx.restore(); }
+  });
+  let e = entra(lt, 0.15); tx('QUANTO ANTES,', W / 2, H * 0.47 + e.dy, { font: '132px Anton, sans-serif', alpha: e.a });
+  e = entra(lt, mMenor - 0.2); tx('MENOR A TAXA.', W / 2, H * 0.47 + 165 + e.dy, { font: '146px Anton, sans-serif', ouro: true, t, alpha: e.a, sombra: 'rgba(230,180,80,0.4)' });
+}
+function cta(c, lt, t) {
+  const [mQuero, mMarca] = c.marcas;
+  let e = entra(lt, 0.05); tx('QUER GARANTIR A MENOR TAXA?', W / 2, H * 0.3 + e.dy, { font: '700 34px Poppins, sans-serif', ls: 10, fill: '#e2c070', alpha: e.a });
+  e = entra(lt, 0.15); tx('Comente', W / 2, H * 0.38 + e.dy, { font: '120px Anton, sans-serif', alpha: e.a });
+  const q = (lt - mQuero + 0.25) / 0.4;
+  if (q > 0) {
+    const beat = 1 + 0.035 * Math.max(0, Math.sin(t * Math.PI * 2 * 1.966)), k = eback(q) * beat, y = H * 0.475;
+    cx.save(); cx.translate(W / 2, y); cx.scale(k, k);
+    cx.shadowColor = `rgba(240,200,110,${0.5 + 0.25 * Math.sin(t * 6)})`; cx.shadowBlur = 70;
+    cx.fillStyle = ouro(-380, -110, 380, 110, t); rr(-380, -112, 760, 224, 112); cx.fill(); cx.shadowColor = 'transparent'; cx.restore();
+    cx.save(); cx.translate(W / 2, y); cx.scale(k, k); tx('EU QUERO', 0, 58, { font: '168px Anton, sans-serif', fill: ESCURO }); cx.restore();
+  }
+  const m = eo((lt - mMarca + 0.2) / 0.4);
+  if (m > 0) {
+    tx('Marque quem paga cota e não usa', W / 2, H * 0.62, { font: '700 46px Poppins, sans-serif', alpha: m });
+    cx.save(); cx.globalAlpha = m; cx.strokeStyle = '#d6ad55'; cx.lineWidth = 3; cx.setLineDash([12, 10]); const wl = largura('Marque quem paga cota e não usa', '700 46px Poppins, sans-serif');
+    cx.beginPath(); cx.moveTo(W / 2 - wl / 2, H * 0.62 + 26); cx.lineTo(W / 2 + wl / 2, H * 0.62 + 26); cx.stroke(); cx.setLineDash([]);
+    cx.lineWidth = 9; cx.lineCap = 'round'; cx.lineJoin = 'round';
+    for (let i = 0; i < 2; i++) { const yy = H * 0.665 + i * 44 + Math.sin(t * 6 - i) * 10; cx.globalAlpha = m * (0.9 - i * 0.35); cx.beginPath(); cx.moveTo(W / 2 - 34, yy); cx.lineTo(W / 2, yy + 30); cx.lineTo(W / 2 + 34, yy); cx.stroke(); }
+    cx.restore();
+  }
+  aviso(eo((lt - 0.5) / 0.5));
+}
+const CENA = { gancho, black, regra, escada, sobe, zero, antes, cta };
+
+function desenhar(t) {
+  cx.setTransform(1, 0, 0, 1, 0, 0); cx.globalAlpha = 1;
+  const s = cenaEm(t); if (!s) { cx.fillStyle = '#000'; cx.fillRect(0, 0, W, H); return; }
+  const { c, lt } = s;
+  let forca = 1;
+  if (c.enquadramento === 'black') { const q = lt - (c.marcas[0] - 0.22); forca = q > 0 ? 1 + 0.9 * eo(q / 0.4) : 0.7; }
+  if (c.enquadramento === 'cta') forca = 1.2;
+  fundo(t, forca, H * 0.44);
+  // entrada de cena: leve aproximação
+  const q = eo(lt / 0.3), esc = 1.05 - 0.05 * q;
+  cx.save(); cx.translate(W / 2, H / 2); cx.scale(esc, esc); cx.translate(-W / 2, -H / 2); cx.globalAlpha = s.i === 0 ? 1 : 0.25 + 0.75 * q;
+  (CENA[c.enquadramento] || (() => {}))(c, lt, t);
+  cx.restore();
+  if (s.i > 0 && lt < 0.14) { cx.fillStyle = `rgba(255,226,160,${0.28 * (1 - lt / 0.14)})`; cx.fillRect(0, 0, W, H); }
+  logo(eo(t / 0.6), 150, 1);
+  legenda(c, lt);
+  cx.fillStyle = 'rgba(255,255,255,0.08)'; cx.fillRect(0, 0, W, 8);
+  cx.fillStyle = ouro(0, 0, W, 0, t); cx.fillRect(0, 0, W * clamp(t / (T || 1)), 8);
+}
+
+window.estudioRender = {
+  desenhar, total: () => T, canvas: cv,
+  fontes: () => Promise.all(['120px Anton', '600 40px "Cormorant Garamond"', '700 40px "Cormorant Garamond"', '400 40px "Bodoni Moda"', '500 40px "Bodoni Moda"', '500 40px Poppins', '600 40px Poppins', '700 40px Poppins', '800 40px Poppins'].map(f => document.fonts.load(f, 'ÁÊÇÃ%½0123'))),
+};
+// Prévia ao abrir o arquivo no navegador
+if (CENAS.length && !navigator.webdriver) { const t0 = performance.now(); const loop = () => { desenhar(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); }; document.fonts.ready.then(loop); }
+})();
+</script>
