@@ -1089,12 +1089,12 @@ function desenhar(t) {
       break;
     }
     case 'assinatura': {
-      const a = easeOut((lt - 0.1) / 0.6), cxm = W / 2, cy0 = H * (vert ? 0.24 : 0.26), R = 110 * k;
+      const a = easeOut((lt - 0.1) / 0.6), cxm = W / 2, cy0 = H * (vert ? 0.24 : 0.15), R = (vert ? 110 : 80) * k;
       cx.save(); cx.globalAlpha = a; cx.strokeStyle = m.secundaria; cx.lineWidth = 3 * k;
       cx.beginPath(); cx.arc(cxm, cy0, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * easeOut((lt - 0.1) / 1.1)); cx.stroke();
       const ini = String(m.nome || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
-      cx.fillStyle = m.secundaria; cx.font = `700 ${92 * k}px "${m.fonteTitulo}", serif`; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(ini, cxm, cy0 + 6 * k);
-      let tam = 120; cx.font = `700 ${tam * k}px "${m.fonteTitulo}", serif`;
+      cx.fillStyle = m.secundaria; cx.font = `700 ${(vert ? 92 : 68) * k}px "${m.fonteTitulo}", serif`; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(ini, cxm, cy0 + 6 * k);
+      let tam = vert ? 120 : 100; cx.font = `700 ${tam * k}px "${m.fonteTitulo}", serif`;
       while (cx.measureText(m.nome || '').width > W - 2 * pad && tam > 40) { tam -= 6; cx.font = `700 ${tam * k}px "${m.fonteTitulo}", serif`; }
       cx.fillStyle = m.texto; cx.textBaseline = 'top'; const yw = cy0 + R + 60 * k + (1 - a) * 30 * k; cx.fillText(m.nome || '', cxm, yw);
       const ys = yw + tam * k * 1.15;
@@ -1114,7 +1114,7 @@ function desenhar(t) {
   if (c.papel === 'cta' && m.cta) {
     const a = easeOut((lt - 0.4) / 0.4); const yc = vert ? H * 0.64 : H * 0.7;
     cx.save(); cx.globalAlpha = a; cx.font = `700 ${50 * k}px "${m.fonteTexto}", sans-serif`;
-    const tw = Math.min(cx.measureText(m.cta).width, W * 0.8); const bw = tw + 90 * k, bh = 104 * k; const bx = vert ? (W - bw) / 2 : pad;
+    const tw = Math.min(cx.measureText(m.cta).width, W * 0.8); const bw = tw + 90 * k, bh = 104 * k; const bx = vert || c.enquadramento === 'assinatura' ? (W - bw) / 2 : pad;
     cx.translate(bx + bw / 2, yc); cx.scale(0.9 + 0.1 * a, 0.9 + 0.1 * a); cx.translate(-(bx + bw / 2), -yc);
     cx.fillStyle = m.secundaria; rrect(bx, yc - bh / 2, bw, bh, bh / 2); cx.fill();
     cx.fillStyle = m.primaria; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(m.cta, bx + bw / 2, yc + 2 * k, W * 0.8); cx.restore();

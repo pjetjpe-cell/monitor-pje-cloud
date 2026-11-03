@@ -1,6 +1,7 @@
-import json, subprocess, numpy as np
+import json, subprocess, sys, numpy as np
 SR = 48000
-P = json.load(open('projeto.json'))
+ENTRADA, SAIDA = (sys.argv[1], sys.argv[2]) if len(sys.argv) > 2 else ('projeto.json', 'audio.wav')
+P = json.load(open(ENTRADA))
 T = sum(c['duracao'] for c in P['cenas']); N = int(T * SR) + SR
 rng = np.random.default_rng(7)
 
@@ -11,7 +12,14 @@ def ler(f):
 # Voz
 voz = np.zeros(N)
 for i, c in enumerate(P['cenas']):
-    a = ler(f'voz/{i:02d}.wav'); s = int((c['inicio'] + c['tFala'][0]) * SR); voz[s:s + len(a)] += a[:N - s]
+    a = ler(c.get('voz', f'voz/{i:02d}.wav')); s = int((c['inicio'] + c['tFala'][0]) * SR); voz[s:s + len(a)] += a[:N - s]
+# Tratamento de locução: corpo nos graves, presença, menos brilho metálico, compressão leve e um pouco de sala
+voz.astype('<f4').tofile('voz.f32')
+cadeia = ('highpass=f=75,equalizer=f=170:t=q:w=1.0:g=3,equalizer=f=2800:t=q:w=1.4:g=1.5,equalizer=f=6500:t=q:w=2:g=-2.5,'
+          'lowpass=f=11000,acompressor=threshold=-20dB:ratio=2.5:attack=8:release=150:makeup=2,aecho=0.85:0.7:22|37:0.10|0.06')
+voz = np.frombuffer(subprocess.run(['ffmpeg', '-v', 'error', '-f', 'f32le', '-ar', str(SR), '-ac', '1', '-i', 'voz.f32', '-af', cadeia, '-f', 'f32le', '-'],
+                                   capture_output=True, check=True).stdout, np.float32).astype(np.float64)
+voz = np.pad(voz, (0, max(0, N - len(voz))))[:N]
 voz /= np.max(np.abs(voz)) + 1e-9; voz *= 0.9
 
 t = np.arange(N) / SR
@@ -31,7 +39,7 @@ for j in range(int(T / L) + 2):
 pad *= 1 + 0.15 * np.sin(2 * np.pi * 0.11 * t)
 # Pulso: batida grave suave a 84 BPM depois do gancho
 bpm = 84; beat = 60 / bpm; pulso = np.zeros(N)
-t_ini = P['cenas'][2]['inicio']; t_fim = P['cenas'][-1]['inicio']
+t_ini = P['cenas'][min(2, len(P['cenas']) - 1)]['inicio']; t_fim = P['cenas'][-1]['inicio']
 kick_t = np.arange(int(0.35 * SR)) / SR
 kick = np.sin(2 * np.pi * (45 + 60 * np.exp(-kick_t * 30)) * kick_t) * np.exp(-kick_t * 9)
 tick = rng.normal(0, 1, int(0.05 * SR)) * np.exp(-np.arange(int(0.05 * SR)) / SR * 90)
@@ -64,5 +72,5 @@ fade = np.clip(t / 1.0, 0, 1) * np.clip((T - t) / 2.5, 0, 1)
 mix = voz + musica * fade + fx / (np.max(np.abs(fx)) + 1e-9) * 0.22
 mix = mix[:int(T * SR)]; mix /= np.max(np.abs(mix)) + 1e-9; mix *= 0.95
 (mix.astype('<f4')).tofile('mix.f32')
-subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'f32le', '-ar', str(SR), '-ac', '1', '-i', 'mix.f32', '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11', '-ar', str(SR), '-ac', '2', 'audio.wav'], check=True)
+subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'f32le', '-ar', str(SR), '-ac', '1', '-i', 'mix.f32', '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11', '-ar', str(SR), '-ac', '2', SAIDA], check=True)
 print('audio', round(T, 2), 's')
