@@ -23,7 +23,7 @@ escritório.** Se os comandos não aparecerem ao digitar `/`, copie a pasta para
 `.agents/`.
 
 ## Painel visual + vigia (comandar pelo artefato)
-O usuário trabalha no **Painel Antigravity GAV** (artefato) e o programa roda no
+O usuário trabalha na **Central Antigravity e Claude** (artefato https://claude.ai/artifact/FXBNGP8XxZiM8enVXPxdvc, gerado de `ferramentas/antigravity/central.corpo.html`) e o programa roda no
 CLI do PC. Detalhes e segurança: `ferramentas/antigravity/README.md`.
 1. Primeira vez: no PowerShell do PC, o comando `irm .../instalar.ps1 | iex`
    mostrado no painel (baixa a esteira para `C:\Users\gigica\gav\monitor-pje-cloud`,
