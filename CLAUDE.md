@@ -30,6 +30,17 @@ Este projeto inclui 10 skills especializadas. Use `/nome-da-skill` para invocar:
 | `/gav-esteira` | Organizador de pastas no Drive, ponta a ponta: localiza o cliente, normaliza a pasta, cria NÃO USAR, limpa a procuração, comprime o contrato, extrai o RG, notifica a GAV |
 | `/gav-whatsapp` | Baixa os documentos do cliente no WhatsApp Web e arquiva no Drive |
 | `/gav-peticao` | Monta a inicial pelo PREENCHEDOR DE PETIÇÃO INTERATIVO |
+| `/gav-peticionador` | Inicial/réplica de **cota quitada** pelo PETICIONADOR GAV v41, em navegador headless: dados do cliente, blocos condicionais, prints como figura, HTML/PDF com timbre e PNG de cada página |
+
+**Agente:** `peticionador-gav` (`.claude/agents/`) executa a `gav-peticionador`
+isolado: lê a pasta do cliente no Drive, olha prints, gera a peça e confere as
+páginas renderizadas.
+
+**Skills da conta** (sincronizadas no claude.ai, não versionadas aqui porque
+trazem dados de clientes e o repositório é público): `preenchedor-peticoes-gav`,
+`procuracao-dipallacio`, `taxa-operacional-gav`, `honorarios`, além das genéricas
+`pdf`, `docx`, `xlsx`, `pptx`. Nada de dado de cliente (dados.json, prints,
+peticionador v41, peças geradas) entra no git — fica no scratchpad ou no Drive.
 
 As três se apoiam nos CLIs de `ferramentas/` (ver `ferramentas/README.md`), que
 fazem o trabalho mecânico de forma determinística e **conferem o resultado**
@@ -55,6 +66,8 @@ npx playwright test # Testes E2E
 npm run lint       # Linter
 
 cd ferramentas && python3 testes/test_esteira.py   # Testes da esteira GAV
+python3 ferramentas/testes/test_imagens.py          # Printar páginas / anexo de prints
+node --test ferramentas/testes/peticionador.test.mjs  # Executor do peticionador v41
 ```
 
 ## Contexto PJe
