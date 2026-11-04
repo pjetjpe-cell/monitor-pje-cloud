@@ -85,3 +85,48 @@ movimentação · data (se a lista mostrar) · grupo. No fim, destaque:
 - processos **com prazo decorrido** ou **publicação recente** (pedem ação);
 - processos **arquivados**;
 - buscas que bateram no **limite de 30** e como foram refinadas.
+
+## Checagem semanal automática (toda quarta, ~9h45 de Recife)
+
+Pedido do usuário (04/11/2026): toda quarta, ler a tela de processos dos
+representantes **Gilzielle Veloso, Raphael Reis, Weiden Dutra, Luan Victor e
+Diogo Serafim** (Ipojuca - Varas) e mandar para **dipallacio@gmail.com** um
+e-mail só com a **tabela dos processos que mudaram** e o que foi.
+Diogo Serafim tem **um processo só**; o filtro está no arquivo privado.
+
+**Dados de cliente nunca vão para este repositório (ele é público).** A base
+(última movimentação de cada processo) e os filtros por advogado ficam no
+Google Drive (conta pjetjpe@gmail.com), no arquivo mais recente com título
+`PJe checagem semanal — base AAAA-MM-DD.json` (`{config, base}`). A primeira
+base veio das telas de 03/11/2026; listas cortadas estão com `completo: false`
+e a primeira leitura completa incorpora o resto sem avisar.
+
+Programas (`ferramentas/pje/`, sem dados):
+- `acervo.mjs` — roda **no PC do escritório**, no Chrome da porta 9222 já logado
+  no PJe; contorna o limite de 30 (por vara e depois por data de autuação).
+  `--config` = o `config` do arquivo privado. Saída 2 = Chrome/PJe fora;
+  3 = PJe pediu login.
+- `comparar.mjs` / `nucleo.mjs` — compara com a base e monta o e-mail.
+  Testes: `node ferramentas/testes/test_pje.mjs`.
+
+Passo a passo de cada quarta:
+1. Desktop Commander online (`list_devices`)? Se não: e-mail curto para
+   dipallacio@gmail.com dizendo que a checagem não rodou porque o computador do
+   escritório estava sem o Desktop Commander e como religar
+   (`npx @wonderwhy-er/desktop-commander@latest remote` no PowerShell). Fim.
+2. Ler no Drive o arquivo privado mais recente; gravar o `config` no PC como
+   `C:\Users\gigica\gav-whatsapp\pje\config.json`.
+3. Baixar `acervo.mjs` e `nucleo.mjs` do commit atual (raw.githubusercontent com
+   o SHA, não o nome do ramo) para `C:\Users\gigica\gav-whatsapp\pje\` (a
+   pasta-mãe já tem o Playwright) e rodar
+   `node acervo.mjs --config config.json --saida leitura.json`.
+   Saída 2 ou 3: e-mail dizendo o que impediu. Fim.
+4. Trazer `leitura.json` para a nuvem e rodar
+   `node ferramentas/pje/comparar.mjs --base <arquivo privado> --leitura <leitura> --data dd/mm/aaaa --email email.json --gravar-base`.
+5. Enviar o e-mail (assunto + html; texto como alternativa) para
+   dipallacio@gmail.com. Nada mudou: o e-mail curto "nenhuma movimentação nova".
+6. Depois do envio, criar no Drive o arquivo privado novo
+   (`PJe checagem semanal — base <data>.json`) com a base atualizada.
+   Nunca commitar a base.
+
+Nunca inventar movimentação: se a leitura falhou, o e-mail diz que falhou.

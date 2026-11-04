@@ -1,0 +1,27 @@
+{
+ "jurisdicao": "Ipojuca - Varas",
+ "url": "https://pje.cloud.tjpe.jus.br/1g/Processo/ConsultaProcesso/listView.seam",
+ "orgaos": [
+  "1ª Vara Cível da Comarca de Ipojuca",
+  "2ª Vara Cível da Comarca de Ipojuca"
+ ],
+ "email": "dipallacio@gmail.com",
+ "advogados": [
+  {
+   "nome": "Gilzielle Veloso"
+  },
+  {
+   "nome": "Raphael Reis"
+  },
+  {
+   "nome": "Weiden Dutra"
+  },
+  {
+   "nome": "Luan Victor"
+  },
+  {
+   "nome": "Diogo Serafim"
+  }
+ ],
+ "_nota": "Filtros por advogado (processos que são só de um deles) ficam no arquivo privado do Drive, não aqui."
+}

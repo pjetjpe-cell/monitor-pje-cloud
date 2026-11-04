@@ -32,3 +32,6 @@ npm-debug.log*
 dossie*.json
 manifesto-*.json
 ferramentas/**/__pycache__/
+
+# Dados de clientes da checagem do PJe: só no Drive privado
+ferramentas/pje/dados/
