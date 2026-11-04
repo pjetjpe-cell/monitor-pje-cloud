@@ -69,7 +69,10 @@ export function montarPedidoClaude(catalogo, tarefaId, camposBrutos) {
     `Tarefa da esteira GAV: ${tarefa.rotulo}.`,
     `Use ${tarefa.claude}.`,
     ...linhasDosCampos(catalogo, permitidos, campos),
-    'Siga o passo a passo oficial (.claude/skills/gav-esteira/references/fluxo-video.md) e a seção Caminhos alternativos do agente.',
+    // Tarefa sem agente (consulta ao PJe) não segue o fluxo da esteira de documentos.
+    tarefa.agente
+      ? 'Siga o passo a passo oficial (.claude/skills/gav-esteira/references/fluxo-video.md) e a seção Caminhos alternativos do agente.'
+      : `Siga o passo a passo da skill ${tarefa.workflow}, na Consulta Pública do PJe/TJPE (não precisa de login). Se o navegador não alcançar o PJe, diga isso e entregue o passo a passo; não finja que consultou.`,
     'Não pule etapa, não invente dado, não escreva ao cliente e peça o pode antes de enviar e-mail, compartilhar, renomear pasta existente ou apagar.',
     'O computador do escritório é acessado pelo Desktop Commander; se estiver offline, diga isso e me entregue o comando pronto.',
     'Ao terminar, mostre a prova (conferências, arquivos com tamanho, IDs) e o que ficou pendente.',

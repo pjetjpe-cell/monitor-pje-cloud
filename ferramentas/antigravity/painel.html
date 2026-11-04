@@ -172,7 +172,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
     <h2 id="guia-t">Acordar o Antigravity</h2>
     <ol class="passos">
       <li><div><p><b>Primeira vez (e para atualizar):</b> abra o PowerShell no PC do escritório e cole. Baixa a esteira para <code>C:\Users\gigica\gav\monitor-pje-cloud</code>, oferece instalar o <code>agy</code> (só com o seu “s”), cria o atalho e mostra o token.</p>
-        <div class="cmd"><code id="cmd-instalar">irm https://raw.githubusercontent.com/pjetjpe-cell/monitor-pje-cloud/5a70ba200d4a8197916b82458f513e8cfb27a374/ferramentas/antigravity/instalar.ps1 | iex</code><button type="button" class="btn" data-copiar="cmd-instalar">Copiar</button></div></div></li>
+        <div class="cmd"><code id="cmd-instalar">irm https://raw.githubusercontent.com/pjetjpe-cell/monitor-pje-cloud/a89df97f159f6e7a433439adab3f80479581bf83/ferramentas/antigravity/instalar.ps1 | iex</code><button type="button" class="btn" data-copiar="cmd-instalar">Copiar</button></div></div></li>
       <li><div><p><b>Uma vez no agy:</b> no PowerShell, digite <code>agy</code> e entre com a conta Google. Se preferir a IDE, abra o Antigravity e escolha “Antigravity IDE” acima.</p></div></li>
       <li><div><p><b>Todo dia:</b> clique duas vezes em <b>GAV Antigravity</b> na Área de Trabalho. A janela preta é o vigia: deixe aberta. Sem o atalho:</p>
         <div class="cmd"><code id="cmd-vigia">node "$env:USERPROFILE\gav\monitor-pje-cloud\ferramentas\antigravity\ponte.mjs" vigiar</code><button type="button" class="btn" data-copiar="cmd-vigia">Copiar</button></div></div></li>
@@ -338,7 +338,7 @@ const CATALOGO = {
       "id": "pje",
       "etapa": "Consulta",
       "rotulo": "Consultar processos no PJe",
-      "resumo": "PJe/TJPE por advogado, Ipojuca, última movimentação. Só leitura.",
+      "resumo": "Consulta Pública do PJe/TJPE por advogado (sem login), Ipojuca, última movimentação. Só leitura.",
       "workflow": "pje-consulta",
       "agente": null,
       "obrigatorios": [],
@@ -421,7 +421,10 @@ function montarPedidoClaude(catalogo, tarefaId, camposBrutos) {
     `Tarefa da esteira GAV: ${tarefa.rotulo}.`,
     `Use ${tarefa.claude}.`,
     ...linhasDosCampos(catalogo, permitidos, campos),
-    'Siga o passo a passo oficial (.claude/skills/gav-esteira/references/fluxo-video.md) e a seção Caminhos alternativos do agente.',
+    // Tarefa sem agente (consulta ao PJe) não segue o fluxo da esteira de documentos.
+    tarefa.agente
+      ? 'Siga o passo a passo oficial (.claude/skills/gav-esteira/references/fluxo-video.md) e a seção Caminhos alternativos do agente.'
+      : `Siga o passo a passo da skill ${tarefa.workflow}, na Consulta Pública do PJe/TJPE (não precisa de login). Se o navegador não alcançar o PJe, diga isso e entregue o passo a passo; não finja que consultou.`,
     'Não pule etapa, não invente dado, não escreva ao cliente e peça o pode antes de enviar e-mail, compartilhar, renomear pasta existente ou apagar.',
     'O computador do escritório é acessado pelo Desktop Commander; se estiver offline, diga isso e me entregue o comando pronto.',
     'Ao terminar, mostre a prova (conferências, arquivos com tamanho, IDs) e o que ficou pendente.',

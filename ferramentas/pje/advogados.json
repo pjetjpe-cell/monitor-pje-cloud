@@ -1,5 +1,6 @@
 {
  "jurisdicao": "Ipojuca - Varas",
+ "url_publica": "https://pje.cloud.tjpe.jus.br/1g/ConsultaPublica/listView.seam",
  "url": "https://pje.cloud.tjpe.jus.br/1g/Processo/ConsultaProcesso/listView.seam",
  "orgaos": [
   "1ª Vara Cível da Comarca de Ipojuca",

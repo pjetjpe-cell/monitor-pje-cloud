@@ -150,7 +150,7 @@
       "id": "pje",
       "etapa": "Consulta",
       "rotulo": "Consultar processos no PJe",
-      "resumo": "PJe/TJPE por advogado, Ipojuca, última movimentação. Só leitura.",
+      "resumo": "Consulta Pública do PJe/TJPE por advogado (sem login), Ipojuca, última movimentação. Só leitura.",
       "workflow": "pje-consulta",
       "agente": null,
       "obrigatorios": [],
