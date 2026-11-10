@@ -31,7 +31,13 @@ Este projeto inclui 10 skills especializadas. Use `/nome-da-skill` para invocar:
 | `/gav-whatsapp` | Baixa os documentos do cliente no WhatsApp Web e arquiva no Drive |
 | `/gav-peticao` | Monta a inicial pelo PREENCHEDOR DE PETIÇÃO INTERATIVO |
 
-As três se apoiam nos CLIs de `ferramentas/` (ver `ferramentas/README.md`), que
+### Cartório do Júri (PJe/TJPE)
+
+| Skill | Descrição |
+|-------|-----------|
+| `/pje-certidoes` | Certidões e atos ordinatórios no modelo da casa, lançados no PJe. **Salvar sempre** e conferir que salvou; só certidão de tramitação regular pode ser assinada |
+
+As três skills GAV se apoiam nos CLIs de `ferramentas/` (ver `ferramentas/README.md`), que
 fazem o trabalho mecânico de forma determinística e **conferem o resultado**
 antes de aprovar. Duas travas estruturais: etapa não roda fora de ordem e campo
 não entra no dossiê sem fonte.
