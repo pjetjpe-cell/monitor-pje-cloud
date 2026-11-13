@@ -30,6 +30,7 @@ Este projeto inclui 10 skills especializadas. Use `/nome-da-skill` para invocar:
 | `/gav-esteira` | Organizador de pastas no Drive, ponta a ponta: localiza o cliente, normaliza a pasta, cria NÃO USAR, limpa a procuração, comprime o contrato, extrai o RG, notifica a GAV |
 | `/gav-whatsapp` | Baixa os documentos do cliente no WhatsApp Web e arquiva no Drive |
 | `/gav-peticao` | Monta a inicial pelo PREENCHEDOR DE PETIÇÃO INTERATIVO |
+| `python3 -m gav.painel` | (CLI, ver `ferramentas/README.md`) Painel geral de processos de Ipojuca: números do Drive → DataJud → vara/fase → planilha |
 | `/gav-peticionador` | Inicial/réplica de **cota quitada** pelo PETICIONADOR GAV v41, em navegador headless: dados do cliente, blocos condicionais, prints como figura, HTML/PDF com timbre e PNG de cada página |
 
 **Agente:** `peticionador-gav` (`.claude/agents/`) executa a `gav-peticionador`
@@ -67,6 +68,7 @@ npm run lint       # Linter
 
 cd ferramentas && python3 testes/test_esteira.py   # Testes da esteira GAV
 python3 ferramentas/testes/test_imagens.py          # Printar páginas / anexo de prints
+python3 ferramentas/testes/test_painel.py           # Painel de processos: DV do CNJ, fases
 node --test ferramentas/testes/peticionador.test.mjs  # Executor do peticionador v41
 ```
 

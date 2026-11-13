@@ -130,6 +130,21 @@ python3 -m gav.imagens figura print.jpg --legenda "Print 1"         # <figure> p
 O anexo é reaberto e reprovado se faltar página ou imagem; OCR sem Tesseract
 recusa em vez de adivinhar.
 
+### Painel geral de processos — números do Drive → DataJud → fase → planilha
+
+```bash
+python3 -m gav.painel --titulos titulos.txt --saida PAINEL.xlsx [--nomes nomes.json]
+```
+
+`titulos.txt` = um título de pasta/arquivo por linha. Extrai os números CNJ e **só aceita o
+que fecha no dígito verificador** (repara zeros à esquerda: "0963-10" → "0000963-10"). A
+**vara vem do órgão julgador do CNJ, nunca da paridade do número**: medido em 74 processos de
+Ipojuca, 14 pares/22 ímpares na 1ª Vara e 15/23 na 2ª — é sorteio. A fase (`gav/fases.py`) é
+derivada da sequência de movimentos e mostra a regra aplicada ao lado do dado bruto. O DataJud
+generaliza os movimentos (sem o teor das decisões) e leva ~40 s por lote; a chave é pública e o
+CNJ a troca: se der 401, pegue a vigente em datajud-wiki.cnj.jus.br/api-publica/acesso.
+Nomes de clientes ficam fora do repo (use `--nomes` com arquivo local).
+
 ### Contrato grande na web: o artefato
 
 Acima do teto, o contrato é processado no navegador do usuário:
@@ -185,6 +200,7 @@ fonte levanta `SemFonte`. Ler campo ausente levanta `SemFonte` em vez de devolve
 ```bash
 cd ferramentas && python3 testes/test_esteira.py
 python3 ferramentas/testes/test_imagens.py
+python3 ferramentas/testes/test_painel.py        # CNJ/DV, paridade, fases (sem rede)
 node --test ferramentas/testes/peticionador.test.mjs   # contra um peticionador falso
 ```
 
