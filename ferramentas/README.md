@@ -129,6 +129,24 @@ python3 -m gav.esteira status  --dossie d.json
 python3 -m gav.esteira proxima --dossie d.json
 ```
 
+### Acordos — acordo agora × esperar sentença × proposta ao cliente
+
+```bash
+python3 -m gav.acordos pasta "86. SIBELY MARTELLO - 02 COTAS - 16% - R$ 62.200,32"   # esqueleto com fonte
+python3 -m gav.acordos analisar carteira.json --regras regras.json --md analise.md --json analise.json
+python3 -m gav.acordos cliente  carteira.json --id 86     # só os números do cliente
+python3 -m gav.acordos regras                             # premissas padrão
+```
+
+Por trás da skill `gav-acordos`. Base = valor pago − corretagem. Sem sentença: 75%
+(construído) / 50% (não construído), sem sucumbência, pago em 15 dias. Com
+sentença: o que ela fixar + sucumbência. Calcula valor presente esperado por
+processo e por estratégia de carteira (todos, nenhum, ótimo, recentes, exceto
+estratégicos), caixa por horizonte e quinzenas de captação para repor o que se
+abre mão. Recusa campo sem fonte, sentença sem percentual e empreendimento
+cujo status de obra não está nas regras. Premissas (probabilidade, tempo,
+divisão padrão) saem listadas no relatório para confirmação.
+
 ### WhatsApp Web
 
 ```bash
@@ -154,6 +172,7 @@ fonte levanta `SemFonte`. Ler campo ausente levanta `SemFonte` em vez de devolve
 
 ```bash
 cd ferramentas && python3 testes/test_esteira.py
+cd ferramentas && python3 testes/test_acordos.py   # 14 testes da análise de acordos
 ```
 
 18 testes contra PDFs gerados que imitam a procuração e o contrato reais

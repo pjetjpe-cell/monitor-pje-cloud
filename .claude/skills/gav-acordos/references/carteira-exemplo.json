@@ -1,0 +1,23 @@
+{
+  "data_base": "2026-11-13",
+  "estrategicos": ["C"],
+  "processos": [
+    {"id": "A", "cliente": "EXEMPLO ANTIGO", "empreendimento": "PORTO 2 LIFE",
+     "valor_pago": 62200.32, "corretagem": 3990, "honorario_contratual": 16,
+     "data_protocolo": "2025-09-10", "contestado": true,
+     "fontes": {"valor_pago": "nome da pasta", "corretagem": "contrato p.12", "honorario_contratual": "nome da pasta"}},
+    {"id": "B", "cliente": "EXEMPLO RECENTE", "empreendimento": "PORTO ALTO",
+     "valor_pago": 152652.45, "corretagem": 3990, "honorario_contratual": 18,
+     "data_protocolo": "2026-10-01", "contestado": false,
+     "fontes": {"valor_pago": "nome da pasta", "corretagem": "contrato p.12", "honorario_contratual": "nome da pasta"}},
+    {"id": "C", "cliente": "EXEMPLO NÃO CONSTRUÍDO", "empreendimento": "OIKOS MARAGOGI",
+     "valor_pago": 80000, "corretagem": 3990, "honorario_contratual": 20,
+     "data_protocolo": "2026-03-01", "contestado": true, "parceria": true,
+     "divisao": {"contratual": 0.3333, "sucumbencia": 0.5},
+     "fontes": {"valor_pago": "nome da pasta", "corretagem": "contrato", "honorario_contratual": "nome da pasta"}},
+    {"id": "D", "cliente": "EXEMPLO SENTENCIADO", "empreendimento": "PORTO 2 LIFE",
+     "valor_pago": 100000, "corretagem": 3990, "honorario_contratual": 18,
+     "sentenca": {"percentual": 80, "sucumbencia": 10}, "divisao": "dois",
+     "fontes": {"valor_pago": "nome da pasta", "corretagem": "contrato", "honorario_contratual": "nome da pasta", "sentenca": "ID 123456 — sentença"}}
+  ]
+}
