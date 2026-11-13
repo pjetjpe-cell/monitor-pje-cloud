@@ -100,6 +100,51 @@ comum — aquele chama a API da Anthropic direto do navegador com uma chave
 embutida no código, exposta a quem abrir o arquivo ou inspecionar a rede.
 Recomendado rotacionar essa chave.
 
+### Petição de cota quitada — PETICIONADOR GAV v41 em navegador headless
+
+```bash
+node ferramentas/peticionador/preencher.mjs \
+  --peticionador /caminho/peticionador_GAV_v41.html \
+  --dados /scratchpad/cliente.dados.json --saida /scratchpad/saida [--permitir-pendencias]
+```
+
+Abre o peticionador, aplica os dados pela função dele (`qiaAplicar`), liga os
+blocos condicionais, aplica os ajustes do caso (trocar/inserir parágrafos,
+**prints como figura**) e exporta pelo `downloadHTML` do próprio peticionador,
+mais PDF e um PNG por página. Corrige a regra de contexto do v41, que põe o nº
+de parcelas na venda e na data-base, e faz plural/gênero. **Reprova** com código
+2 se sobrar marcador amarelo e 3 se um ajuste não achar o alvo. Modelo de
+entrada: `peticionador/exemplo.dados.json` (fictício). O HTML do peticionador e o
+dados.json real **não entram no repo**: trazem dados de cliente e o repo é público.
+
+### Imagens — printar páginas e usar prints como prova
+
+```bash
+python3 -m gav.imagens paginas PETICAO.pdf --saida /tmp/paginas     # PNG por página
+python3 -m gav.imagens anexo p1.jpg p2.jpg --saida "06 - PRINTS.pdf" \
+        --titulo "Doc. 06 – WhatsApp da ré" --legenda "..." --legenda "..."
+python3 -m gav.imagens ocr print.jpg                                # exige tesseract
+python3 -m gav.imagens figura print.jpg --legenda "Print 1"         # <figure> p/ a peça
+```
+
+O anexo é reaberto e reprovado se faltar página ou imagem; OCR sem Tesseract
+recusa em vez de adivinhar.
+
+### Painel geral de processos — números do Drive → DataJud → fase → planilha
+
+```bash
+python3 -m gav.painel --titulos titulos.txt --saida PAINEL.xlsx [--nomes nomes.json]
+```
+
+`titulos.txt` = um título de pasta/arquivo por linha. Extrai os números CNJ e **só aceita o
+que fecha no dígito verificador** (repara zeros à esquerda: "0963-10" → "0000963-10"). A
+**vara vem do órgão julgador do CNJ, nunca da paridade do número**: medido em 74 processos de
+Ipojuca, 14 pares/22 ímpares na 1ª Vara e 15/23 na 2ª — é sorteio. A fase (`gav/fases.py`) é
+derivada da sequência de movimentos e mostra a regra aplicada ao lado do dado bruto. O DataJud
+generaliza os movimentos (sem o teor das decisões) e leva ~40 s por lote; a chave é pública e o
+CNJ a troca: se der 401, pegue a vigente em datajud-wiki.cnj.jus.br/api-publica/acesso.
+Nomes de clientes ficam fora do repo (use `--nomes` com arquivo local).
+
 ### Contrato grande na web: o artefato
 
 Acima do teto, o contrato é processado no navegador do usuário:
@@ -154,7 +199,13 @@ fonte levanta `SemFonte`. Ler campo ausente levanta `SemFonte` em vez de devolve
 
 ```bash
 cd ferramentas && python3 testes/test_esteira.py
+python3 ferramentas/testes/test_imagens.py
+python3 ferramentas/testes/test_painel.py        # CNJ/DV, paridade, fases (sem rede)
+node --test ferramentas/testes/peticionador.test.mjs   # contra um peticionador falso
 ```
+
+O teste do executor usa `testes/fixtures/peticionador_falso.html`, que imita a
+interface do v41 — inclusive a regra de contexto que erra — com dados fictícios.
 
 18 testes contra PDFs gerados que imitam a procuração e o contrato reais
 (40 páginas, 14 MB, RG escaneado na p.34). Dados fictícios: nenhum documento de

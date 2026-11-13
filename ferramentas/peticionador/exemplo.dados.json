@@ -1,0 +1,33 @@
+{
+ "_leia": "EXEMPLO FICTÍCIO. O dados.json real do cliente fica FORA do repositório (scratchpad ou pasta do cliente no Drive): o repo é público. Campos de 'campos' são os do QIA_SCHEMA do peticionador; 'cotaDescricao' é extra e vale para o marcador 'à Cota [__]'.",
+ "aba": "quitada",
+ "nomeArquivo": "Peticao_Inicial_Cota_Quitada_FT_e_BT",
+ "controles": {
+  "advQuitada": "5", "q_danos": "10.000,00", "q_nparc": "6",
+  "q_autor2": true, "q_bA": true, "q_bB": false, "q_bC": false, "q_bD": false, "q_bE": true, "q_bF": false
+ },
+ "autores": [{"genero": "m"}, {"genero": "f"}],
+ "campos": {
+  "nome": "FULANO DE TAL", "nacionalidade": "brasileiro", "estadoCivil": "casado", "profissao": "comerciante",
+  "rg": "1.111.111 – SSP/PE", "cpf": "000.000.000-00",
+  "temSegundoAutor": true, "nome2": "BELTRANA DE TAL", "nacionalidade2": "brasileira", "estadoCivil2": "casada",
+  "profissao2": "professora", "rg2": "2.222.222 – SDS/PE", "cpf2": "111.111.111-11",
+  "endereco": "Rua Fictícia, nº 1, bairro Centro, Recife/PE", "cep": "50000-000",
+  "contrato": "00000", "venda": "00000", "dataContrato": "01/01/2023",
+  "bloco": "01", "apto": "0101", "cota": "01", "cotaDescricao": "01 (Bloco 01, Apto 0101)",
+  "unidade": "Bloco 01 - Apto 0101", "semanas": "duas", "parcelasPagas": "40",
+  "valorRecebido": "50.000,00", "valorExtenso": "cinquenta mil reais",
+  "dataBase": "01/10/2026", "dataQuitacao": "01/09/2025", "danosMorais": "10.000,00", "nparcCustas": "6"
+ },
+ "valorCausa": "R$ 60.000,00 (sessenta mil reais)",
+ "substituicoesGlobais": [
+  ["por intermédio de seu(sua) advogado(a) infra-assinado(a)", "por intermédio de sua advogada infra-assinada"]
+ ],
+ "ajustes": [
+  {"op": "antes", "sel": "h3", "contem": "VII - DO DESCUMPRIMENTO",
+   "html": "<h3 class=\"center\">VI - DO ATENDIMENTO DA RÉ</h3><p>Em 01/10/2026 o autor perguntou à ré o prazo da escritura:</p><div id=\"ancora-print1\"></div>"},
+  {"op": "imagens", "ancora": "ancora-print1", "largura": "42%",
+   "imagens": [{"arquivo": "prints/print1.jpg", "legenda": "Print 1 – WhatsApp da ré, 01/10/2026."}]},
+  {"op": "substituir", "sel": "p", "contem": "teve suas frações regularizadas", "de": "</b>,.", "para": "</b>."}
+ ]
+}

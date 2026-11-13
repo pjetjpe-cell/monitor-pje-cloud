@@ -42,6 +42,11 @@ redigir.
 
 ## Passo 2 — Abrir o preenchedor
 
+**Cota quitada?** Use a skill `gav-peticionador`: ela roda a aba "Inicial — Cota
+Quitada" do `peticionador_GAV_v41.html` em navegador headless
+(`ferramentas/peticionador/preencher.mjs`), com os prints dentro da peça e PNG de
+cada página para conferência. Não redija a peça de cota quitada à mão.
+
 Há dois artefatos com papéis diferentes — não confunda um pelo outro:
 
 - **🤖 2 PREENCHEDOR DE ⚖️PETIÇÃO INTERATIVO** — o `.jsx` original do usuário

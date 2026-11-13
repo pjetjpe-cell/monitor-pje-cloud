@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Peticionador falso (teste)</title></head>
+<body>
+<!-- Imita a interface pública do peticionador GAV v41 que o preencher.mjs usa:
+     switchTab, renderQuitada, qiaAplicar (com a MESMA regra de contexto por
+     frase inteira que erra no v41) e downloadHTML. Dados 100% fictícios. -->
+<button id="tabBtnQuitada">Inicial — Cota Quitada</button>
+<input type="checkbox" id="q_autor2"><input type="checkbox" id="q_bE" checked>
+<div id="petBodyQuitada">
+<p><b><span class="B">[NOME COMPLETO DO(A) AUTOR(A)]</span></b>, portador(a) da cédula de identidade nº <span class="B">[RG / ÓRGÃO-UF]</span>, inscrito(a) no CPF sob o nº <span class="B">[CPF]</span><span class="qa2-only" style="display:none">, e <b><span class="B">[NOME DO(A) 2º AUTOR(A)]</span></b>, portador(a) da cédula de identidade nº <span class="B">[RG / ÓRGÃO-UF 2]</span>, inscrito(a) no CPF sob o nº <span class="B">[CPF 2]</span></span>, <span class="qa1-only">residente e domiciliado(a)</span><span class="qa2-only" style="display:none">residentes e domiciliados</span> na <span class="B">[ENDEREÇO COMPLETO]</span>, CEP <span class="B">[CEP]</span>.</p>
+<table><tr><td>O que o(a) consumidor(a) cumpriu</td><td>100% do preço: <span class="B">[Nº]</span> parcelas pagas, saldo zero, <b><span class="B">R$ [VALOR RECEBIDO]</span></b>, conforme demonstrativo emitido pela própria ré (data-base <span class="B">[DATA]</span>)</td></tr></table>
+<h3>V - DA CONTRATAÇÃO</h3>
+<p>O(A) autor(a) celebrou com a ré, em <span class="B">[DATA DO CONTRATO]</span>, o contrato/proposta nº <span class="B">[Nº]</span>.</p>
+<p>O demonstrativo emitido pela própria ré, com data-base de <span class="B">[DATA-BASE]</span>, identifica a venda nº <span class="B">[Nº]</span> como "3 - Quitada", registra <b><span class="B">[Nº]</span> parcelas pagas</b>.</p>
+<p>Requer-se que a ré cesse as cobranças vinculadas à venda nº <span class="B">[Nº]</span> e à Cota <span class="B">[__]</span>.</p>
+<h3>XX - DO VALOR DA CAUSA</h3>
+<p>Atribui-se à causa o valor de <b><span class="B">R$ [VALOR] ([EXTENSO])</span></b>.</p>
+<div class="sig"><p>[NOME DO(A) ADVOGADO(A)]</p></div>
+</div>
+<script>
+const QIA_MAPA = { 'NOME COMPLETO DO(A) AUTOR(A)':'nome','RG / ÓRGÃO-UF':'rg','CPF':'cpf','NOME DO(A) 2º AUTOR(A)':'nome2',
+  'RG / ÓRGÃO-UF 2':'rg2','CPF 2':'cpf2','ENDEREÇO COMPLETO':'endereco','CEP':'cep','DATA DO CONTRATO':'dataContrato',
+  'DATA-BASE':'dataBase','VALOR RECEBIDO':'valorRecebido' };
+function switchTab(n){ document.getElementById('tabBtnQuitada').classList.add('active'); }
+function renderQuitada(){
+  const a2=document.getElementById('q_autor2').checked;
+  document.querySelectorAll('.qa2-only').forEach(e=>e.style.display=a2?'':'none');
+  document.querySelectorAll('.qa1-only').forEach(e=>e.style.display=a2?'none':'');
+}
+function qiaAplicar(o){
+  const corpo=document.getElementById('petBodyQuitada');
+  corpo.querySelectorAll('span.B').forEach(sp=>{
+    const m=sp.textContent.trim().match(/^(.*?)\[(.+)\]$/); if(!m) return;
+    const k=QIA_MAPA[m[2].trim()]; if(k && o[k]) sp.textContent=m[1]+o[k];
+  });
+  /* a regra do v41: contexto = frase INTEIRA; "parcelas pagas" vence tudo */
+  const CTX=[[/parcelas pagas|\bparcelas\b/i,'parcelasPagas'],[/contrato nº|proposta/i,'contrato'],[/venda nº/i,'venda']];
+  corpo.querySelectorAll('span.B').forEach(sp=>{
+    if(!/^\[(Nº|DATA|__)\]$/.test(sp.textContent.trim())) return;
+    const frase=sp.parentElement.textContent;
+    for(const [re,k] of CTX){ if(re.test(frase) && o[k]){ sp.textContent=o[k]; return; } }
+  });
+  if(o.temSegundoAutor) document.getElementById('q_autor2').checked=true;
+}
+function downloadHTML(){
+  const html='<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>'+document.getElementById('petBodyQuitada').outerHTML+'</body></html>';
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+  a.download='Peticao_Inicial_teste.html'; document.body.appendChild(a); a.click(); a.remove();
+}
+</script>
+</body></html>

@@ -16,6 +16,13 @@ next-env.d.ts
 # State local
 .data/
 
+# Peticionador / esteira GAV: dados e peças de clientes nunca vão para o git (repo público)
+*.dados.json
+!ferramentas/peticionador/exemplo.dados.json
+peticionador_GAV_v*.html
+ferramentas/peticionador/saida/
+ferramentas/peticionador/privado/
+
 # Build
 dist/
 build/
