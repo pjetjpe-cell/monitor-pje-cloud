@@ -11,7 +11,8 @@
       "Bash(ls:*)",
       "Bash(find:*)",
       "Bash(cat:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "mcp__Remote_Desktop_Commander"
     ]
   },
   "hooks": {
