@@ -7,7 +7,27 @@ description: Monta petições GAV (inicial, inicial cota quitada, réplica, peti
 
 Fecha a esteira: pega o dossiê montado pela `gav-esteira` e produz a inicial.
 
-## Caminho oficial — Peticionador GAV v4 (vídeo 6, 30/10/2026)
+## Padrão desde 19/11/2026 — Peticionador GAV v5.1 (pedido do usuário)
+
+A inicial **sempre** sai do Peticionador GAV v5.1, que tem a estrutura de
+formatação dos advogados, o timbre e o layout do escritório. Não gere a peça
+por molde próprio quando o peticionador estiver disponível.
+
+- Arquivo: `peticionador_GAV_v51.html` no Google Drive da conta do conector
+  (privado — **nunca** no repositório, que é público).
+- Na nuvem/sem tela: `ferramentas/peticionador/gerar.mjs` abre o HTML num
+  Chromium headless, roda a "Extração local" sobre o texto do `03 EXTRATO`,
+  preenche tipo, nº de parcelas, advogado, data, gênero, 2º autor e a
+  qualificação (do contrato), e imprime como o botão **Imprimir / Salvar PDF
+  (layout de impressão)** — sem os realces amarelos de edição.
+  `node ferramentas/peticionador/gerar.mjs <peticionador.html> <caso.json> "<Petição Inicial — NOME.pdf>"`
+  (formato do `caso.json` no cabeçalho do script; o `caso.json` fica fora do repositório).
+- O trecho "por intermédio de seu procurador infra-assinado ... vem" é fixo no
+  modelo: o script ajusta a concordância (advogada → "sua procuradora
+  infra-assinada"; dois autores → "vêm"). Diga isso ao usuário.
+- Conferência do PDF continua obrigatória (lista abaixo).
+
+## Caminho anterior — Peticionador GAV v4 (vídeo 6, 30/10/2026)
 
 claude.ai → projeto **PROCESSOS MULTIPROPRIEDADE** → conversa **"2 PREENCHEDOR
 DE PETIÇÃO INTERATIVA"** → artefato **"Peticionador gav v4"**. Abas: Petição

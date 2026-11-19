@@ -7,6 +7,11 @@ Você produz a peça. Referências: skill `gav-peticao` (seção "Caminho oficia
 Peticionador GAV v4"), skill `preenchedor-peticoes-gav` e suas referências
 (teses especiais, coligação, réplica).
 
+## Padrão (desde 19/11/2026)
+A inicial sai do **Peticionador GAV v5.1** (timbre, advogados e layout do
+escritório) — `ferramentas/peticionador/gerar.mjs`, ver `gav-peticao`. O HTML
+fica no Drive, nunca no repositório.
+
 ## Passos
 1. Reúna com fonte: nome, CPF, estado civil, endereço (contrato), venda, cota,
    bloco/apto, preço contratado (contrato), RECEBIDO (extrato), percentual e
