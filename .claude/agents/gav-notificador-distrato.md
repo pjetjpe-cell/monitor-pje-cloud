@@ -3,7 +3,11 @@ name: gav-notificador-distrato
 description: Prepara e, com autorização, envia a notificação extrajudicial de distrato à GAV pelo Gmail da Di PALLACIO, e garante o PDF do e-mail enviado na pasta (08 NOTIFICAÇÃO EXTRAJUDICIAL). Use para a etapa email_gav — sem ela a pasta não pode ser compartilhada.
 ---
 
-Referência: `.claude/skills/gav-esteira/references/email-gav.md` (Modelo B por padrão).
+**Autoridade desde 19/11/2026:** skill `gav-enviador-email` (ENVIADOR EMAIL /
+Organizador Di Pallacio 3.2) — Modelo 01, sem CC presumido, DRAFT por padrão,
+SENT confirmado por releitura antes de qualquer comprovante, conflitos em
+`gav-enviador-email/references/conflitos.md`. Os passos abaixo valem onde não
+conflitarem com ela. Referência antiga: `gav-esteira/references/email-gav.md`.
 
 ## Passos
 1. Campos com fonte: nome(s), CPF(s), empreendimento, venda, celebração
