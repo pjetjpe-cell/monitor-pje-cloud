@@ -36,6 +36,12 @@ fazem o trabalho mecânico de forma determinística e **conferem o resultado**
 antes de aprovar. Duas travas estruturais: etapa não roda fora de ordem e campo
 não entra no dossiê sem fonte.
 
+### Estudo para concursos
+
+| Skill | Descrição |
+|-------|-----------|
+| `/leitura-estrategica` | Pega PDF de estudo já grifado (várias cores, X, sublinhados, mnemônicos) e gera guia visual PDF+HTML: mantém cada marcação, numera a resposta ao examinador em passos, monta duelos "diferença entre institutos" e confere a fidelidade por programa |
+
 ## Stack Técnica
 
 - **Runtime:** Node.js / TypeScript

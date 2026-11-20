@@ -1,0 +1,159 @@
+:root{
+  --ink:#1b2130; --muted:#5c6478; --line:#d8dce6; --navy:#22386b; --navy2:#e8ecf7;
+  --orange:#ed7d31; --peach:#fbe3d6;
+  --y:#ffff99; --r:#ff4f5f; --g:#54ffbc; --p:#ffcce6; --b:#80ebff;
+}
+@page{size:A4;margin:13mm 14mm 17mm}
+*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+html{color-scheme:light}
+body{margin:0 auto;max-width:860px;padding:22px 18px 60px;background:#fff;color:var(--ink);
+  font:10.6pt/1.55 Carlito,Calibri,"Segoe UI",system-ui,sans-serif}
+@media print{body{max-width:none;padding:0}}
+p{margin:0}
+b{font-weight:700}
+u{text-decoration-thickness:1.5px;text-underline-offset:2px}
+
+/* ---- marcações do aluno (cores exatas do PDF original) ---- */
+mark{color:var(--ink);border-radius:2px;padding:.02em .1em;margin:0 -.04em;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.y{background:var(--y)} mark.r{background:var(--r)} mark.g{background:var(--g)}
+mark.p{background:var(--p)} mark.b{background:var(--b)}
+s.x{text-decoration:none;background:
+  linear-gradient(to top right,transparent calc(50% - 1px),#111 50%,transparent calc(50% + 1px)),
+  linear-gradient(to top left,transparent calc(50% - 1px),#111 50%,transparent calc(50% + 1px));
+  padding:0 .12em}
+
+/* ---- cabeçalho ---- */
+.mast{margin-bottom:14px}
+.kicker{font:600 8.5pt Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--orange)}
+h1{font:800 21pt/1.1 Inter,sans-serif;margin:4px 0 6px;letter-spacing:-.01em}
+h2{font:600 11.5pt/1.4 Inter,sans-serif;margin:0;color:#4a5265}
+
+.panel{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;background:#f5f6fa;border:1px solid var(--line);
+  border-radius:10px;padding:12px 16px;margin:14px 0 6px;break-inside:avoid}
+.ptitle{font:700 9pt Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--navy);margin-bottom:7px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px}
+.lg{display:flex;align-items:center;gap:6px;font:500 9pt Inter,sans-serif}
+.lg mark{padding:3px 6px;border-radius:3px}
+.lcount{color:var(--muted);font-size:8pt}
+.pnote{font-size:9.2pt;color:var(--muted);margin-top:8px;line-height:1.4}
+.how{margin:0;padding-left:18px;font-size:10pt;line-height:1.4}
+.how li{margin-bottom:4px}
+
+/* ---- títulos de seção ---- */
+.stitle{font:700 13pt Inter,sans-serif;margin:22px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--ink);break-after:avoid}
+.stitle.pb{break-before:page;margin-top:0}
+.stitle.sm{font-size:10.5pt;border:none;margin:14px 0 2px;color:var(--navy)}
+.stitle.nextq{font-size:11.5pt;color:#6b7385;line-height:1.35}
+.trunc{font-weight:500;color:var(--muted);font-size:9pt}
+.lede{font-size:9.6pt;color:var(--muted);margin:-2px 0 8px;break-after:avoid}
+
+/* ---- pergunta ---- */
+.qbox{position:relative;border:1.5px solid var(--orange);border-radius:6px;padding:9px 13px;margin:8px 0;break-inside:avoid}
+.qbox.big .qtext{font-weight:600}
+.qtag{display:block;font:700 8pt Inter,sans-serif;letter-spacing:.07em;color:var(--orange);margin-bottom:2px}
+.qmap{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.qm{display:flex;gap:7px;align-items:flex-start;background:#f5f6fa;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:10pt;line-height:1.4}
+
+/* ---- números e etiquetas (azul-marinho = estrutura; cores de grifo ficam só para o seu texto) ---- */
+.num{display:inline-grid;place-items:center;flex:none;width:27px;height:27px;border-radius:50%;background:var(--navy);color:#fff;
+  font:700 12.5px/1 Inter,sans-serif;font-variant-numeric:tabular-nums}
+.num.s{width:20px;height:20px;font-size:10.5px}
+.sn{font:600 8.3pt/1.5 Inter,sans-serif;color:var(--navy);background:var(--navy2);border-radius:4px;text-align:center;padding:0 2px;white-space:nowrap}
+
+/* ---- trilha ---- */
+.trail{border:1px solid var(--line);border-radius:10px;padding:2px 12px;background:#fff;break-inside:avoid}
+.tgroup{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}
+.tgroup:last-child{border-bottom:0}
+.thead{font:600 9.5pt/1.25 Inter,sans-serif;color:var(--navy)}
+.tchips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 4px;border:1px solid var(--line);border-radius:99px;
+  text-decoration:none;color:var(--ink);font:500 9pt Inter,sans-serif;background:#fff}
+.chip:hover{border-color:var(--navy)}
+
+/* ---- faixas (a)(b)(c) e passos ---- */
+.band{display:flex;align-items:baseline;gap:10px;margin:20px 0 2px;padding:6px 12px;background:var(--navy);color:#fff;border-radius:7px;break-after:avoid}
+.bl{font:800 12pt Inter,sans-serif}
+.bt{font:600 10.5pt Inter,sans-serif}
+.bs{margin-left:auto;font:500 8.5pt Inter,sans-serif;opacity:.8}
+.step{display:grid;grid-template-columns:34px 1fr;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.step .sub,.step .stext{break-inside:avoid}
+.slabel{break-after:avoid}
+.step:has(.mnemo){break-inside:avoid}
+.slabel{font:700 9.2pt/1.25 Inter,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--navy);margin:3px 0 4px}
+.stext{text-wrap:pretty}
+.subs{display:grid;gap:6px;margin-top:5px}
+.sub{display:grid;grid-template-columns:38px 1fr;gap:8px;align-items:baseline}
+.lead{margin-bottom:1px}
+.step.alt .num{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.rtag{display:flex;align-items:center;gap:10px;margin:12px 0 0;font:700 8.3pt Inter,sans-serif;letter-spacing:.07em;color:var(--navy)}
+.rtag::after{content:"";flex:1;height:1px;background:var(--line)}
+.xnote{margin-top:6px;font-size:9.3pt;color:var(--muted)}
+.xglyph{color:#111;font-weight:800}
+
+.mnemo{display:flex;align-items:center;gap:12px;margin:10px 0 2px 46px;padding:8px 12px;border:1.5px dashed var(--r);border-radius:10px;width:fit-content;max-width:calc(100% - 46px)}
+.sbody{min-width:0}
+.mnemo img{width:62px;height:50px;object-fit:cover;border-radius:8px}
+.hand{font:italic 800 15pt Inter,sans-serif;color:#d1253a;text-decoration:underline wavy #d1253a;text-underline-offset:4px;letter-spacing:.02em}
+.mnote{font-size:9pt;color:var(--muted);margin-top:5px;line-height:1.35}
+
+/* ---- duelos ---- */
+.duel{margin:12px 0 20px;border:1px solid var(--line);border-radius:10px;overflow:hidden;break-inside:avoid}
+.dtitle{background:var(--navy);color:#fff;padding:7px 14px;font:700 10pt Inter,sans-serif}
+.dgrid{display:grid;grid-template-columns:116px 1fr 1fr}
+.dh{padding:8px 12px;font:800 11pt Inter,sans-serif;border-bottom:2px solid var(--ink);background:#f5f6fa}
+.dh small{display:block;font:500 8.5pt Inter,sans-serif;color:var(--muted);margin-top:1px}
+.dn{display:flex;flex-direction:column;gap:5px;align-items:flex-start;padding:9px 8px 9px 10px;border-bottom:1px solid var(--line)}
+.dlab{font:600 8.4pt/1.3 Inter,sans-serif;color:var(--muted);overflow-wrap:anywhere}
+.dc{padding:9px 12px;border-bottom:1px solid var(--line);border-left:1px solid var(--line);font-size:10.2pt;line-height:1.5}
+.dgrid>:nth-last-child(-n+3){border-bottom:0}
+.dash{color:var(--muted);font-style:italic}
+
+/* ---- quadro das espécies (visual do original: laranja + pêssego) ---- */
+table.spec{width:100%;border-collapse:collapse;font-size:10pt;break-inside:avoid}
+.spec th,.spec td{border:1.5px solid var(--orange);padding:9px 10px;text-align:center;vertical-align:middle}
+.spec thead th{background:var(--orange);color:#fff;font:700 9.5pt Inter,sans-serif}
+.spec thead .num{background:#fff;color:var(--orange);margin-right:6px;vertical-align:middle}
+.spec th.rowh{background:var(--peach);font-weight:700}
+
+/* ---- aprofundamento / observações / jurisprudência ---- */
+.obox{background:var(--peach);border:1.5px solid var(--orange);border-radius:6px;padding:8px 13px;margin:8px 0;font-size:10.2pt;break-inside:avoid}
+.otag{font:700 8pt Inter,sans-serif;letter-spacing:.07em;color:var(--orange);margin-bottom:3px}
+.osub{display:grid;grid-template-columns:26px 1fr;gap:8px;padding:6px 0;border-top:1px dashed rgba(237,125,49,.5);align-items:baseline}
+.otag+.osub{border-top:0}
+.osub .sn{background:#fff;color:var(--orange)}
+.obs{margin:16px 0 4px}
+.obsh{break-after:avoid}
+.obsh{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.jgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.jcard{border:1.5px solid var(--orange);background:var(--peach);border-radius:8px;padding:9px 12px;break-inside:avoid;font-size:10pt}
+.jtag{display:inline-block;font:700 8.8pt Inter,sans-serif;color:#fff;background:var(--orange);padding:1px 9px;border-radius:99px;margin-bottom:5px}
+.jmeta{display:flex;flex-direction:column;gap:2px;font-size:8.6pt;color:var(--muted);margin-top:6px;border-top:1px dashed rgba(237,125,49,.5);padding-top:5px}
+.jmeta em{font-style:normal;color:var(--navy);font-weight:600}
+
+.q2list{display:grid;gap:6px;margin:10px 0}
+.q2list .lede{margin:0 0 2px}
+.src{margin-top:26px;padding-top:8px;border-top:1px solid var(--line);font-size:8.5pt;color:var(--muted)}
+
+.noprint{position:fixed;top:10px;right:10px;z-index:5;font:600 9pt Inter,sans-serif;padding:6px 12px;border-radius:99px;
+  border:1px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer}
+@media print{.noprint{display:none}}
+
+/* modo "só os grifos" (tela): esmaece o texto sem marca */
+.focus .stext,.focus .qtext,.focus td,.focus th.rowh,.focus .dc{color:#b3b9c6}
+.focus mark{color:var(--ink)}
+
+@media (max-width:640px){
+  .panel{grid-template-columns:1fr}
+  .qmap{grid-template-columns:1fr}
+  .tgroup{grid-template-columns:1fr}
+  .dgrid{grid-template-columns:1fr}
+  .dh0{display:none}
+  .dn{background:#f5f6fa}
+  .dc{border-left:0}
+  .jgrid{grid-template-columns:1fr}
+  table.spec{font-size:8.6pt}
+  .spec th,.spec td{padding:6px 3px}
+  .spec thead .num{display:none}
+  .mnemo{margin-left:0;max-width:100%}
+}
