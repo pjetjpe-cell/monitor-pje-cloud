@@ -128,6 +128,21 @@ dado a um mnemônico). Se o material veio truncado, peça o restante.
 
 ## Modo "assuntos separados" (compilado por tema)
 
+> **REGRA DO USUÁRIO (2026-11-22): primeiro só RECORTAR, sem reformatar.**
+> Pedido de "material separado de X" = **baixar do Drive o PDF e extrair as páginas originais** onde o tema aparece,
+> exatamente como estão (Etapa 1). **Só se reorganiza (Etapa 2) depois que o aluno grifar essas páginas e mandar.**
+> Mexer no formato antes disso foi rejeitado. Não gere HTML/PDF reformatado por conta própria.
+
+**Etapa 1 — recorte (padrão):** mapeie os temas (itens 1–2 abaixo), depois
+`python3 -I scripts/recortar.py ORIGINAL.pdf "Penal - INDULTO.pdf" 218-222 262-265`
+(um PDF por tema, páginas originais, na ordem). Regra de páginas: **a questão inteira** quando o tema é o assunto dela
+ou tem pergunta do roteiro sobre ele (inclua a última página mesmo que a próxima questão comece nela, como no
+`PRESCRIÇÃO.pdf` do aluno); **só a página** quando a menção é incidental. Diga ao aluno o que é ausente. Entregue os
+PDFs; não suba ao Drive sem pedido.
+
+**Etapa 2 — reorganização (só com grifos enviados pelo aluno):** o restante desta seção.
+
+
 Quando o pedido é "traga um material separado de X, Y e Z" (e não "reorganize este PDF"), o texto-fonte é o PDF
 completo das Metas (ver `references/fontes-drive.md`: IDs das pastas, arquivos e onde cada tema já foi achado).
 

@@ -76,3 +76,20 @@ Use só se o usuário pedir complemento, sempre separado e identificado como tal
 | Pasta "Abolitio criminis" (slides e transcrição) | `1A3lAwz8xN94J4H-4T90x8QdCvu3pbxy2` |
 | PROCESSUAL PENAL I - A19 - Medidas Cautelares Pessoais (Parte 2) - Roteiro.pdf | `1_p-9UbWkY4ZtoFbYnPds8IbvKSEf2fOY` |
 | ROTEIRO DE AULA - INTENSIVO I - DIREITO PROCESSUAL PENAL - RENATO BRASILEIRO - AULA 19 | `1-iQyfM-9fHXeycNOlz1AujW4N12pp7wj` |
+
+## Recortes já gerados (Etapa 1, páginas originais, 2026-11-22)
+
+Penal (`1XOOyz…`, págs. do PDF completo) — cada arquivo = páginas inteiras, sem reformatar:
+| Arquivo | Páginas |
+|---|---|
+| Penal - INDULTO | 218-222 (Meta 36 Q1), 262-265 (Meta 42 Q1) |
+| Penal - ABOLITIO CRIMINIS | 127-130 (Meta 23 Q1), 136 (incidental, art. 28), 222-225 (Meta 36 Q2), 273-276 (Meta 43 Q2) |
+| Penal - DETRAÇÃO | 211-214 (Meta 35 Q1), 277-280 (Meta 44 Q1) — só menções, sem questão própria |
+| Penal - PROGRESSÃO DE REGIME | 208 (incidental), 218-222, 277-280 |
+| Penal - CRIMES AMBIENTAIS | 171-173 (Meta 30 Q1, só pessoa jurídica; **agravantes: ausentes**). Menções incidentais sem agravantes: p.30-32 (lei penal em branco), p.282 |
+| Penal - LEI HENRY BOREL (Lei 14.344/2022) | 98-100 (Meta 18 Q1), 183 (incidental, Meta 31 Q2) |
+
+Processo Penal (`1gyHb-…`):
+| Arquivo | Páginas |
+|---|---|
+| Processo Penal - MEDIDAS CAUTELARES (319, 320 e 350) | 8-10 (art. 310 §5, cita o 319), 81-82, 88-89, 153-156, 197-201 (fiança/350), 234-238, 287-290. Art. 320: **ausente**. Henry Borel só incidental no CPP (p.195) |
