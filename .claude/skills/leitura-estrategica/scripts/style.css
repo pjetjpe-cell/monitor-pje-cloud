@@ -144,7 +144,7 @@ table.spec{width:100%;border-collapse:collapse;font-size:10pt;break-inside:avoid
 .focus mark{color:var(--ink)}
 
 @media (max-width:640px){
-  .panel{grid-template-columns:1fr}
+  .panel,.panel.wide{grid-template-columns:1fr}
   .qmap{grid-template-columns:1fr}
   .tgroup{grid-template-columns:1fr}
   .dgrid{grid-template-columns:1fr}
@@ -157,3 +157,23 @@ table.spec{width:100%;border-collapse:collapse;font-size:10pt;break-inside:avoid
   .spec thead .num{display:none}
   .mnemo{margin-left:0;max-width:100%}
 }
+
+/* ---- compilados por assunto: fonte, lacuna, cobertura ---- */
+.panel.wide{grid-template-columns:1.6fr 1fr}
+.fonte{break-after:avoid;font:500 8.4pt Inter,sans-serif;color:var(--muted);margin:6px 0 2px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fonte b{color:var(--navy);font-weight:700}
+.gap{margin:12px 0;padding:10px 14px;border:1.5px dashed var(--navy);border-radius:10px;background:#f5f6fa;font-size:10pt;line-height:1.45;break-inside:avoid}
+.gap .gtag{display:block;font:700 8.3pt Inter,sans-serif;letter-spacing:.07em;color:var(--navy);margin-bottom:3px}
+.gap ul{margin:4px 0 0;padding-left:18px}
+.gap li{margin:2px 0}
+table.cov{width:100%;border-collapse:collapse;font-size:9.4pt}
+.cov th,.cov td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.cov thead th{font:700 8.3pt Inter,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--navy);border-bottom:2px solid var(--navy)}
+.cov .lvl{font:700 9pt Inter,sans-serif;color:var(--navy);white-space:nowrap}
+.cov td.t{font-weight:700}
+.sub .stext .src2{font:500 8pt Inter,sans-serif;color:var(--muted)}
+
+@media (max-width:640px){.panel.wide{grid-template-columns:1fr}.cov{font-size:8.6pt}}
+
+.rtag,.qbox{break-after:avoid}
+.sbody>p.stext{break-after:avoid}

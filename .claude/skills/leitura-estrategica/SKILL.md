@@ -1,6 +1,6 @@
 ---
 name: leitura-estrategica
-description: Transforma material de estudo já GRIFADO pelo aluno (PDF com marca-texto em várias cores, traços à mão, X, sublinhados, mnemônicos) em um guia visual de leitura estratégica para prova oral/discursiva — mantendo cada grifo na mesma cor e trecho, separando a resposta ao examinador em passos numerados e montando quadros "diferença entre institutos" lado a lado. Gera PDF A4 + HTML com botão "Ver só os grifos". Use quando o usuário colar/enviar um PDF de respostas, roteiro de prova oral, resumo ou questões comentadas com grifos e pedir "reorganize mantendo as marcações", "facilitador visual", "leitura estratégica", "numere as partes da resposta ao juiz/examinador", "diferença dos institutos", "ordem de argumentação".
+description: Transforma material de estudo já GRIFADO pelo aluno (PDF com marca-texto em várias cores, traços à mão, X, sublinhados, mnemônicos) em um guia visual de leitura estratégica para prova oral/discursiva — mantendo cada grifo na mesma cor e trecho, separando a resposta ao examinador em passos numerados e montando quadros "diferença entre institutos" lado a lado. Também monta compilados "assuntos separados" (juntar, de várias questões do material de oral, tudo sobre um tema, apontando o que falta). Gera PDF A4 + HTML com botão "Ver só os grifos". Use quando o usuário colar/enviar um PDF de respostas, roteiro de prova oral, resumo ou questões comentadas com grifos e pedir "reorganize mantendo as marcações", "facilitador visual", "leitura estratégica", "numere as partes da resposta ao juiz/examinador", "diferença dos institutos", "ordem de argumentação".
 ---
 
 # Leitura estratégica de material grifado
@@ -125,6 +125,41 @@ as palavras certas. Ajuste `scripts/style.css` só se for melhoria geral.
 resposta diga: quantas páginas veio × o esperado, o que foi preservado (contagens por cor, X,
 sublinhados, mnemônicos), a numeração criada e as decisões que você tomou sozinho (ex.: significado
 dado a um mnemônico). Se o material veio truncado, peça o restante.
+
+## Modo "assuntos separados" (compilado por tema)
+
+Quando o pedido é "traga um material separado de X, Y e Z" (e não "reorganize este PDF"), o texto-fonte é o PDF
+completo das Metas (ver `references/fontes-drive.md`: IDs das pastas, arquivos e onde cada tema já foi achado).
+
+1. **Mapeie antes de prometer.** Baixe o PDF, extraia o texto por página (`pymupdf`) e procure cada tema
+   (`indulto`, `abolitio`, ...). Quase nunca há uma questão com o nome do tema: ele aparece dentro de outras. Liste
+   Meta/Questão/página e classifique a cobertura (forte, parcial, mínima, ausente).
+2. **Dúvida de escopo? Pergunte antes** (ex.: artigos que não existem, como "350-A"). Diga o que achou e o que não.
+3. **Recorte e extraia.** Monte um PDF só com as páginas relevantes (`pymupdf`: `insert_pdf`) e rode `extrair.py` nele.
+   Os blocos costumam ser linhas, não parágrafos: use `merge_range(a, b)` (ignora nº de página) para costurar a
+   fala inteira de uma questão e depois `seg()` com âncoras. Tabelas viram dezenas de blocos pequenos: monte linha a
+   linha com `merge_range` + âncoras.
+4. **Estrutura por tema:** faixa `band` + `fonte(...)` (Meta, questão, páginas) → perguntas do roteiro e a fala de
+   abertura em passos numerados → duelos entre institutos (só com trechos do material) → jurisprudência em cartões.
+5. **Lacunas são resultado, não falha.** Se o material não traz algo (agravantes ambientais, art. 320, lista do
+   319...), faça um quadro pontilhado `gap` dizendo isso e apontando onde há complemento no Drive (roteiros de aula).
+   **Não preencha com conhecimento próprio.** Se citar um dispositivo que não está no material, marque como
+   "referência minha, fora do material". Abra o documento com uma tabela de cobertura por tema.
+6. **Sem grifos do aluno nessas páginas?** Diga isso no topo ("sem grifos seus nestas páginas"); não invente cor.
+7. **Verifique com `--inverso`:**
+   `python3 -I scripts/verificar.py recorte.json saida.html --inverso --viewport`
+   Confere que tudo que aparece no HTML, fora dos seus rótulos, existe no PDF (a checagem normal do documento
+   inteiro não serve aqui, porque você usa só trechos). Termina em `OK`.
+8. **Entrega:** PDF + HTML por matéria. Não envie ao Drive sem o usuário pedir (as pastas são de outra conta);
+   ofereça o destino (`Assuntos separados`).
+
+Exemplos prontos de build: `exemplo/` tem a Meta 22 (documento inteiro). Os dois compilados da Meta de oral
+(Penal: indulto, abolitio, detração, progressão e ambiental; Processo Penal: cautelares, 319/320/350) seguem
+exatamente este modo e podem ser refeitos pelo mesmo caminho.
+
+Detalhes do motor úteis aqui: `merge(*idx)` costura blocos; `merge_range(a,b)` costura faixa; hífen de quebra de
+linha ("apresentar- se") é juntado automaticamente; `*itálico*` de markdown residual deve ser removido no build
+(`c['c'] != '*'` nos caracteres) e o verificador já o ignora.
 
 ## Requisitos
 `pymupdf` (import `pymupdf`), `Pillow`, Node + `playwright` (Chromium) — já presentes no ambiente de

@@ -41,8 +41,32 @@ def chars_of(idx):
             out.append(dict(c)); prev = False
     while out and out[-1]['c'] == ' ':
         out.pop()
+    # hífen de quebra de linha do PDF: 'apresentar- se' -> 'apresentar-se' (letra, '-', espaço, minúscula)
+    k = 2
+    while k < len(out) - 1:
+        if out[k]['c'] == ' ' and out[k - 1]['c'] == '-' and out[k - 2]['c'].isalpha() and out[k + 1]['c'].islower():
+            del out[k]
+        else:
+            k += 1
     _cache[idx] = out
     return out
+
+
+def merge(*idxs):
+    """Costura parágrafos consecutivos (um parágrafo que atravessa a quebra de página vira 2 blocos no PDF).
+    Devolve o índice de um parágrafo virtual para usar em seg(). Os originais continuam disponíveis."""
+    chars = []
+    for i in idxs:
+        chars += P[i]['chars']
+        chars.append(dict(c=' ', b=False, i=False, hl=None, u=False, x=0, y=0, sz=0))
+    P.append(dict(page=P[idxs[0]]['page'], bbox=[0, 0, 0, 0], chars=chars, text=' '.join(P[i]['text'] for i in idxs)))
+    return len(P) - 1
+
+
+def merge_range(a, b):
+    """merge() de todos os blocos de a até b (inclusive), ignorando blocos que são só o nº da página.
+    Use quando o PDF quebra um parágrafo em vários blocos de linha."""
+    return merge(*[i for i in range(a, b + 1) if not P[i]['text'].strip().isdigit()])
 
 
 def text_of(idx):

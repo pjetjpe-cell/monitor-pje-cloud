@@ -19,6 +19,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument('paras'); ap.add_argument('html')
 ap.add_argument('--ignorar', nargs='*', type=int, default=[], help='índices de parágrafos a ignorar (rodapés, nº de página, anotações)')
 ap.add_argument('--viewport', action='store_true')
+ap.add_argument('--inverso', action='store_true', help='compilado por assunto: tudo que não é rótulo seu existe no PDF? (substitui a checagem de texto 2)')
 a = ap.parse_args()
 
 P = json.load(open(a.paras))
@@ -67,20 +68,56 @@ for m in miss:
     print('   ', m)
 
 # ---- 2. texto
-b2 = re.sub(r'</?(mark|b|i|u|s)(\s[^>]*)?>', '', body)
-hs = ' '.join(re.findall(r'\S+', html.unescape(re.sub(r'<[^>]+>', ' ', b2))))
-gaps = collections.defaultdict(list)
-for idx, p in enumerate(P):
-    if idx in a.ignorar:
-        continue
-    w = re.findall(r'\S+', p['text'])
-    for i in range(0, max(1, len(w) - 2)):
-        win = ' '.join(w[i:i + 3])
-        if win not in hs:
-            gaps[idx].append(win)
-print(f'[texto] parágrafos com sequências ausentes: {len(gaps)} (confira se cada uma é só fronteira de corte/prefixo)')
-for idx, ws in gaps.items():
-    print(f'   p{idx}: {len(ws)} -> {ws[:4]}')
+if a.inverso:
+    from html.parser import HTMLParser
+    MEUS = {'slabel', 'band', 'rtag', 'gap', 'qtag', 'dh', 'dlab', 'dtitle', 'lede', 'xnote', 'fonte', 'jtag', 'kicker', 'ptitle', 'pnote',
+            'panel', 'chip', 'sn', 'num', 'bl', 'bt', 'bs', 'otag', 'stitle', 'hand', 'mnote', 'trail', 'legend', 'src', 'noprint', 'cov', 'dnote'}
+    class Coleta(HTMLParser):
+        """Junta o texto em segmentos: um novo segmento a cada tag de bloco (passo, subitem, célula...).
+        Marcas inline (mark, b, i, u, s) não quebram o segmento."""
+        INLINE = {'mark', 'b', 'i', 'u', 's', 'strong', 'small'}
+        def __init__(self):
+            super().__init__(); self.pilha = []; self.skip = 0; self.segs = ['']
+        def handle_starttag(self, tag, attrs):
+            if tag not in self.INLINE: self.segs.append('')
+            if tag in ('br', 'img', 'meta', 'link'): return
+            cls = set((dict(attrs).get('class') or '').split())
+            skip = bool(cls & MEUS) or tag in ('h1', 'h2', 'style', 'script', 'title', 'button', 'th', 'footer', 'em')
+            self.pilha.append(skip); self.skip += skip
+        def handle_endtag(self, tag):
+            if tag not in self.INLINE: self.segs.append('')
+            if tag in ('br', 'img', 'meta', 'link') or not self.pilha: return
+            self.skip -= self.pilha.pop()
+        def handle_data(self, d):
+            if not self.skip: self.segs[-1] += d
+    c = Coleta(); c.feed(H)
+    src = ' '.join(re.findall(r'\S+', ' '.join(p['text'] for p in P if not p['text'].strip().isdigit()))).replace('*', '')  # '*itálico*' de markdown
+    src = re.sub(r'(?<=[A-Za-zÀ-ÿ])- (?=[a-zà-ÿ])', '-', src)  # hífen de quebra de linha
+    orf = []
+    for sg in c.segs:
+        hw = re.findall(r'\S+', sg)
+        orf += [' '.join(hw[i:i + 3]) for i in range(len(hw) - 2) if ' '.join(hw[i:i + 3]) not in src]
+    print(f'[texto-inverso] sequências do HTML (fora dos seus rótulos) que NÃO existem no PDF: {len(orf)}')
+    for o in orf[:25]: print('   ', o)
+    inv_ok = not orf
+else:
+    inv_ok = True
+
+if not a.inverso:
+    b2 = re.sub(r'</?(mark|b|i|u|s)(\s[^>]*)?>', '', body)
+    hs = ' '.join(re.findall(r'\S+', html.unescape(re.sub(r'<[^>]+>', ' ', b2))))
+    gaps = collections.defaultdict(list)
+    for idx, p in enumerate(P):
+        if idx in a.ignorar:
+            continue
+        w = re.findall(r'\S+', p['text'])
+        for i in range(0, max(1, len(w) - 2)):
+            win = ' '.join(w[i:i + 3])
+            if win not in hs:
+                gaps[idx].append(win)
+    print(f'[texto] parágrafos com sequências ausentes: {len(gaps)} (confira se cada uma é só fronteira de corte/prefixo)')
+    for idx, ws in gaps.items():
+        print(f'   p{idx}: {len(ws)} -> {ws[:4]}')
 
 # ---- 3. celular
 over = 0
@@ -96,4 +133,4 @@ console.log(await m.evaluate(()=>document.documentElement.scrollWidth-window.inn
         os.remove(js)
     print(f'[celular 390px] rolagem horizontal: {over}px')
 
-print('OK' if not miss and not over else 'PROBLEMAS')
+print('OK' if not miss and not over and inv_ok else 'PROBLEMAS')
