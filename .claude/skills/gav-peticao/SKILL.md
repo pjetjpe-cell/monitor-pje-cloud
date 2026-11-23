@@ -1,6 +1,6 @@
 ---
 name: gav-peticao
-description: Monta petições GAV (inicial, inicial cota quitada, réplica, petições avulsas, cumprimento de sentença) pelo Peticionador GAV v4 / PREENCHEDOR DE PETIÇÃO INTERATIVO, a partir do dossiê e dos documentos da pasta do cliente. Escolhe a variante conforme o caso — advogado constituído, justiça gratuita ou só o pedido de suspensão/parcelamento. Use quando o usuário disser "faz a petição do [cliente]", "monta a inicial", "peticionador", "preenchedor de petição", ou pedir a inicial depois de organizar a pasta.
+description: Monta petições GAV (inicial, inicial cota quitada, réplica, petições avulsas, cumprimento de sentença) pelo Peticionador GAV v4 / PREENCHEDOR DE PETIÇÃO INTERATIVO, a partir do dossiê e dos documentos da pasta do cliente. Custas: sempre pedido de parcelamento, nunca justiça gratuita (ordem do usuário, 23/11/2026). Use quando o usuário disser "faz a petição do [cliente]", "monta a inicial", "peticionador", "preenchedor de petição", ou pedir a inicial depois de organizar a pasta.
 ---
 
 # Petição inicial — distrato GAV
@@ -25,6 +25,11 @@ por molde próprio quando o peticionador estiver disponível.
 - O trecho "por intermédio de seu procurador infra-assinado ... vem" é fixo no
   modelo: o script ajusta a concordância (advogada → "sua procuradora
   infra-assinada"; dois autores → "vêm"). Diga isso ao usuário.
+- **Custas: SEMPRE pedido de parcelamento (`tipo: "parcelamento"`), JAMAIS
+  justiça gratuita** — ordem expressa do usuário em 23/11/2026, para todos os
+  clientes. Não pergunte; o `gerar.mjs` recusa `tipo: "gratuita"`. Confira no
+  PDF que a peça não traz a seção "Da justiça gratuita" nem o pedido de
+  gratuidade (nem como pedido principal com parcelamento subsidiário).
 - Conferência do PDF continua obrigatória (lista abaixo).
 
 ## Caminho anterior — Peticionador GAV v4 (vídeo 6, 30/10/2026)
@@ -84,7 +89,7 @@ usa:
 | Variante | Quando |
 |---|---|
 | **Advogado constituído** | cliente paga custas |
-| **Justiça gratuita** | cliente hipossuficiente; exige `06. CARTEIRA DE TRABALHO` e declaração de hipossuficiência na pasta |
+| ~~Justiça gratuita~~ | **proibida desde 23/11/2026** (ordem do usuário): use sempre o pedido de parcelamento |
 | **Só parcelamento** | **padrão** — pedido restrito à suspensão/revisão das parcelas, sem rescisão total. ⚡ Não há template verificado nas referências: monte pelo chat, não pelo artefato |
 
 Não escolha por dedução. "Tem carteira de trabalho na pasta" não significa que
@@ -148,8 +153,7 @@ Antes de dar a inicial por pronta:
 - [ ] valores conferem com o contrato e com o `lib/calculadora` do projeto,
       quando houver cálculo;
 - [ ] a variante escolhida é a que o usuário pediu;
-- [ ] justiça gratuita: a declaração de hipossuficiência e a carteira de
-      trabalho estão **na pasta**, não só mencionadas;
+- [ ] custas: pedido de **parcelamento**; nenhuma menção a justiça gratuita;
 - [ ] a notificação à GAV (`08 - NOTIFICAÇÃO EXTRAJUDICIAL`) está na pasta;
 - [ ] **a procuração anexada é a limpa** (`01 - PROCURAÇÃO`), não o original da
       `NÃO USAR`.
@@ -170,7 +174,7 @@ Salve como `Petição Inicial — {INICIAIS}.pdf` na pasta interna e registre:
 ```bash
 python3 -m gav.esteira marcar --dossie d.json --etapa peticao --status ok \
   --evidencia arquivo="Petição Inicial — J. B.pdf" \
-  --evidencia variante="justiça gratuita"
+  --evidencia variante="parcelamento de custas"
 ```
 
 ## O que esta skill não faz

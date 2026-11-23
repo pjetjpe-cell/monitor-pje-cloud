@@ -12,6 +12,9 @@ A inicial sai do **Peticionador GAV v5.1** (timbre, advogados e layout do
 escritório) — `ferramentas/peticionador/gerar.mjs`, ver `gav-peticao`. O HTML
 fica no Drive, nunca no repositório.
 
+**Custas: sempre pedido de parcelamento, jamais justiça gratuita** (ordem do
+usuário, 23/11/2026, vale para todos os clientes). Não pergunte.
+
 ## Passos
 1. Reúna com fonte: nome, CPF, estado civil, endereço (contrato), venda, cota,
    bloco/apto, preço contratado (contrato), RECEBIDO (extrato), percentual e

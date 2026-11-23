@@ -8,7 +8,7 @@
  * Uso: node gerar.mjs <peticionador.html> <caso.json> <saida.pdf>
  * caso.json (sem dado de cliente neste repositório; fica na pasta do cliente):
  *   extrato  texto do 03 EXTRATO DE PAGAMENTOS (PyMuPDF get_text)
- *   tipo     gratuita | parcelamento | custas      nparc  6 | 12
+ *   tipo     parcelamento (padrão do escritório; "gratuita" é recusado) | custas   nparc  6 | 12
  *   adv      índice do <select id="adv"> (5 = Gilzielle)   advFem  true/false
  *   data     "19 de novembro de 2026"
  *   autores  [{genero:"f"}, {genero:"m"}]  (2º autor liga cAutor2)
@@ -22,6 +22,9 @@ const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 const [,, html, casoArq, saida] = process.argv;
 const c = JSON.parse(fs.readFileSync(casoArq, 'utf8'));
+c.tipo = c.tipo || 'parcelamento';
+// Ordem do escritório (23/11/2026): custas sempre por parcelamento, jamais justiça gratuita.
+if (c.tipo === 'gratuita') { console.error('RECUSADO: justiça gratuita não é pedida; use tipo "parcelamento".'); process.exit(2); }
 const b = await chromium.launch(); const ctx = await b.newContext();
 const p = await ctx.newPage();
 p.on('dialog', d => d.accept());
