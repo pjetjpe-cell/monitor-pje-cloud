@@ -55,6 +55,14 @@ e `paras.extras.json` (textos livres e carimbos/figuras do aluno). Leia a saída
   rode de novo com `--manter-parcial intercorrente superveniente` (palavra inteira, sem pontuação).
 - **Tinta colorida** vira marca-texto da cor do traço; **tinta preta** vira X (palavras da linha sob
   o X). **Linhas pretas sob o texto** viram sublinhado. Confira os números impressos com o que você viu.
+- **Caneta fora da paleta de marca-texto** (vermelho puro, laranja…): traço fino e comprido sob o texto
+  vira **sublinhado na cor da caneta** (`u = '#rrggbb'`); o resto (números, setas, letras) vira
+  **manuscrito** — recorte PNG em `extras['manuscritos']`. Mostre com `mnemonico(texto_lido,
+  imagem_b64(png, 420), nota)` junto do trecho a que se refere (ex.: "98 · 88" = Lei 9.605/1998 + CF/1988;
+  "20 a 50" = pena 12–30 com aumento de 2/3). Diga na entrega o significado que você deu.
+- **Notas digitadas (FreeText)** entram no texto da página como bloco solto: mostre como
+  `<div class="nota-m">` (sai "✍ sua nota:") dentro do passo/linha a que a seta aponta; se o bloco junta
+  duas notas, divida com `celula(idx, x0, x1)`.
 
 Para achar os índices de parágrafo dos seus `seg()`:
 ```bash
@@ -97,7 +105,12 @@ Armadilhas já resolvidas:
 - Blocos que quebram palavra em hífen entre células/linhas (`'projetando-'` + `'se'`): junte com `+`
   sem espaço, não com `cat`.
 - Parágrafo que continua na página seguinte vira dois blocos: `cat(seg(10, …), seg(13))`.
-- Célula de tabela espalhada em vários blocos: monte por linha como no exemplo.
+- Célula de tabela espalhada em vários blocos: `celula(blocos, x0, x1)` junta só as letras da coluna.
+  Se o PDF junta **linhas** diferentes da tabela no mesmo bloco, passe também `y0, y1`
+  (`celula(TAB, x0, x1, y0, y1)` — veja `exemplo/build_henry.py`). Grifo que atravessa colunas é aceito
+  pelo `verificar.py` se cada pedaço está grifado na mesma cor.
+- Questão seguinte (Q2) começando no fim da última página, sem grifos: não entra; `--ignorar` esses
+  blocos e diga no rodapé.
 - Prefixos que viram etiqueta (`RESPOSTA:`, `1.`, `(I)`) saem do texto com `skip_a`/âncora inicial.
 - Âncora repetida no parágrafo: use âncora mais longa (`'(I) recebimento'`) ou `skip_a`.
 - Se o extrator não detectou um sublinhado visível no original: `sublinhar(i, a, b)`.
@@ -125,6 +138,17 @@ as palavras certas. Ajuste `scripts/style.css` só se for melhoria geral.
 resposta diga: quantas páginas veio × o esperado, o que foi preservado (contagens por cor, X,
 sublinhados, mnemônicos), a numeração criada e as decisões que você tomou sozinho (ex.: significado
 dado a um mnemônico). Se o material veio truncado, peça o restante.
+
+## Recortes grifados de volta → "relocar" + facilitador
+
+Quando o aluno devolve um recorte (Etapa 1) **já grifado** e pede para "relocar no material original":
+1. **Relocar**: no PDF completo, troque as páginas do recorte pelas páginas grifadas (mesma ordem). Monte
+   com `insert_pdf` por **faixas contíguas** (`from_page/to_page`), não página a página, e salve com
+   `garbage=4, deflate=True, clean=True` — página a página o arquivo inchou de 3,6 MB para 16 MB.
+   Confira: nº de páginas igual ao original, e as páginas trocadas com as anotações (`page.annots()`).
+2. **Facilitador** de cada recorte, uma questão = uma `parte` (ver `exemplo/build_detracao.py`, com duas
+   questões; `build_ambientais.py`; `build_henry.py`). Fluxo normal (extrair → build → verificar → render).
+3. Entregue o PDF completo recolocado + PDF/HTML de cada facilitador.
 
 ## Modo "assuntos separados" (compilado por tema)
 

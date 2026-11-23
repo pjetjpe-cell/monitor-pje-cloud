@@ -28,6 +28,15 @@ import pymupdf
 PAL = {'y': (1, 1, .6), 'r': (1, .31, .37), 'g': (.33, 1, .74), 'p': (1, .8, .9), 'b': (.5, .92, 1), 'k': (0, 0, 0)}
 
 
+def pen_hex(c):
+    """Cor de CANETA (fora da paleta de marca-texto e não preta) -> '#rrggbb'; senão None.
+    Ex.: vermelho puro (1,0,0), laranja (1,.5,.25). Vermelho-paleta (1,.31,.37) continua marca-texto."""
+    if not c:
+        return None
+    dist = min(sum((PAL[k][i] - c[i]) ** 2 for i in range(3)) for k in PAL)
+    return '#%02x%02x%02x' % tuple(int(round(v * 255)) for v in c) if dist > 0.02 else None
+
+
 def cname(c):
     if not c:
         return None
@@ -54,11 +63,12 @@ def main():
     ap.add_argument('--imgs'); ap.add_argument('--manter-parcial', nargs='*', default=[])
     a = ap.parse_args()
     doc = pymupdf.open(a.pdf)
-    paras, extras = [], dict(freetext=[], stamps=[])
+    paras, extras = [], dict(freetext=[], stamps=[], manuscritos=[])
     parciais = []
 
     for pi, page in enumerate(doc):
         quads, inks, blacks = [], [], []
+        pen_ul, pen_hw = [], []   # caneta: sublinhados (hex, rect) e escrita à mão (rects)
         for an in page.annots():
             t = an.type[1]
             if t == 'Highlight':
@@ -69,7 +79,18 @@ def main():
             elif t == 'Ink':
                 cls = cname(an.colors['stroke'])
                 strokes = an.vertices if an.vertices and isinstance(an.vertices[0][0], (list, tuple)) else [an.vertices]
-                if cls == 'k':
+                ph = pen_hex(an.colors['stroke'])
+                if ph:
+                    for s in strokes:
+                        xs = [p[0] for p in s]; ys = [p[1] for p in s]
+                        r = pymupdf.Rect(min(xs), min(ys), max(xs), max(ys))
+                        if r.width < 2 and r.height < 2:
+                            continue                               # ponto solto
+                        if r.height <= 6 and r.width >= 15:
+                            pen_ul.append((ph, r))                 # traço horizontal = sublinhado de caneta
+                        else:
+                            pen_hw.append(r)                       # escrita à mão / seta / círculo
+                elif cls == 'k':
                     for s in strokes:
                         xs = [p[0] for p in s]; ys = [p[1] for p in s]
                         blacks.append(pymupdf.Rect(min(xs), min(ys), max(xs), max(ys)))
@@ -137,12 +158,25 @@ def main():
                             for x0, x1, y in ulines:
                                 if x0 - 1 <= (bb.x0 + bb.x1) / 2 <= x1 + 1 and bb.y1 - 3.5 <= y <= bb.y1 + 2:
                                     u = True
+                            for ph, r in pen_ul:
+                                if r.x0 - 1 <= (bb.x0 + bb.x1) / 2 <= r.x1 + 1 and bb.y1 - 4 <= (r.y0 + r.y1) / 2 <= bb.y1 + 7:
+                                    u = ph
                         chars.append(dict(c=c, b=bold, i=ital, hl=hl, ink=ink, u=u, ln=lid, x=round(bb.x0, 1),
                                           x1=round(bb.x1, 1), y=round(bb.y0, 1), sz=round(s['size'], 1)))
                 chars.append(dict(c=' ', b=False, i=False, hl=None, ink=None, u=False, ln=lid, x=0, x1=0, y=0, sz=0))
             text = ''.join(c['c'] for c in chars).strip()
             if text:
                 paras.append(dict(page=pi + 1, bbox=[round(v) for v in b['bbox']], text=text, chars=chars))
+
+        # escrita à mão (caneta fora da paleta): vira imagem recortada, nunca grifo
+        for g in cluster(pen_hw, pad=10):
+            r = pymupdf.Rect(g.x0 - 6, g.y0 - 6, g.x1 + 6, g.y1 + 6) & page.rect
+            rec = dict(page=pi + 1, rect=[round(v) for v in r], file=None)
+            if a.imgs:
+                os.makedirs(a.imgs, exist_ok=True)
+                fn = os.path.join(a.imgs, f'manuscrito_p{pi + 1}_{len(extras["manuscritos"]) + 1}.png')
+                page.get_pixmap(clip=r, dpi=200, annots=True).save(fn); rec['file'] = fn
+            extras['manuscritos'].append(rec)
 
         # riscado (X preto): a linha mais próxima do centro do X; palavras com sobreposição horizontal
         page_paras = [p for p in paras if p['page'] == pi + 1]
@@ -212,7 +246,9 @@ def main():
     print(f'{len(paras)} parágrafos em {len(doc)} páginas | letras grifadas por cor: {dict(cont)}')
     print('riscadas:', sum(1 for p in paras for c in p['chars'] if c.get('strike') and c['c'].strip()), 'letras | sublinhadas:',
           sum(1 for p in paras for c in p['chars'] if c.get('u') and c['c'].strip()), 'letras')
-    print(f"anotações: {len(extras['freetext'])} texto(s) livre(s), {len(extras['stamps'])} carimbo(s)")
+    print(f"anotações: {len(extras['freetext'])} texto(s) livre(s), {len(extras['stamps'])} carimbo(s), {len(extras['manuscritos'])} escrita(s) à mão")
+    for m in extras['manuscritos']:
+        print('  escrita à mão p.%d em %s -> %s' % (m['page'], m['rect'], m['file']))
     for f in extras['freetext']:
         print('  texto livre p.%d: %r' % (f['page'], f['text']))
     if parciais:

@@ -62,7 +62,14 @@ for idx in range(len(P)):
     for col, t in runs(idx):
         tot += 1
         if not any(t in m for m in marks[col]):
-            miss.append((idx, col, t))
+            # grifo que atravessa colunas de tabela: aceita se o trecho se divide (nos espaços) em pedaços
+            # que estão, cada um, grifados na mesma cor
+            pal = t.split(' ')
+            ok = [True] + [False] * len(pal)
+            for j in range(1, len(pal) + 1):
+                ok[j] = any(ok[i] and any(' '.join(pal[i:j]) in m for m in marks[col]) for i in range(j))
+            if not ok[-1]:
+                miss.append((idx, col, t))
 print(f'[marcações] {tot} trechos grifados no original; ausentes/cor trocada no HTML: {len(miss)}')
 for m in miss:
     print('   ', m)

@@ -19,10 +19,14 @@ P = []
 _cache = {}
 
 
+N_ORIG = 0
+
+
 def load(path):
-    global P, _cache
+    global P, _cache, N_ORIG
     P = json.load(open(path))
     _cache = {}
+    N_ORIG = len(P)   # blocos criados depois (merge/celula) não entram na contagem da legenda
     return P
 
 
@@ -67,6 +71,28 @@ def merge_range(a, b):
     """merge() de todos os blocos de a até b (inclusive), ignorando blocos que são só o nº da página.
     Use quando o PDF quebra um parágrafo em vários blocos de linha."""
     return merge(*[i for i in range(a, b + 1) if not P[i]['text'].strip().isdigit()])
+
+
+def celula(idxs, x0, x1, y0=-1e9, y1=1e9):
+    """Célula de tabela: junta, dos blocos `idxs`, só as letras cuja posição x está em [x0, x1)
+    (e, opcionalmente, o topo y em [y0, y1): para quando o PDF junta LINHAS diferentes da tabela no mesmo bloco).
+    Útil quando o PDF põe colunas diferentes no mesmo bloco. Mantém grifos/negrito de cada letra."""
+    chars = []
+    for i in idxs:
+        last_ln = None
+        for c in P[i]['chars']:
+            if c['c'].isspace():
+                if chars and not chars[-1]['c'].isspace() and c.get('x', 0) and x0 <= c['x'] < x1 and y0 <= c.get('y', 0) < y1:
+                    chars.append(dict(c, c=' '))
+                continue
+            if x0 <= c.get('x', -1) < x1 and y0 <= c.get('y', 0) < y1:
+                if last_ln is not None and c.get('ln') != last_ln and chars and not chars[-1]['c'].isspace():
+                    chars.append(dict(c=' ', b=False, i=False, hl=None, u=False, x=0, y=0, sz=0))
+                chars.append(c); last_ln = c.get('ln')
+        if chars and not chars[-1]['c'].isspace():
+            chars.append(dict(c=' ', b=False, i=False, hl=None, u=False, x=0, y=0, sz=0))
+    P.append(dict(page=P[idxs[0]]['page'], bbox=[0, 0, 0, 0], chars=chars, text=''.join(c['c'] for c in chars)))
+    return len(P) - 1
 
 
 def text_of(idx):
@@ -133,7 +159,7 @@ def render(chars):
                 j += 1
             t = html.escape(''.join(x[0] for x in sub[k:j]))
             b, i, st, u = key
-            if u: t = f'<u>{t}</u>'
+            if u: t = f'<u class="pen" style="text-decoration-color:{u}">{t}</u>' if isinstance(u, str) else f'<u>{t}</u>'
             if st: t = f'<s class="x">{t}</s>'
             if i: t = f'<i>{t}</i>'
             if b: t = f'<b>{t}</b>'
@@ -168,7 +194,7 @@ def esc(s):
 def contar_grifos(ignorar=()):
     """Nº de trechos contínuos grifados por cor (para a legenda; confere com verificar.py)."""
     cnt = collections.Counter()
-    for idx in range(len(P)):
+    for idx in range(N_ORIG or len(P)):
         if idx in ignorar:
             continue
         prev = None
@@ -229,7 +255,8 @@ def duel(titulo_duelo, cab_esq, cab_dir, linhas, nota=''):
     h = f'<div class="duel"><div class="dtitle">{titulo_duelo}</div>'
     h += f'<div class="dgrid"><div class="dh dh0"></div><div class="dh dl">{cab_esq}</div><div class="dh dr">{cab_dir}</div>'
     for k, (lab, l, r) in enumerate(linhas, 1):
-        h += f'<div class="dn"><span class="num s">{k}</span><span class="dlab">{esc(lab)}</span></div>'
+        lab_html = lab if '<' in lab else esc(lab)     # rótulo pode vir do PDF, com grifo
+        h += f'<div class="dn"><span class="num s">{k}</span><span class="dlab">{lab_html}</span></div>'
         h += f'<div class="dc dl txt">{l}</div><div class="dc dr txt">{r}</div>'
     h += '</div>'
     if nota:

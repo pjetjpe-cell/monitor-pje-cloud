@@ -177,3 +177,13 @@ table.cov{width:100%;border-collapse:collapse;font-size:9.4pt}
 
 .rtag,.qbox{break-after:avoid}
 .sbody>p.stext{break-after:avoid}
+
+u.pen{text-decoration-thickness:2px;text-underline-offset:3px}
+.hw{display:flex;gap:12px;align-items:center;margin:8px 0 4px 46px;padding:8px 12px;border:1.5px dashed #d1253a;border-radius:10px;width:fit-content;max-width:calc(100% - 46px)}
+.hw img{max-height:70px;max-width:260px;border-radius:6px;background:#fff}
+.hw .mnote{margin:0}
+@media (max-width:640px){.hw{margin-left:0;max-width:100%}}
+.nota-m{margin-top:5px;font:italic 700 8.6pt Inter,sans-serif;color:#1b2130}
+.nota-m::before{content:"✍ sua nota: ";font-weight:500;color:#5c6478}
+.parte{break-before:page;margin:0 0 6px;padding:10px 14px;border-radius:10px;background:#1b2130;color:#fff;font:800 13pt Inter,sans-serif}
+.parte small{display:block;font:500 9pt Inter,sans-serif;opacity:.8;margin-top:2px}
