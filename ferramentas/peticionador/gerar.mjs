@@ -53,6 +53,32 @@ await p.evaluate((c) => {
     if (c.autores.length > 1) n.nodeValue = n.nodeValue.replace(/,\s*vem,\s*respeitosamente/, ', vêm, respeitosamente');
   }
 }, c);
+// Ré fora do cadastro do modelo (ex.: outro empreendimento): c.re = {nome, empreendimento, cnpj, sede}
+// substitui as linhas da tabela "em face de". c.trocas = [[trecho, novo], ...] troca texto literal
+// na peça (ex.: percentual mínimo pedido, cidade da assinatura); cada trecho tem de existir.
+// [trecho, novo, 'no'] troca só o nó de texto que é exatamente o trecho (ex.: um <strong>25%</strong>).
+// c.ocultar = [seletor CSS, ...] some com seções que não se aplicam ao caso.
+const falhas = await p.evaluate((c) => {
+  const erros = [];
+  const raiz = document.getElementById('petBody');
+  if (c.re) {
+    const t = document.getElementById('tblRes').tBodies[0];
+    [...t.rows].slice(1).forEach(r => r.remove());
+    const tr = t.insertRow(); const td = (h) => { const x = tr.insertCell(); x.innerHTML = h; };
+    td(`<strong>${c.re.nome}</strong>` + (c.re.empreendimento ? `<br><span style="font-size:10pt">(empreendimento <em>${c.re.empreendimento}</em>)</span>` : ''));
+    td(c.re.cnpj); td(c.re.sede);
+  }
+  for (const sel of c.ocultar || []) { const els = raiz.querySelectorAll(sel); if (!els.length) erros.push('ocultar: ' + sel); els.forEach(e => e.remove()); }
+  for (const [de, para, modo] of c.trocas || []) {
+    let n = 0; const w = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT);
+    const casa = (v) => modo === 'no' ? v.trim() === de.trim() : v.includes(de); // 'no': só o nó cujo texto é exatamente o trecho
+    for (let x; (x = w.nextNode());) if (casa(x.nodeValue) && x.parentElement.offsetParent !== null) { x.nodeValue = modo === 'no' ? x.nodeValue.replace(de, para) : x.nodeValue.split(de).join(para); n++; }
+    if (!n) erros.push('troca sem ocorrência visível: ' + de);
+  }
+  return erros;
+}, c);
+if (falhas.length) { console.error('AJUSTES NÃO APLICADOS:\n' + falhas.join('\n')); await b.close(); process.exit(1); }
+if (process.env.TEXTO) fs.writeFileSync(process.env.TEXTO, await p.evaluate(() => document.getElementById('petBody').innerText));
 // Mesmo resultado do botão "Imprimir / Salvar PDF (layout de impressão)" do peticionador.
 await p.emulateMedia({ media: 'print' });
 await p.pdf({ path: saida, format: 'A4', printBackground: true, preferCSSPageSize: true });
