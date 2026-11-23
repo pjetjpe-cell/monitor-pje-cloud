@@ -109,3 +109,13 @@ Processo Penal (`1gyHb-…`):
 | Penal p.254 | — | Lei 12.846 (anticorrupção): PJ responsabilizada, mas **não ambiental** |
 
 Recorte gerado: `Constitucional - MEIO AMBIENTE E TRÍPLICE RESPONSABILIDADE (pessoa jurídica).pdf` = págs. 179-181.
+
+## Pasta de destino das questões ERRADAS / circuladas (pedido do usuário, 2026-11-23)
+
+**https://drive.google.com/drive/u/5/folders/1bp2LL9j2Rhxp0C96blG9xl6nx5Jyqymu** — ID `1bp2LL9j2Rhxp0C96blG9xl6nx5Jyqymu`.
+
+- É o destino dos PDFs "só com as circuladas" (ex.: `Direito Ambiental PC-MA 2026 - Questoes circuladas.pdf`).
+- O `/u/5/` mostra que a pasta está em **outra conta Google do usuário**. Em 2026-11-23 o conector devolveu
+  "não encontrada": **a pasta ainda não foi compartilhada com a conta conectada (pjetjpe@gmail.com)**. Sem isso não
+  dá para gravar. Antes de subir, rode `get_file_metadata` nesse ID; se falhar, peça o compartilhamento (como foi
+  feito com a pasta "ORAL PCPI"). Não crie pasta nova nem suba em outro lugar por conta própria.

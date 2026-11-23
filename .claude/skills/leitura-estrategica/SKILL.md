@@ -176,6 +176,22 @@ Detalhes do motor úteis aqui: `merge(*idx)` costura blocos; `merge_range(a,b)` 
 linha ("apresentar- se") é juntado automaticamente; `*itálico*` de markdown residual deve ser removido no build
 (`c['c'] != '*'` nos caracteres) e o verificador já o ignora.
 
+## Questões circuladas = questões erradas
+
+Quando o aluno manda um caderno de questões (PDF) com **círculos vermelhos nos códigos das questões** (Q45, QUESTÃO 18…)
+e pede "só com as circuladas": o círculo no código marca a questão **errada**.
+
+1. Liste as anotações `Ink` por página e ache, pela posição, em qual código cada círculo está. **Só vale círculo no
+   código.** Sublinhados/X no texto sem círculo no código NÃO incluem a questão: liste-as na capa como "fora" e pergunte.
+2. Recorte **questão a questão** (não página a página): início = pílula do código menos ~22 pt (ou o topo do
+   círculo); fim = antes do próximo cartão/faixa de assunto, cortando entre blocos de texto.
+3. `doc.bake(annots=True)` embute os traços vermelhos no conteúdo antes de `show_pdf_page(clip=…)`: assim os
+   círculos, sublinhados e X vão junto. Recomponha em A4 (uma questão por página; corta só entre linhas; se passar
+   pouco de uma página, reduza a escala em até ≈12%).
+4. Capa-índice (questão, tema, gabarito, página aqui/original, e o que ficou de fora) + bookmarks por questão.
+5. Destino no Drive: `references/fontes-drive.md` (pasta de questões erradas). Scripts de referência:
+   `exemplo/circuladas/` (`montar.py` → `compor.py` → `capa.py`/`capa.js`).
+
 ## Requisitos
 `pymupdf` (import `pymupdf`), `Pillow`, Node + `playwright` (Chromium) — já presentes no ambiente de
 nuvem. Fontes Carlito (corpo) e Inter (rótulos); fora delas o CSS cai em Calibri/system-ui.
