@@ -148,7 +148,22 @@ Quando o aluno devolve um recorte (Etapa 1) **já grifado** e pede para "relocar
    Confira: nº de páginas igual ao original, e as páginas trocadas com as anotações (`page.annots()`).
 2. **Facilitador** de cada recorte, uma questão = uma `parte` (ver `exemplo/build_detracao.py`, com duas
    questões; `build_ambientais.py`; `build_henry.py`). Fluxo normal (extrair → build → verificar → render).
-3. Entregue o PDF completo recolocado + PDF/HTML de cada facilitador.
+3. Entregue no chat o PDF completo recolocado + PDF/HTML de cada facilitador.
+4. **Suba os facilitadores para o Drive, sem perguntar** (regra do usuário, 2026-11-23: "deixe as facilitadas na
+   pasta onde consta o material de prescrição"): ver "Destino no Drive" abaixo.
+
+### Destino no Drive dos facilitadores (REGRA DO USUÁRIO, 2026-11-23)
+
+- **Pasta:** `ORAL PCPI - POR MATÉRIA / <matéria> / Assuntos separados` — a da `PRESCRIÇÃO.pdf`. Penal:
+  `1TWm_en0lUf8M1xYrxX3nTaTSVfNajQwL` (IDs em `references/fontes-drive.md`). Antes, `get_file_metadata` na pasta:
+  precisa de `canAddChildren: true`. Para outra matéria sem pasta "Assuntos separados", pergunte (não crie pasta).
+- **O quê:** só o **PDF** de cada facilitador, nome `<TEMA> - leitura estratégica.pdf` (ex.:
+  `DETRAÇÃO - leitura estratégica.pdf`). Upload com `create_file`, `contentMimeType: application/pdf`,
+  `disableConversionToGoogleType: true` e `base64Content` como referência `sha256:<hash>:<caminho>` (copie antes
+  para um caminho sem acento no scratchpad).
+- **O que NÃO sobe sem pedido:** o PDF completo recolocado, os HTML, e nada que substitua ou apague arquivo do
+  dono da pasta.
+- Depois, registre os IDs em `references/fontes-drive.md` e mande os links na resposta.
 
 ## Modo "assuntos separados" (compilado por tema)
 

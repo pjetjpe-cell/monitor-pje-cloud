@@ -41,6 +41,8 @@ https://drive.google.com/drive/folders/1hTBRG51JWKQn2_xwQopASOop7W4ZQWxh
 - Listar uma árvore: `'<id>' in ancestors` + `nextPageToken`. O resultado grande é salvo em arquivo: filtre com Python,
   não leia inteiro.
 - **Não envie arquivos para o Drive sem o usuário pedir**: as pastas são de outra conta (dipallacioenterprise).
+  **Exceção autorizada (2026-11-23):** o PDF de cada facilitador (Etapa 2) vai direto para a pasta *Assuntos separados*
+  da matéria, ao lado da PRESCRIÇÃO.pdf — ver "Destino no Drive dos facilitadores" no SKILL.md.
 
 ## Onde estão os temas de oral nas Metas (já levantado)
 
