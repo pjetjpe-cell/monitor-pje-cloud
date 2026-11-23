@@ -119,3 +119,17 @@ Recorte gerado: `Constitucional - MEIO AMBIENTE E TRÍPLICE RESPONSABILIDADE (pe
   "não encontrada": **a pasta ainda não foi compartilhada com a conta conectada (pjetjpe@gmail.com)**. Sem isso não
   dá para gravar. Antes de subir, rode `get_file_metadata` nesse ID; se falhar, peça o compartilhamento (como foi
   feito com a pasta "ORAL PCPI"). Não crie pasta nova nem suba em outro lugar por conta própria.
+
+## Facilitadores enviados ao Drive (2026-11-23)
+
+Em **Assuntos separados** (`1TWm_en0lUf8M1xYrxX3nTaTSVfNajQwL`), ao lado de PRESCRIÇÃO.pdf — destino combinado com o usuário
+para os facilitadores (Etapa 2). A conta conectada pode adicionar arquivos nessa pasta (`canAddChildren`), e os arquivos
+ficam com dono pjetjpe@gmail.com.
+
+| Arquivo | ID |
+|---|---|
+| DETRAÇÃO - leitura estratégica.pdf | `1tT9U0xwklAwBzNBZ6hO4rtSMfJHzcBhl` |
+| CRIMES AMBIENTAIS - leitura estratégica.pdf | `1v8BVXMrmIFb-ekiMYAlkKFAGMLVV1ljD` |
+| LEI HENRY BOREL - leitura estratégica.pdf | `1c8zS1jUHn84yhJsvBHqI4l5OPdT_QR10` |
+
+O PDF completo de Penal com as páginas grifadas recolocadas **não** foi enviado (ficou só na entrega do chat).
