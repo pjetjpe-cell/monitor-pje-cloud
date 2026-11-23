@@ -30,6 +30,9 @@ https://drive.google.com/drive/folders/1hTBRG51JWKQn2_xwQopASOop7W4ZQWxh
 | Direito Penal - RESPOSTAS - Completo .pdf | `1X-2mJEr-lXdnnq-NDa4bRtT6zuVnTyVE` | 15 MB: `download_file_content` recusa (>10 MB). `read_file_content` devolve só o texto, cortado (Metas iniciais). Sem novidade em relação ao acima. |
 | Direito Processual Penal - RESPOSTAS - Completo (Metas 01 a 45).pdf | `1gyHb-MI5XMm9H7yU1lFsJEV7HTPxmDHM` | 290 págs, **sem nenhum grifo**. |
 | Direito Processual Penal - PERGUNTAS - Completo (Metas 01 a 45).pdf | `1-d7v5F-QoJZbaSopyCTpUg6YX6r2LKAg` | só as perguntas |
+| Direito Constitucional - RESPOSTAS - Completo (Metas 01 a 45).pdf | `13yw6OnuVgKjO125-yLHbG3oPWN07_dne` | 289 págs |
+| Direito Administrativo - RESPOSTAS - Completo (Metas 01 a 45).pdf | `1dB-nCIFbnGSnDdHLIy1mKxRcuP6MHFPQ` | 290 págs |
+| Direitos Humanos - RESPOSTAS - Completo (Metas 01 a 45).pdf | `1w8lrm5TefYkLJNYjL9xNu4isKj8vUxvj` | 293 págs |
 | Assuntos separados / PRESCRIÇÃO.pdf | `17r2vFiEUW1RNujbADRCREhv6Y8RdKlGp` | exemplo do formato de "assunto separado" (págs. 118–122 do Penal, com grifos) |
 
 ## Como trabalhar com o Drive
@@ -93,3 +96,16 @@ Processo Penal (`1gyHb-…`):
 | Arquivo | Páginas |
 |---|---|
 | Processo Penal - MEDIDAS CAUTELARES (319, 320 e 350) | 8-10 (art. 310 §5, cita o 319), 81-82, 88-89, 153-156, 197-201 (fiança/350), 234-238, 287-290. Art. 320: **ausente**. Henry Borel só incidental no CPP (p.195) |
+
+## Pessoa jurídica e crimes ambientais — o que há em TODAS as matérias (busca feita em 2026-11-23)
+
+| Onde | Páginas | O que traz |
+|---|---|---|
+| Penal Meta 30 Q1 | 171-173 | responsabilidade penal da PJ (CF 225 §3º, Lei 9.605 art. 3º, dupla imputação superada, art. 21 e 24, intranscendência) — **a questão central** |
+| Constitucional Meta 29 Q8 | 179-181 | art. 225 CF, prevenção/precaução, **tríplice responsabilidade** (PF e PJ), tabela civil × penal ambiental (Lei 9.605, PF e PJ) × administrativa, Tema 999 |
+| Administrativo Meta 33 | 204-206 | só "risco integral" para dano ambiental (responsabilidade **civil**) — marginal |
+| Direitos Humanos Meta 32 | 198-200 | art. 225 §3º citado como mandado de criminalização — marginal |
+| CPP | — | nada (só PJ não colabora, p.73/257) |
+| Penal p.254 | — | Lei 12.846 (anticorrupção): PJ responsabilizada, mas **não ambiental** |
+
+Recorte gerado: `Constitucional - MEIO AMBIENTE E TRÍPLICE RESPONSABILIDADE (pessoa jurídica).pdf` = págs. 179-181.
