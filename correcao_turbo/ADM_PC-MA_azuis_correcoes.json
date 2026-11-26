@@ -1,0 +1,52 @@
+{
+  "titulo": "CORREÇÃO TURBO • DIREITO ADMINISTRATIVO (PC-MA) • QUESTÕES MARCADAS DE AZUL",
+  "questoes": [
+    {"pagina": 3, "ultima": 5,
+     "correcao": "O prazo de interposição de recurso e contrarrazões é ~~comum~~ **sucessivo** às licitantes interessadas, sendo de~~, no mínimo,~~ três dias ~~úteis~~ **corridos**, a contar da divulgação do resultado de julgamento do certame.",
+     "fonte": "Fonte: comentário da questão (3 equívocos: “no mínimo”, “dias úteis” e “comum”). ⚠ Regime atual: a Lei 10.520/02 foi revogada; na Lei 14.133/21 (art. 165) o recurso é de 3 dias <b>úteis</b>."},
+
+    {"pagina": 10, "ultima": 12,
+     "correcao": "Enquanto perdurar o contrato, a concessionária poderá ~~livremente~~ dispor dos seus direitos e negociar suas obrigações mediante a outorga de subconcessão **prevista no contrato, expressamente autorizada pelo poder concedente e precedida de concorrência**.",
+     "fonte": "Fonte: art. 26, caput e § 1º, da Lei 8.987/95."},
+
+    {"pagina": 13, "ultima": 16,
+     "correcao": "a) Os servidores públicos ~~em geral~~ **efetivos, aprovados no estágio probatório,** gozam ~~das garantias~~ **da garantia** de estabilidade ~~e efetividade~~.\nb) ✔ correta (gabarito).\nc) O tempo de serviço prestado a um ente da federação ~~deve ser~~ **não é** computado no estágio probatório do servidor aprovado para cargo de outro ente.\nd) ~~Quaisquer~~ **Nem todos os** servidores públicos eleitos para exercer mandato eletivo precisam afastar-se do exercício de suas funções anteriores.\ne) O tempo de serviço do servidor afastado para exercer mandato eletivo contará para todos os fins legais, ~~inclusive~~ **exceto** para efeito de promoções por merecimento.",
+     "fonte": "Fonte: comentário da questão; CF, art. 37, XIII (b) e art. 38 (d: vereador com compatibilidade de horários acumula; e: exceto promoção por merecimento)."},
+
+    {"pagina": 17, "ultima": 19,
+     "correcao": "I — ~~são~~ **não são** passíveis de revogação as férias concedidas a servidor e completamente gozadas.\nII — ~~são~~ **não são** passíveis de revogação os atestados e pareceres expedidos.\nIII — ✔ correto: a portaria que nomeia comissão é revogável.\n→ Só o item III está certo (letra B).",
+     "fonte": "Fonte: comentário da questão (I: ato que já exauriu seus efeitos; II: atos enunciativos são irrevogáveis)."},
+
+    {"pagina": 20, "ultima": 22,
+     "correcao": "a) ~~descentralização funcional~~ **desconcentração**, descentralização funcional e descentralização por colaboração.\nb) desconcentração, descentralização funcional e descentralização ~~funcional~~ **por colaboração**.\nc) ~~descentralização por colaboração~~ **desconcentração**, descentralização ~~por colaboração~~ **funcional** e descentralização ~~funcional~~ **por colaboração**.\nd) ~~descentralização funcional~~ **desconcentração**, descentralização ~~por colaboração~~ **funcional** e descentralização ~~funcional~~ **por colaboração**.\ne) ✔ correta (gabarito).",
+     "fonte": "Fonte: comentário da questão — mesma pessoa jurídica = desconcentração; criar autarquia = descentralização funcional; contrato ou ato unilateral = descentralização por colaboração."},
+
+    {"pagina": 23, "ultima": 25,
+     "correcao": "I — ✔ correto.\nII — Para que a exigência do exame psicotécnico seja válida, é necessária sua previsão tanto no edital do concurso público quanto em lei em sentido ~~amplo~~ **estrito**.\nIII — ✔ correto.\nIV — ✔ correto.\n→ Itens I, III e IV certos (letra C).",
+     "fonte": "Fonte: Súmula Vinculante 44; STF, AI 758.533-QO-RG; STJ, AgRg no REsp 1.404.261/DF."},
+
+    {"pagina": 26, "ultima": 29,
+     "correcao": "a) Devem participar da decisão coordenada em processo administrativo federal todas as autoridades e agentes decisórios, ~~excluindo-se~~ **e também** os responsáveis pela instrução técnico-jurídica do processo em questão.\nb) Decisão coordenada é aquela tomada quando da atuação compartilhada entre instâncias de natureza interinstitucional ou intersetorial com a finalidade de ~~incrementar a complexidade do~~ **simplificar o** processo administrativo.\nc) A decisão coordenada **não** é aplicável a processos administrativos federais de licitação, relacionados ao poder sancionador ou em que estejam envolvidas autoridades de Poderes distintos.\nd) ✔ correta (gabarito).\ne) A decisão coordenada **não** exclui a responsabilidade originária de cada órgão ou ~~atividade~~ **autoridade** envolvida.",
+     "fonte": "Fonte: Lei 9.784/99, art. 49-A, § 1º (a, b), § 6º (c) e § 4º (e)."},
+
+    {"pagina": 38, "ultima": 40,
+     "correcao": "a) Será devida~~, em regra,~~ indenização por limitação administrativa ao direito de edificar advinda da criação de área non aedificandi **sobre imóvel urbano**, ~~mesmo que não fique~~ **desde que fique** demonstrado prejuízo causado ao proprietário.\nb) O tombamento do Plano Piloto de Brasília ~~está restrito à sua estrutura física, não abrangendo~~ **abrange** seu singular conceito paisagístico e urbanístico.\nc) ✔ correta (gabarito).\nd) No ato de tombamento geral, ~~devem~~ **não precisam** constar individualizados os bens abarcados pelo tombo, pois as restrições ~~não~~ se estendem à totalidade dos imóveis situados na área tombada.\ne) ~~Qualquer~~ **A** construção acrescida ao conjunto arquitetônico tombado **não** deverá ser demolida~~, mesmo~~ se inexistir ofensa à harmonia estética.",
+     "fonte": "Fonte: STJ, Jurisprudência em Teses, Edição 127, teses 1 a 5."},
+
+    {"pagina": 41, "ultima": 44,
+     "correcao": "a) ✔ correta (gabarito).\nb) Imóvel vinculado ao Sistema Financeiro de Habitação (SFH) ~~não~~ está afetado à prestação de serviço público e, por isso, ~~não~~ deve ser tratado como bem público; logo, **não** está sujeito à usucapião.\nc) Construção ou atividade irregular em bem de uso comum do povo ~~não~~ caracteriza dano presumido, ~~devendo ser demonstrado o~~ **dispensada a prova de** prejuízo em concreto.\nd) A União **não** perderá o domínio das terras devolutas situadas em faixas de fronteira e indispensáveis à defesa destas se houver inércia ou tolerância em relação aos possuidores ou detentores, nos casos de concessão pelos estados.\ne) Os bens pertencentes às sociedades de economia mista sujeitos a destinação pública **não** estão suscetíveis à prescrição aquisitiva.",
+     "fonte": "Fonte: STJ, Jurisprudência em Teses, Edição 124, teses 1, 3, 4, 6 e 10; Súmula 477/STF (d)."},
+
+    {"pagina": 55, "ultima": 57,
+     "correcao": "✔ Assertiva correta — nada a corrigir.",
+     "fonte": "Fonte: LINDB, art. 21, parágrafo único (redação da Lei 13.655/2018)."},
+
+    {"pagina": 58, "ultima": 62,
+     "correcao": "a) ~~Não se admite~~ **Admite-se, por lei,** o exercício do poder de polícia por pessoas jurídicas de direito privado **integrantes da Administração indireta**.\nb) O termo inicial do prazo prescricional para o ajuizamento da ação executória de multa administrativa é a constituição definitiva do crédito, que se dá com ~~a lavratura do auto de infração~~ **o término do processo administrativo de apuração da infração**.\nc) A interrupção do prazo decadencial para a constituição do crédito decorrente de infração à legislação administrativa ~~somente~~ se opera pela notificação ou citação do indiciado ou executado, inclusive por meio de edital **, entre outras hipóteses**.\nd) ✔ correta (gabarito).\ne) O poder de polícia ~~é sempre vinculado, não sendo~~ **é, em regra, discricionário, sendo** possível reconhecer ao administrador o poder de escolher o melhor momento de sua atuação ou a sanção mais adequada no caso concreto~~, mesmo~~ quando há previsão legal de duas ou mais sanções para determinada infração.",
+     "fonte": "Fonte: STF, Tema 532/RG (a: capital majoritariamente público, serviço próprio do Estado, regime não concorrencial); STJ, Temas 330 (b) e 327 (c); doutrina citada no comentário (e)."},
+
+    {"pagina": 63, "ultima": 66,
+     "correcao": "a) É ~~vedado~~ **permitido** ao militar da ativa aceitar convites como o descrito na narrativa.\nb) ✔ correta (gabarito): será agregado, podendo ser promovido somente por antiguidade.\nc) Caso aceite o convite~~ e conte com menos de dez anos de serviço~~, será ~~transferido para a reserva~~ **agregado ao respectivo quadro**.\nd) Caso aceite o convite~~ e conte com menos de dez anos de serviço~~, será agregado, ~~não~~ podendo ser promovido **somente por antiguidade**.\ne) Caso aceite o convite, ~~deve ser transferido para a inatividade, se o seu tempo de serviço o permitir, ou exonerado~~ **ficará agregado e só será transferido para a inatividade depois de dois anos de afastamento**.",
+     "fonte": "Fonte: Constituição do Estado de Minas Gerais, art. 39, § 4º."}
+  ]
+}

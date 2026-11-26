@@ -44,7 +44,12 @@ página); a caixa da correção fica em tamanho normal.
 1. Leia o caderno (índice + texto de cada questão com `pdftotext -layout`) e
    anote, para cada questão: página inicial, páginas onde está a lei seca,
    enunciado, gabarito e o trecho do comentário que justifica a troca.
-2. Monte o `correcoes.json` no formato de `exemplo_correcoes.json`.
+2. Monte o `correcoes.json` no formato de `exemplo_correcoes.json`. Campos:
+   `pagina` (primeira página da questão no caderno) e `ultima` (última
+   página dela, antes da próxima questão); o script acha sozinho o fim do
+   enunciado/alternativas ("POR QUE O GABARITO") e o quadro de lei seca,
+   mesmo quando atravessam páginas. Em múltipla escolha, use `\n` para pôr
+   uma alternativa por linha na caixa.
 3. Gere o PDF:
 
    ```bash
@@ -55,6 +60,22 @@ página); a caixa da correção fica em tamanho normal.
 4. Renderize uma página (`pdftoppm -r 80 -png`) e olhe antes de entregar.
 5. Entregue o PDF e, na resposta, uma tabela de conferência:
    questão | trecho original → corrigido | fonte.
+
+## Filtrar por cor de marcação ("as marcadas de azul")
+
+O usuário marca o caderno no leitor de PDF (Edge), que grava traços como
+anotações Ink anexadas ao fim do arquivo. Quando ele pedir só as questões de
+uma cor:
+
+1. Ache o arquivo marcado (ele pode estar só no PC: use o Desktop Commander e
+   procure em Downloads pelo nome e data).
+2. Leia as anotações `/Subtype /Ink` com sua cor `/C` (azul = `0 0 1`,
+   vermelho = `1 0 0`) e a página de cada uma.
+3. Questão escolhida = traço da cor pedida em volta do selo do número
+   (canto superior esquerdo da primeira página da questão). Sublinhados no
+   meio do texto não contam.
+4. Para os traços aparecerem no PDF reduzido, recrie-os na cópia local
+   (`add_ink_annot`) e achate com `doc.bake()` antes de rodar o script.
 
 ## Limites do script
 

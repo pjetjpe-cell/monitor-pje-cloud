@@ -41,6 +41,7 @@ LEFT = (W - TW) / 2
 
 
 def markup(t):
+    t = t.replace('\n', '<br>')
     t = re.sub(r'~~(.+?)~~', lambda m: DEL % m.group(1), t)
     return re.sub(r'\*\*(.+?)\*\*', lambda m: INS % m.group(1), t)
 
@@ -49,32 +50,51 @@ def tx(x):
     return LEFT + (x - X0) * S
 
 
-def stmt_bottom(p):
-    for dr in p.get_drawings():
-        f = dr.get('fill')
-        if f and all(abs(a - b) < 0.004 for a, b in zip(f, STMT_FILL)) \
-                and dr['rect'].width > 300 and dr['rect'].y0 > 120:
-            return dr['rect'].y1
-    raise RuntimeError('enunciado não encontrado na página %d' % (p.number + 1))
-
-
 def frame_bottom(p):
     ys = [dr['rect'].y1 for dr in p.get_drawings()
           if dr.get('color') and dr['rect'].width > 500 and dr['rect'].height > 100]
     return max(ys) if ys else p.rect.height - 10
 
 
-def lei_seca(pages):
+def find(pages, label, after=None):
+    """primeira ocorrência de label (página, y) nas páginas, depois de 'after'"""
     for pno in pages:
-        p = src[pno]
-        r = p.search_for('LEI SECA / PRECEDENTE')
-        if not r:
-            continue
-        nxt = [x.y0 for h in HEADS for x in p.search_for(h) if x.y0 > r[0].y1]
-        lim = (min(nxt) - 4) if nxt else frame_bottom(p)
-        ys = [bl[3] for bl in p.get_text('blocks') if bl[1] > r[0].y1 and bl[3] < lim]
-        return pno, r[0].y0 - 10, min(lim, (max(ys) if ys else r[0].y1) + 16)
+        for r in src[pno].search_for(label):
+            if after is None or (pno, r.y0) > after:
+                return pno, r.y0
     return None
+
+
+def flow(pages, start, end):
+    """fatias (página, y0, y1) do ponto start até o ponto end, atravessando páginas"""
+    out = []
+    for pno in pages:
+        if pno < start[0] or (end and pno > end[0]):
+            continue
+        y0 = start[1] if pno == start[0] else 44
+        y1 = end[1] if (end and pno == end[0]) else frame_bottom(src[pno]) - 4
+        if y1 - y0 > 6:
+            out.append((pno, y0, y1))
+    return out
+
+
+def tidy(sl):
+    """apara o branco no fim de cada fatia e descarta fatias sem texto"""
+    out = []
+    for pno, y0, y1 in sl:
+        ys = [b[3] for b in src[pno].get_text('blocks') if b[3] > y0 + 2 and b[1] < y1]
+        if ys:
+            out.append((pno, y0, min(y1, max(ys) + 14)))
+    return out
+
+
+def trim_tail(sl):
+    """corta o branco depois do último texto da última fatia"""
+    pno, y0, y1 = sl[-1]
+    ys = [bl[3] for bl in src[pno].get_text('blocks') if bl[1] >= y0 and bl[3] <= y1]
+    if ys:
+        sl[-1] = (pno, y0, min(y1, max(ys) + 16))
+    return sl
 
 
 out = pymupdf.open()
@@ -102,33 +122,84 @@ def stretch(pg, y, h, pno, row):
 
 pg = new_page()
 y = TOP
+seg_top = None
+
+
+def ensure(h):
+    """garante espaço h na página; abre página nova e fecha a moldura se preciso"""
+    global pg, y, seg_top
+    if y + h > BOTTOM and y > TOP:
+        if seg_top is not None:
+            pg.draw_rect(pymupdf.Rect(LEFT - 1, seg_top, LEFT + TW + 1, y), color=(0.80, 0.83, 0.87), width=0.8)
+        pg = new_page()
+        y = TOP
+        if seg_top is not None:
+            seg_top = y
+
+
+def cut_points(pno, c0, c1):
+    """pontos de corte seguros: meio do espaço entre blocos de texto consecutivos"""
+    bl = sorted((b[1], b[3]) for b in src[pno].get_text('blocks') if b[3] > c0 and b[1] < c1)
+    pts, reach = [], c0
+    for i, (t, b) in enumerate(bl):
+        if i and t > reach + 2:
+            pts.append((reach + t) / 2)
+        reach = max(reach, b)
+    return pts
+
+
+def put(pno, c0, c1):
+    """coloca a fatia, dividindo-a entre blocos de texto se não couber na página"""
+    global y
+    while True:
+        h = (c1 - c0) * S
+        if y + h <= BOTTOM:
+            pg.draw_rect(pymupdf.Rect(LEFT, y, LEFT + TW, y + h), color=None, fill=CREAM)
+            y += place(pg, y, pno, c0, c1)
+            return
+        lim = c0 + (BOTTOM - y) / S
+        cuts = [c for c in cut_points(pno, c0, c1) if c0 + 30 < c <= lim]
+        if cuts:
+            c = max(cuts)
+            pg.draw_rect(pymupdf.Rect(LEFT, y, LEFT + TW, y + (c - c0) * S), color=None, fill=CREAM)
+            y += place(pg, y, pno, c0, c)
+            c0 = c
+        ensure(10 ** 6)   # página nova
+
+
 for q in cfg['questoes']:
     first = q['pagina'] - 1
-    a0, a1 = 44, stmt_bottom(src[first]) + 6
+    last = q.get('ultima', q['pagina']) - 1
+    pages = list(range(first, last + 1))
+    pq = find(pages, 'POR QUE O GABARITO')
+    enun = tidy(flow(pages, (first, 44), (pq[0], pq[1] - 8) if pq else None))
+    ls0 = find(pages, 'LEI SECA / PRECEDENTE')
+    lei = []
+    if ls0:
+        nxt = [h for h in (find(pages, t, ls0) for t in HEADS if t != 'POR QUE O GABARITO') if h]
+        end = min(nxt) if nxt else None
+        lei = tidy(flow(pages, (ls0[0], ls0[1] - 10), (end[0], end[1] - 4) if end else None))
     html = ('<div class="box"><div class="t">⚡ CORREÇÃO TURBO</div><div class="s">%s</div>'
             '<div class="n">%s</div></div>') % (markup(q['correcao']), q.get('fonte', ''))
     tmp = pymupdf.open().new_page(width=W, height=H)
-    spare, _ = tmp.insert_htmlbox(pymupdf.Rect(tx(64.5), 0, tx(531.7), 400), html, css=CSS)
-    bh, gap = 400 - spare + 6, 7
-    ls = lei_seca([n - 1 for n in q.get('paginas_lei_seca', [q['pagina']])])
-    lh = (ls[2] - ls[1]) * S if ls else 0
-    need = (a1 - a0) * S + bh + 2 * gap + lh + 12
-    if y + need > BOTTOM and y > TOP:
-        pg = new_page()
-        y = TOP
-    y0 = y
-    pg.draw_rect(pymupdf.Rect(LEFT, y, LEFT + TW, y + need - 12), color=None, fill=CREAM)
-    y += place(pg, y, first, a0, a1)
-    stretch(pg, y, bh + 2 * gap, first, a1 - 0.5)
+    spare, _ = tmp.insert_htmlbox(pymupdf.Rect(tx(64.5), 0, tx(531.7), 700), html, css=CSS)
+    bh, gap = 700 - spare + 6, 7
+    ensure(min((enun[0][2] - enun[0][1]) * S, 160))
+    seg_top = y
+    for pno, c0, c1 in enun:
+        put(pno, c0, c1)
+    ensure(bh + 2 * gap)
+    pg.draw_rect(pymupdf.Rect(LEFT, y, LEFT + TW, y + bh + 2 * gap), color=None, fill=CREAM)
     pg.insert_htmlbox(pymupdf.Rect(tx(64.5), y + gap, tx(531.7), y + gap + bh + 20), html, css=CSS)
     y += bh + 2 * gap
-    if ls:
-        y += place(pg, y, *ls)
-    stretch(pg, y, 6, first, a1 - 0.5)
+    for pno, c0, c1 in lei:
+        put(pno, c0, c1)
+    pg.draw_rect(pymupdf.Rect(LEFT, y, LEFT + TW, y + 6), color=None, fill=CREAM)
     y += 6
-    pg.draw_rect(pymupdf.Rect(LEFT - 1, y0, LEFT + TW + 1, y), color=(0.80, 0.83, 0.87), width=0.8)
+    pg.draw_rect(pymupdf.Rect(LEFT - 1, seg_top, LEFT + TW + 1, y), color=(0.80, 0.83, 0.87), width=0.8)
+    seg_top = None
     y += 14
-    print('pág. %d ok — lei seca %s' % (q['pagina'], 'encontrada' if ls else 'NÃO encontrada'))
+    print('pág. %d ok — enunciado em %d parte(s), lei seca %s' % (q['pagina'], len(enun), ('em %d parte(s)' % len(lei)) if lei else 'NÃO encontrada'))
 
 out.save(OUT, garbage=3, deflate=True)
 print('páginas:', len(out))
