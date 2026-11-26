@@ -36,6 +36,7 @@ Este projeto inclui 10 skills especializadas. Use `/nome-da-skill` para invocar:
 | Skill | Descrição |
 |-------|-----------|
 | `/pje-certidoes` | Certidões e atos ordinatórios no modelo da casa, lançados no PJe. **Salvar sempre** e conferir que salvou; só certidão de tramitação regular pode ser assinada |
+| `/pje-ata-juri` | Lança a ata da sessão do júri: audiência como realizada, anexa "Ata de Julgamento" pelo editor de texto e **salva** (confere "Rascunho salvo em") |
 
 As três skills GAV se apoiam nos CLIs de `ferramentas/` (ver `ferramentas/README.md`), que
 fazem o trabalho mecânico de forma determinística e **conferem o resultado**
