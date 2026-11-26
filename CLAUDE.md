@@ -8,7 +8,7 @@ Monitor de disponibilidade e performance dos sistemas PJe do CNJ, permitindo aco
 
 ## Skills Disponíveis
 
-Este projeto inclui 10 skills especializadas. Use `/nome-da-skill` para invocar:
+Este projeto inclui 11 skills especializadas. Use `/nome-da-skill` para invocar:
 
 | Skill | Descrição |
 |-------|-----------|
@@ -22,6 +22,7 @@ Este projeto inclui 10 skills especializadas. Use `/nome-da-skill` para invocar:
 | `/document-skills` | PDF, DOCX, XLSX, PPTX — leitura e geração |
 | `/code-reviewer` | Code review sistemático com severidade |
 | `/deep-research` | Pesquisa multi-fonte com verificação adversarial |
+| `/reducao-questoes` | Redução das questões erradas: enunciado + correção turbo (tachado vermelho → negrito azul) + lei seca |
 
 ### Esteira GAV (distrato de multipropriedade)
 

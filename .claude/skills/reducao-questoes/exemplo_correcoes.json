@@ -1,0 +1,11 @@
+{
+  "titulo": "CORREÇÃO TURBO • DIREITO ADMINISTRATIVO (PC-MA)",
+  "questoes": [
+    {"pagina": 3, "paginas_lei_seca": [3, 4, 5],
+     "correcao": "O prazo de interposição de recurso e contrarrazões é ~~comum~~ **sucessivo** às licitantes interessadas, sendo de~~, no mínimo,~~ três dias ~~úteis~~ **corridos**, a contar da divulgação do resultado de julgamento do certame.",
+     "fonte": "Fonte: comentário da questão (3 equívocos: “no mínimo”, “dias úteis” e “comum”). ⚠ Regime atual: a Lei 10.520/02 foi revogada; na Lei 14.133/21 (art. 165) o recurso é de 3 dias <b>úteis</b>."},
+    {"pagina": 6, "paginas_lei_seca": [6, 7],
+     "correcao": "O aporte de bem de uso comum no fundo garantidor de parcerias público-privadas ~~independe~~ **depende** de sua desafetação.",
+     "fonte": "Fonte: art. 16, § 7º, da Lei 11.079/2004."}
+  ]
+}
